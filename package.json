@@ -1,0 +1,109 @@
+{
+  "name": "scrummer",
+  "displayName": "scrummer",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:Scrummer.addClickUpToken",
+    "onCommand:Scrummer.addTask",
+    "onCommand:Scrummer.deleteClickUpToken",
+    "onCommand:Scrummer.deleteTask",
+    "onCOmmand:Scrummer.editClickUpToken",
+    "onCommand:Scrummer.editTask",
+    "onCommand:Scrummer.helloWorld"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "Scrummer.addClickUpToken",
+        "category": "Scrummer",
+        "title": "Add Click Up Token"
+      },
+      {
+        "command": "Scrummer.addTask",
+        "category": "Scrummer",
+        "title": "Add Task"
+      },
+      {
+        "command": "Scrummer.deleteClickUpToken",
+        "category": "Scrummer",
+        "title": "Delete Click Up Token"
+      },
+      {
+        "command": "Scrummer.deleteTask",
+        "category": "Scrummer",
+        "title": "Delete Task"
+      },
+      {
+        "command": "Scrummer.editClickUpToken",
+        "category": "Scrummer",
+        "title": "Edit Click Up Token"
+      },
+      {
+        "command": "Scrummer.editTask",
+        "category": "Scrummer",
+        "title": "Edit Task"
+      },
+      {
+        "command": "Scrummer.helloWorld",
+        "category": "Scrummer",
+        "title": "Hello World"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "Scrummer-Views-Containers",
+          "title": "Scrummer",
+          "icon": "media/to_do_list.svg"
+        }
+      ]
+    },
+    "views": {
+      "Scrummer-Views-Containers": [
+        {
+          "id": "To-Do-items",
+          "name": "To Do Items"
+        },
+        {
+          "id": "Complete-Items",
+          "name": "Complete Items"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.71.0",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "eslint": "^8.20.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.4",
+    "ts-loader": "^9.3.1",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "@vscode/test-electron": "^2.1.5"
+  }
+}
