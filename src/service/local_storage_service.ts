@@ -1,8 +1,10 @@
 import { Memento } from "vscode";
 
-export class LocalStorageService {
-  constructor(private storage: Memento) {
-    this.storage = storage;
+class LocalStorageService {
+  storage: Memento;
+
+  constructor(private memento: Memento) {
+    this.storage = memento;
   }
 
   public async deleteValue(key: string) {
@@ -20,3 +22,5 @@ export class LocalStorageService {
     await this.storage.update(key, value);
   }
 }
+
+export { LocalStorageService };

@@ -1,5 +1,5 @@
-import { getAddNewTaskView, getEditTaskView } from "./html/add_new_task";
 import { LocalStorageService } from "./service/local_storage_service";
+import { WebViewService } from "./service/web_view_service";
 import * as vscode from "vscode";
 
 async function activate(context: vscode.ExtensionContext) {
@@ -56,30 +56,9 @@ async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand("Scrummer.addTask", async () => {
-		try {
-			let webPanel: vscode.WebviewPanel = vscode.window.createWebviewPanel(
-				"Scrummer.webPanel",
-				"Add new task",
-				vscode.ViewColumn.One,
-				{
-					enableScripts: true
-				}
-			);
-
-			webPanel.webview.html = getAddNewTaskView();
-			webPanel.webview.onDidReceiveMessage((message) => {
-				console.log(message);
-			});
-		}
-		catch(e) {
-			console.log(e);
-
-			let result: string | undefined = await vscode.window.showErrorMessage("Something wrong happen...", ...["Reload ?"]).then((result) => result);
-
-			if(result === undefined) { return; }
-
-			vscode.commands.executeCommand("workbench.action.reloadWindow");
-		}
+		new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], (message) => {
+			console.log(message);
+		});
 	});
 
 	vscode.commands.registerCommand("Scrummer.deleteTask", () => {
@@ -87,7 +66,9 @@ async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand("Scrummer.editTask", () => {
-		vscode.window.showInformationMessage("Editing Task...");
+		new WebViewService(context, ["html", "edit_task", "edit_task.html"], (message) => {
+			console.log(message);
+		});
 	});
 
 	vscode.commands.registerCommand("Scrummer.hello", () => {
