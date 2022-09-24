@@ -1,9 +1,8 @@
+import { getAddNewTaskView, getEditTaskView } from "./html/add_new_task";
 import { LocalStorageService } from "./service/local_storage_service";
-import { deleteClickUpToken, getClickUpToken } from "./utils/click_up_utils";
 import * as vscode from "vscode";
-import { resourceLimits } from "worker_threads";
 
-export async function activate(context: vscode.ExtensionContext) {
+async function activate(context: vscode.ExtensionContext) {
 	console.log("\"Scrummer\" is now active!");
 
 	// Initialization
@@ -17,7 +16,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showErrorMessage("No ClickUp Token!", ...["Add Click Up Token"]).then(async (result) => {
 			if(result === undefined) { return; }
 
-			let userToken: string | undefined = await getClickUpToken();
+			let userToken: string | undefined = await vscode.window.showInputBox({
+				placeHolder: "Please input your user token"
+			});
 
 			if(userToken === "") { return vscode.window.showErrorMessage("Please input your Click Up Token to use Scrummer"); }
 
@@ -27,27 +28,60 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Command function
 	vscode.commands.registerCommand("Scrummer.addClickUpToken", async () => {
-		let userToken: string | undefined = await getClickUpToken();
+		let userToken: string | undefined = await vscode.window.showInputBox({
+			placeHolder: "Please input our user token"
+		});
 
-		if(userToken === "") { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
+		if(userToken === undefined || userToken === "") { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
 
 		storageService.setValue("token", userToken);
 	});
 
 	vscode.commands.registerCommand("Scrummer.deleteClickUpToken", async () => {
-		let result: string | undefined = await deleteClickUpToken();
+		let result: string | undefined = await vscode.window.showInformationMessage("Do you really want to delete your token?", ...["Yes", "No"]).then((result) => result);
 
 		if(result === undefined || result === "No") { return; }
 
 		storageService.deleteValue("token");
 	});
 
-	vscode.commands.registerCommand("Scrummer.editClickUpToken", () => {
-		vscode.window.showInformationMessage("Editing Click Up token...");
+	vscode.commands.registerCommand("Scrummer.editClickUpToken", async () => {
+		let userToken: string | undefined = await vscode.window.showInputBox({
+			placeHolder: "Please input a new user token"
+		});
+
+		if(userToken === undefined || userToken === "") { return; }
+
+		storageService.setValue("token", userToken);
 	});
 
-	vscode.commands.registerCommand("Scrummer.addTask", () => {
+	vscode.commands.registerCommand("Scrummer.addTask", async () => {
 		vscode.window.showInformationMessage("Adding Task...");
+
+		try {
+			let webPanel: vscode.WebviewPanel = vscode.window.createWebviewPanel(
+				"Scrummer.webPanel",
+				"Add new task",
+				vscode.ViewColumn.One,
+				{
+					enableScripts: true
+				}
+			);
+
+			webPanel.webview.html = getAddNewTaskView();
+			webPanel.webview.onDidReceiveMessage((message) => {
+				console.log(message);
+			});
+		}
+		catch(e) {
+			console.log(e);
+
+			let result: string | undefined = await vscode.window.showErrorMessage("Something wrong happen...", ...["Reload ?"]).then((result) => result);
+
+			if(result === undefined) { return; }
+
+			vscode.commands.executeCommand("workbench.action.reloadWindow");
+		}
 	});
 
 	vscode.commands.registerCommand("Scrummer.deleteTask", () => {
@@ -55,7 +89,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand("Scrummer.editTask", () => {
-		vscode.window.showInformationMessage("Editing Task...")
+		vscode.window.showInformationMessage("Editing Task...");
 	});
 
 	vscode.commands.registerCommand("Scrummer.hello", () => {
@@ -65,4 +99,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 }
 
-export function deactivate() {}
+function deactivate() {}
+
+export { activate, deactivate };
