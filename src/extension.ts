@@ -50,8 +50,18 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage("Adding Task...");
 	});
 
+	vscode.commands.registerCommand("Scrummer.deleteTask", () => {
+		vscode.window.showInformationMessage("Deleting Task...");
+	});
+
+	vscode.commands.registerCommand("Scrummer.editTask", () => {
+		vscode.window.showInformationMessage("Editing Task...")
+	});
+
 	vscode.commands.registerCommand("Scrummer.hello", () => {
 		vscode.window.showInformationMessage("Hello from Scrummer!");
+
+		console.log(token);
 	});
 }
 
