@@ -11,12 +11,12 @@
   ],
   "activationEvents": [
     "onCommand:Scrummer.addClickUpToken",
-    "onCommand:Scrummer.addTask",
     "onCommand:Scrummer.deleteClickUpToken",
-    "onCommand:Scrummer.deleteTask",
     "onCOmmand:Scrummer.editClickUpToken",
+    "onCommand:Scrummer.addTask",
+    "onCommand:Scrummer.deleteTask",
     "onCommand:Scrummer.editTask",
-    "onCommand:Scrummer.helloWorld"
+    "onCommand:Scrummer.hello"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -27,19 +27,9 @@
         "title": "Add Click Up Token"
       },
       {
-        "command": "Scrummer.addTask",
-        "category": "Scrummer",
-        "title": "Add Task"
-      },
-      {
         "command": "Scrummer.deleteClickUpToken",
         "category": "Scrummer",
         "title": "Delete Click Up Token"
-      },
-      {
-        "command": "Scrummer.deleteTask",
-        "category": "Scrummer",
-        "title": "Delete Task"
       },
       {
         "command": "Scrummer.editClickUpToken",
@@ -47,12 +37,22 @@
         "title": "Edit Click Up Token"
       },
       {
+        "command": "Scrummer.addTask",
+        "category": "Scrummer",
+        "title": "Add Task"
+      },
+      {
+        "command": "Scrummer.deleteTask",
+        "category": "Scrummer",
+        "title": "Delete Task"
+      },
+      {
         "command": "Scrummer.editTask",
         "category": "Scrummer",
         "title": "Edit Task"
       },
       {
-        "command": "Scrummer.helloWorld",
+        "command": "Scrummer.hello",
         "category": "Scrummer",
         "title": "Hello World"
       }
