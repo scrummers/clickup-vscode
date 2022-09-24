@@ -54,7 +54,7 @@
       {
         "command": "Scrummer.hello",
         "category": "Scrummer",
-        "title": "Hello World"
+        "title": "Hello"
       }
     ],
     "viewsContainers": {
@@ -62,7 +62,7 @@
         {
           "id": "Scrummer-Views-Containers",
           "title": "Scrummer",
-          "icon": "resources/media/to_do_list.svg"
+          "icon": "media/to_do_list.svg"
         }
       ]
     },

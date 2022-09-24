@@ -56,8 +56,6 @@ async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand("Scrummer.addTask", async () => {
-		vscode.window.showInformationMessage("Adding Task...");
-
 		try {
 			let webPanel: vscode.WebviewPanel = vscode.window.createWebviewPanel(
 				"Scrummer.webPanel",

@@ -5,15 +5,28 @@ function getAddNewTaskView(): string {
       </head>
       <body>
         <h1>Add New Task</h1>
-        <button onClick="testing()">Add Task</button>
+        <div>
+          <label for="task_name">Task name:</label>
+          <input type="text" id="input_task_name" name="input_task_name">
+          <br><br>
+          <label for="issue">Issue:</label>
+          <input type="text" id="input_issue" name="input_issue">
+          <br><br>
+          <button onClick="testing()">Add Task</button>
+        </div>
         <script>
           const vscode = acquireVsCodeApi();
 
           function testing() {
-            console.log("hi");
+            const input_task_name = document.getElementById("input_task_name");
+            const input_issue = document.getElementById("input_issue");
+
             vscode.postMessage({
               command: "addTask",
-              text: "hi"
+              data: {
+                taskName: "",
+                issue: ""
+              }
             });
           }
         </script>
