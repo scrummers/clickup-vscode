@@ -3,8 +3,8 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 class WebViewService{
-  htmlFile: string;
-  panel: vscode.WebviewPanel;
+  private htmlFile: string;
+  private panel: vscode.WebviewPanel;
 
   constructor(context: vscode.ExtensionContext, webPath: string[], receiveMessageFunction: (...args: any[]) => void) {
     this.htmlFile = path.join(...[context.extensionPath].concat(webPath));
