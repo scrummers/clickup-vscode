@@ -10,28 +10,35 @@ class ClickUpService {
 
   constructor(storageService: LocalStorageService) {
     this.storageService = storageService;
-    this.getUserToken().then((value) => {
-      this.userToken = value;
+  }
 
-      // Prompt user to input his/her token if the token is undefined
-      if (this.userToken === undefined) {
-        vscode.window.showErrorMessage("No Click Up Token!", ...["Add Click Up Token"]).then(async (result) => {
-          if (result === undefined) { return; }
+  public async setup(): Promise<boolean> {
+    this.userToken = await this.getUserToken();
 
-          let token: string | undefined = await vscode.window.showInputBox({
-            placeHolder: "Please input your user token"
-          });
+    // Prompt user to input his/her token if the token is undefined
+    if (this.userToken === undefined) {
+      vscode.window.showErrorMessage("No Click Up Token!", ...["Add Click Up Token"]).then(async (result) => {
+        if (result === undefined) { return false; }
 
-          if(token === undefined || token === "") { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
-
-          // Update user token and setup API
-          this.userToken = token;
-          this.storageService.setValue("token", this.userToken);
-          this.clickUp = new Clickup(this.userToken);
+        let token: string | undefined = await vscode.window.showInputBox({
+          placeHolder: "Please input your user token"
         });
-      }
-      else { this.clickUp = new Clickup(this.userToken); }
-    }).catch((e) => console.log(e));
+
+        if (token === undefined || token === "") {
+          vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer");
+
+          return false;
+        }
+
+        // Update user token and setup API
+        this.userToken = token;
+        this.storageService.setValue("token", this.userToken);
+        this.clickUp = new Clickup(this.userToken);
+      });
+    }
+    else { this.clickUp = new Clickup(this.userToken); }
+
+    return true;
   }
 
   // Checking
@@ -52,6 +59,8 @@ class ClickUpService {
   }
 
   public checkUserToken() {
+    console.log(`ClickUpService - checkUserToken: ${this.userToken}`);  // Debug
+
     if(this.userToken === undefined) {
       return vscode.window.showErrorMessage("Please add your Click Up token to use Scrummer", ...["Add Click Up Token"]).then(async (result) => {
         if(result === undefined) { return; }
@@ -84,12 +93,12 @@ class ClickUpService {
   }
 
   // ClickUp features
-  public async createClickUp(target: string) {
+  public createClickUp(target: string) {
     if(!this.checkAPI()) { return; }
 
     switch(target) {
       default:
-        return vscode.window.showWarningMessage(`ClickUpService - Create: Unknown target - "${target}"...`);
+        return vscode.window.showWarningMessage(`ClickUpService - Create: Unknown target - "${target}"`);
     }
   }
 
@@ -100,14 +109,14 @@ class ClickUpService {
       case "Teams":
         try {
           let { body } = await this.clickUp.teams.get();
-          console.log(body);
+          return body;
         }
         catch(error) { console.error(error); }
         break;
       case "Spaces":
         break;
       default:
-        return vscode.window.showWarningMessage(`ClickUpService - Get: Unknown target - "${target}"...`);
+        return console.log(`ClickUpService - Get: Unknown target - "${target}"`);
     }
   }
 }

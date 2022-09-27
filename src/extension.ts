@@ -1,5 +1,6 @@
 import { ClickUpService } from "./service/click_up_service";
 import { LocalStorageService } from "./service/local_storage_service";
+import { TreeViewService } from "./service/tree_view_service";
 import { WebViewService } from "./service/web_view_service";
 import * as vscode from "vscode";
 
@@ -9,6 +10,16 @@ async function activate(context: vscode.ExtensionContext) {
 	// Initialization
 	let storageService: LocalStorageService = new LocalStorageService(context.workspaceState);
 	let clickUpService: ClickUpService = new ClickUpService(storageService);
+
+	await clickUpService.setup().then(async (result) => {
+		console.log(`ClickUpService - setup: ${result}`);	// Debug
+
+		if(!result) { return vscode.window.showErrorMessage("Scrummer - Setup failed!"); }
+
+		let toDoViewService: TreeViewService = new TreeViewService(await clickUpService.getClickUp("Teams"));
+
+		await vscode.window.registerTreeDataProvider("To-Do-items", toDoViewService);
+	});
 
 	// Command function
 	vscode.commands.registerCommand("Scrummer.addClickUpToken", async () => {
@@ -54,6 +65,7 @@ async function activate(context: vscode.ExtensionContext) {
 
 		console.log(storageService);
 		console.log(clickUpService);
+		// console.log(treeViewService);
 	});
 
 	vscode.commands.registerCommand("Scrummer.testing", () => {
