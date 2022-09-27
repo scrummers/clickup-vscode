@@ -22,11 +22,11 @@ class WebViewService{
       if (error) {
         console.error(error);
 
-        let result: string | undefined = await vscode.window.showErrorMessage("Something wrong happen...", ...["Reload ?"]).then((result) => result);
+        await vscode.window.showErrorMessage("Something wrong happen...", ...["Reload ?"]).then((result) => {
+          if(result === undefined) { return; }
 
-        if (result === undefined) { return; }
-
-        vscode.commands.executeCommand("workbench.action.reloadWindow");
+          vscode.commands.executeCommand("workbench.action.reloadWindow");
+        });
       }
 
       this.panel.webview.html = data.toString();

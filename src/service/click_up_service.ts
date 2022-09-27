@@ -111,7 +111,7 @@ class ClickUpService {
           let { body } = await this.clickUp.teams.get();
           return body;
         }
-        catch(error) { console.error(error); }
+        catch(error) { console.error(`error: ${error}`); }
         break;
       case "Spaces":
         break;
