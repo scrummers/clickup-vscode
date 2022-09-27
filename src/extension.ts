@@ -12,31 +12,23 @@ async function activate(context: vscode.ExtensionContext) {
 
 	// Command function
 	vscode.commands.registerCommand("Scrummer.addClickUpToken", async () => {
-		let userToken: string | undefined = await vscode.window.showInputBox({
-			placeHolder: "Please input our user token"
-		});
-
-		if(userToken === undefined || userToken === "") { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
-
-		clickUpService.setUserToken(userToken);
+		await vscode.window.showInputBox({
+			placeHolder: "Please input your user token"
+		}).then((userToken) => clickUpService.setUserToken(userToken));
 	});
 
 	vscode.commands.registerCommand("Scrummer.deleteClickUpToken", async () => {
-		let result: string | undefined = await vscode.window.showInformationMessage("Do you really want to delete your token?", ...["Yes", "No"]).then((result) => result);
+		await vscode.window.showInformationMessage("Do you really want to delete your token?", ...["Yes", "No"]).then((result) => {
+			if(result === undefined || result === "No") { return; }
 
-		if(result === undefined || result === "No") { return; }
-
-		clickUpService.deleteUserToken();
+			clickUpService.deleteUserToken();
+		});
 	});
 
 	vscode.commands.registerCommand("Scrummer.editClickUpToken", async () => {
-		let userToken: string | undefined = await vscode.window.showInputBox({
+		await vscode.window.showInputBox({
 			placeHolder: "Please input a new user token"
-		});
-
-		if(userToken === undefined || userToken === "") { return; }
-
-		storageService.setValue("token", userToken);
+		}).then((userToken) => clickUpService.setUserToken(userToken));
 	});
 
 	vscode.commands.registerCommand("Scrummer.addTask", async () => {
@@ -63,8 +55,15 @@ async function activate(context: vscode.ExtensionContext) {
 		console.log(storageService);
 		console.log(clickUpService);
 	});
+
+	vscode.commands.registerCommand("Scrummer.testing", () => {
+		clickUpService.getClickUp("Teams");
+	});
 }
 
 function deactivate() {}
 
-export { activate, deactivate };
+export {
+	activate,
+	deactivate
+};
