@@ -18,7 +18,7 @@ async function activate(context: vscode.ExtensionContext) {
 
 		let toDoViewService: TreeViewService = new TreeViewService(await clickUpService.getClickUp("Teams"));
 
-		await vscode.window.registerTreeDataProvider("Today Tasks", toDoViewService);
+		await vscode.window.registerTreeDataProvider("Today-Tasks", toDoViewService);
 	});
 
 	// Command function
