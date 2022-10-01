@@ -76,12 +76,12 @@
     "views": {
       "Scrummer-Views-Containers": [
         {
-          "id": "To-Do-items",
-          "name": "To Do Items"
+          "id": "Today-Tasks",
+          "name": "Today Tasks"
         },
         {
-          "id": "Complete-Items",
-          "name": "Complete Items"
+          "id": "Complete-Tasks",
+          "name": "Complete Tasks"
         }
       ]
     }
