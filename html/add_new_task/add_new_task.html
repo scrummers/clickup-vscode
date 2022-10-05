@@ -14,6 +14,11 @@
   </div>
   <script>
     const vscode = acquireVsCodeApi();
+    window.addEventListener("message", (event) => {
+      const message = event.data;
+
+      console.log(message);
+    })
 
     function testing() {
       const input_task_name = document.getElementById("input_task_name");
@@ -22,8 +27,8 @@
       vscode.postMessage({
         command: "addTask",
         data: {
-          taskName: "",
-          issue: ""
+          taskName: input_task_name.value,
+          issue: input_issue.value
         }
       });
     }

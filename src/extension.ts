@@ -45,8 +45,10 @@ async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand("Scrummer.addTask", async () => {
 		if (clickUpService.userToken === undefined) { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
 
-		new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], (message) => {
-			console.log(message);
+		new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], "Add New Task", {
+			receiveMessageFunction: (message) => {
+				console.log(message);
+			}
 		});
 	});
 
@@ -55,9 +57,7 @@ async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand("Scrummer.editTask", () => {
-		new WebViewService(context, ["html", "edit_task", "edit_task.html"], (message) => {
-			console.log(message);
-		});
+		new WebViewService(context, ["html", "edit_task", "edit_task.html"], "Edit Task");
 	});
 
 	vscode.commands.registerCommand("Scrummer.hello", () => {
