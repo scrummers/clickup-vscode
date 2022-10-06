@@ -10,12 +10,12 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:Scrummer.addClickUpToken",
-    "onCommand:Scrummer.deleteClickUpToken",
-    "onCOmmand:Scrummer.editClickUpToken",
-    "onCommand:Scrummer.addTask",
-    "onCommand:Scrummer.deleteTask",
-    "onCommand:Scrummer.editTask",
+    "onCommand:clickup.setToken",
+    "onCommand:clickup.deleteToken",
+    "onCOmmand:clickup.updateToken",
+    "onCommand:clickup.addTask",
+    "onCommand:clickup.deleteTask",
+    "onCommand:clickup.editTask",
     "onCommand:Scrummer.hello",
     "onCommand:Scrummer.testing",
     "onStartupFinished"
@@ -24,33 +24,33 @@
   "contributes": {
     "commands": [
       {
-        "command": "Scrummer.addClickUpToken",
-        "category": "Scrummer",
-        "title": "Add Click Up Token"
+        "command": "clickup.setToken",
+        "category": "Click Up",
+        "title": "Set Click Up Token"
       },
       {
-        "command": "Scrummer.deleteClickUpToken",
-        "category": "Scrummer",
+        "command": "clickup.deleteToken",
+        "category": "Click Up",
         "title": "Delete Click Up Token"
       },
       {
-        "command": "Scrummer.editClickUpToken",
-        "category": "Scrummer",
+        "command": "clickup.updateToken",
+        "category": "Click Up",
         "title": "Edit Click Up Token"
       },
       {
-        "command": "Scrummer.addTask",
-        "category": "Scrummer",
+        "command": "clickup.addTask",
+        "category": "Click Up",
         "title": "Add Task"
       },
       {
-        "command": "Scrummer.deleteTask",
-        "category": "Scrummer",
+        "command": "clickup.deleteTask",
+        "category": "Click Up",
         "title": "Delete Task"
       },
       {
-        "command": "Scrummer.editTask",
-        "category": "Scrummer",
+        "command": "clickup.editTask",
+        "category": "Click Up",
         "title": "Edit Task"
       },
       {

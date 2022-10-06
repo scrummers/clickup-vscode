@@ -6,6 +6,14 @@ import { Uri } from "vscode";
 class WebViewService{
   private panel: vscode.WebviewPanel;
 
+  /**
+   * @param context vscode.ExtensionContext
+   * @param webPath string[] - path to HTML file
+   * @param webTitle string
+   * @param optional Object
+   *                  -> localResources: Uri[] - Uri to HTML resources files
+   *                  -> receiveMessageFunction: (...args: any[]) => void
+   */
   constructor(context: vscode.ExtensionContext, webPath: string[], webTitle: string, optional?: {
     localResources?: Uri[],
     receiveMessageFunction?: (...args: any[]) => void
@@ -32,7 +40,7 @@ class WebViewService{
       if(error) {
         console.error(error);
 
-        return await vscode.window.showErrorMessage("Something wrong happen...", ...["Reload ?"]).then((result) => {
+        return await vscode.window.showErrorMessage("Something wrong...", ...["Reload ?"]).then((result) => {
           if(result === undefined) { return; }
 
           vscode.commands.executeCommand("workbench.action.reloadWindow");
@@ -49,11 +57,17 @@ class WebViewService{
     }, null, context.subscriptions);
   }
 
-  public setReceiveMessageFunction(receiveMessageFunction: (...args: []) => void) {
+  /**
+   * @param receiveMessageFunction (...args: any[]) => void
+   */
+  public setReceiveMessageFunction(receiveMessageFunction: (...args: []) => void): void {
     this.panel.webview.onDidReceiveMessage(receiveMessageFunction);
   }
 
-  public postMessage(message: JSON) {
+  /**
+   * @param message JSON
+   */
+  public postMessage(message: JSON): void {
     this.panel.webview.postMessage(message);
   }
 }

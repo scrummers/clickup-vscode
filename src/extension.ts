@@ -1,3 +1,4 @@
+import { Commands } from "./commands";
 import { ClickUpService } from "./service/click_up_service";
 import { LocalStorageService } from "./service/local_storage_service";
 import { TreeViewService } from "./service/tree_view_service";
@@ -22,7 +23,7 @@ async function activate(context: vscode.ExtensionContext) {
 	});
 
 	// Command function
-	vscode.commands.registerCommand("Scrummer.addClickUpToken", async () => {
+	vscode.commands.registerCommand(Commands.ClickupSetToken, async () => {
 		await vscode.window.showInputBox({
 			placeHolder: "Please input your user token"
 		}).then((userToken) => clickUpService.setUserToken(userToken));
@@ -42,7 +43,7 @@ async function activate(context: vscode.ExtensionContext) {
 		}).then((userToken) => clickUpService.setUserToken(userToken));
 	});
 
-	vscode.commands.registerCommand("Scrummer.addTask", async () => {
+	vscode.commands.registerCommand(Commands.ClickupAddTask, async () => {
 		if (clickUpService.userToken === undefined) { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
 
 		new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], "Add New Task", {
@@ -52,11 +53,11 @@ async function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	vscode.commands.registerCommand("Scrummer.deleteTask", () => {
+	vscode.commands.registerCommand(Commands.ClickupDeleteTask, () => {
 		vscode.window.showInformationMessage("Deleting Task...");
 	});
 
-	vscode.commands.registerCommand("Scrummer.editTask", () => {
+	vscode.commands.registerCommand(Commands.ClickupEditTask, () => {
 		new WebViewService(context, ["html", "edit_task", "edit_task.html"], "Edit Task");
 	});
 
