@@ -17,7 +17,7 @@ async function activate(context: vscode.ExtensionContext) {
 
 		if(!result) { return vscode.window.showErrorMessage("Scrummer - Setup failed!"); }
 
-		let toDoViewService: TreeViewService = new TreeViewService(await clickUpService.getClickUp("Teams"));
+		let toDoViewService: TreeViewService = new TreeViewService(await clickUpService.teams?.getTeams());
 
 		await vscode.window.registerTreeDataProvider("Today-Tasks", toDoViewService);
 	});
@@ -69,8 +69,9 @@ async function activate(context: vscode.ExtensionContext) {
 		// console.log(treeViewService);
 	});
 
-	vscode.commands.registerCommand("Scrummer.testing", () => {
-		clickUpService.getClickUp("Teams");
+	vscode.commands.registerCommand("Scrummer.testing",  async () => {
+		const body =  await clickUpService.teams?.getTeams();
+		console.log(body);
 	});
 }
 
