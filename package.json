@@ -26,42 +26,71 @@
       {
         "command": "clickup.setToken",
         "category": "Click Up",
-        "title": "Set Click Up Token"
+        "title": "Set Click Up Token",
+        "icon": {
+          "light": "media/token_setup_light.svg",
+          "dark": "media/token_setup_dark.svg"
+        }
       },
       {
         "command": "clickup.deleteToken",
         "category": "Click Up",
-        "title": "Delete Click Up Token"
+        "title": "Delete Click Up Token",
+        "icon": {
+          "light": "media/token_delete_light.svg",
+          "dark": "media/token_delete_dark.svg"
+        }
       },
       {
         "command": "clickup.updateToken",
         "category": "Click Up",
-        "title": "Edit Click Up Token"
+        "title": "Edit Click Up Token",
+        "icon": {
+          "light": "media/token_setup_light.svg",
+          "dark": "media/token_setupt_dark.svg"
+        }
       },
       {
         "command": "clickup.addTask",
         "category": "Click Up",
-        "title": "Add Task"
+        "title": "Add Task",
+        "icon": {
+          "light": "media/task_add_light.svg",
+          "dark": "media/task_add_dark.svg"
+        }
       },
       {
         "command": "clickup.deleteTask",
         "category": "Click Up",
-        "title": "Delete Task"
+        "title": "Delete Task",
+        "icon": {
+          "light": "media/task_delete_light.svg",
+          "dark": "media/task_delete_dark.svg"
+        }
       },
       {
         "command": "clickup.editTask",
         "category": "Click Up",
-        "title": "Edit Task"
+        "title": "Edit Task",
+        "icon": {
+          "light": "media/task_edit_light.svg",
+          "dark": "media/task_edit_dark.svg"
+        }
       },
       {
         "command": "Scrummer.hello",
         "category": "Scrummer",
-        "title": "Hello"
+        "title": "Hello",
+        "icon": {
+          "light": "media/clickup_vscode_light.svg",
+          "dark": "media/clickup_vscode_dark.svg"
+        }
       },
       {
         "command": "Scrummer.testing",
         "category": "Scrummer Testing",
-        "title": "Testing"
+        "title": "Testing",
+        "icon": "${beaker}"
       }
     ],
     "viewsContainers": {
@@ -69,7 +98,7 @@
         {
           "id": "Scrummer-Views-Containers",
           "title": "Scrummer",
-          "icon": "media/to_do_list_light.svg"
+          "icon": "media/clickup_vscode_light.svg"
         }
       ]
     },
@@ -77,11 +106,13 @@
       "Scrummer-Views-Containers": [
         {
           "id": "Today-Tasks",
-          "name": "Today Tasks"
+          "name": "Today Tasks",
+          "icon": "media/tasks_today_light.svg"
         },
         {
           "id": "Complete-Tasks",
-          "name": "Complete Tasks"
+          "name": "Complete Tasks",
+          "icon": "media/tasks_completed_light.svg"
         }
       ]
     }
