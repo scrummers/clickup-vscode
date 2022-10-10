@@ -24,6 +24,7 @@ export type Space = {
   statuses: Status[]
   multiple_assignees: boolean
   features: {
+    priorities: any
     due_dates: {
       enabled: boolean
       start_date: boolean

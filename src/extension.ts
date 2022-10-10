@@ -70,8 +70,18 @@ async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.commands.registerCommand("Scrummer.testing",  async () => {
+		// For testing purposes and examples for each features
 		const body =  await clickUpService.teams?.getTeams();
-		console.log(body);
+		var space:any =  await clickUpService.teams?.getSpaces("31551016");
+		const user:any =  await clickUpService.list?.getMembers("211510805");
+		const status =  await clickUpService.list?.getStatus("211510805");
+		const folder =  await clickUpService.space?.getFolders("55543351");
+		const list =  await clickUpService.folder?.getLists("115759363");
+		const task =  await clickUpService.list?.getTasks("211510805");
+		const sp_space:any =  await clickUpService.space?.getSpace("55543351");
+		console.log(space[0].id);
+		console.log(user[0].username);
+		console.log(sp_space.id);
 	});
 }
 

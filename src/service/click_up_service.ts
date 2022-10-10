@@ -1,5 +1,5 @@
 const { Clickup } = require("clickup.js");
-import { User } from "../util/typings/clickup";
+import { User, Status, Space, Folder, List, Task} from "../util/typings/clickup";
 import { LocalStorageService } from "./local_storage_service";
 
 import * as vscode from "vscode";
@@ -128,8 +128,9 @@ class clickup_team {
     return body;
   } 
   public async getSpaces(teamId: string) {
-    const {body}  = await this.clickUp.teams.getSpaces(teamId);
-    return body;
+    var {body}  = await this.clickUp.teams.getSpaces(teamId);
+    var Space: Array<Space> = body.spaces;
+    return Space;
   }   
   public async createTeam(name: string) {
     const { body } = await this.clickUp.teams.create(name);
@@ -151,15 +152,18 @@ class clickup_space {
 
   public async getSpace(spaceId: string) {
     const {body}  = await this.clickUp.spaces.get(spaceId);
-    return body;
+    const space: Space= body;
+    return space;
   } 
   public async getFolders(spaceId: string) {
-    const {body}  = await this.clickUp.spaces.getFolders(spaceId);
-    return body;
+    var {body}  = await this.clickUp.spaces.getFolders(spaceId);
+    var folder: Array<Folder> = body.folders;
+    return folder;
   }
   public async getFolderLists(spaceId: string) {
-    const { body } = await this.clickUp.spaces.getFolderlessLists(spaceId);
-    return body.lists;
+    var { body } = await this.clickUp.spaces.getFolderlessLists(spaceId);
+    var lists: Array<List> = body.lists;
+    return lists;
   }  
   public async deleteSpace(spaceId: string) {
     const { body } = await this.clickUp.spaces.delete(spaceId);
@@ -172,11 +176,9 @@ class clickup_space {
     return body;
   }
   public async getTags(spaceId: string) {
-    /*
-    var { body } = await this.clickup.spaces.getTags(spaceId);
-    var tags: Array<Tag> = body.tags;
-    return tags;
-    */
+    var { body } = await this.clickUp.spaces.getTags(spaceId);
+    //var tags: Array<Tag> = body.tags;
+    return body.tags;
   }    
   public async getPriorities(spaceId: string) {
     var body = await this.getSpace(spaceId);
@@ -191,8 +193,9 @@ class clickup_folder {
   };
 
   public async getLists(folderId: string) {
-    const { body } = await this.clickUp.folders.getLists(folderId);
-    return body.lists;
+    var { body } = await this.clickUp.folders.getLists(folderId);
+    var lists: Array<List> = body.lists;
+    return lists;
   }
 }
 
@@ -203,38 +206,31 @@ class clickup_list {
   };
 
   public async getTasks(listId: string) {
-    /*
-    var { body } = await this.clickup.lists.getTasks(listId);
+    var { body } = await this.clickUp.lists.getTasks(listId);
     var tasks: Array<Task> = body.tasks;
     return tasks;
-    */
   }
 
   public async getMembers(listId: string) {
-    /*
     var { body } = await this.clickUp.lists.getMembers(listId);
-    var members: Array<Member> = body.members;
+    var members: Array<User> = body.members;
     return members;
-    */
   }
 
   public async getStatus(listId: string) {
-    /*
-    var { body } = await this.clickup.lists.get(listId);
-    var status: Array<Statuses> = body.statuses;
+    var { body } = await this.clickUp.lists.get(listId);
+    var status: Array<Status> = body.statuses;
     return status;
-    */
   }
+
   public async newTask(listId: string, data: any) {
     var { body } = await this.clickUp.lists.createTask(listId, data);
     return body;
   }
 
   public async countTasks(listId: string) {
-    /*
     var tasks = await this.getTasks(listId);
     return tasks.length === undefined ? 0 : tasks.length;
-    */
   } 
 }
 
