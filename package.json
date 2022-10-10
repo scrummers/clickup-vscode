@@ -27,28 +27,19 @@
         "command": "clickup.setToken",
         "category": "Click Up",
         "title": "Set Click Up Token",
-        "icon": {
-          "light": "media/token_setup_light.svg",
-          "dark": "media/token_setup_dark.svg"
-        }
+        "icon": "${key}"
       },
       {
         "command": "clickup.deleteToken",
         "category": "Click Up",
         "title": "Delete Click Up Token",
-        "icon": {
-          "light": "media/token_delete_light.svg",
-          "dark": "media/token_delete_dark.svg"
-        }
+        "icon": "${chrome-close}"
       },
       {
         "command": "clickup.updateToken",
         "category": "Click Up",
         "title": "Edit Click Up Token",
-        "icon": {
-          "light": "media/token_setup_light.svg",
-          "dark": "media/token_setupt_dark.svg"
-        }
+        "icon": "${edit}"
       },
       {
         "command": "clickup.addTask",
