@@ -7,8 +7,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 async function activate(context: vscode.ExtensionContext) {
-	console.log("\"Scrummer\" is now active!");
-
 	// Initialization
 	let storageService: LocalStorageService = new LocalStorageService(context.workspaceState);
 	let clickUpService: ClickUpService = new ClickUpService(storageService);
