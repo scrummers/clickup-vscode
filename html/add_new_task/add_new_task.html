@@ -1,47 +1,35 @@
 <html>
 <head>
+  <link rel="stylesheet" href="${style}"></style>
 </head>
 <body>
   <div id="new-task">
     <h1>{{title}}</h1>
-    <label for="task-name">Task name:</label>
-    <input type="text" id="input-task-name" name="input-task-name">
-    <br><br>
-    <label for="issue">Issue:</label>
-    <input type="text" id="input-issue" name="input-issue">
-    <br><br>
-    <button onClick="testing()">Add Task</button>
+    <div class="task-row">
+      <h3>Task Name:</h3>
+      <input v-model="task.taskName">
+    </div>
+    <div class="task-row">
+      <h3>Task Location:</h3>
+      <input v-model="task.taskLocation">
+    </div>
+    <div class="task-row">
+      <h3>Assign To:</h3>
+      <select v-model="task.assignTo">
+        <option value="">Everyone</option>
+        <option v-for="member in memberList">{{member}}</option>
+      </select>
+    </div>
+    <div class="task-row">
+      <h3>Description:</h3>
+      <textarea data-provide="markdown" rows="10" v-model="task.description"></textarea>
+    </div>
+    <div class="task-row">
+      <button v-on:click="addTask">Add Task</button>
+      <button v-on:click="resetTask">Reset</button>
+    </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script>
-    // Receive message from vscode
-    const vscode = acquireVsCodeApi();
-    window.addEventListener("message", (event) => {
-      const message = event.data;
-
-      console.log(message);
-    })
-
-    // vue.js
-    var app = new Vue({
-      el: "#new-task",
-      data: {
-        title: "Add New Task"
-      }
-    })
-
-    function testing() {
-      const input_task_name = document.getElementById("input-task-name");
-      const input_issue = document.getElementById("input-issue");
-
-      vscode.postMessage({
-        command: "addTask",
-        data: {
-          taskName: input_task_name.value,
-          issue: input_issue.value
-        }
-      });
-    }
-  </script>
+  <script src="${script}"></script>
 </body>
 </html>

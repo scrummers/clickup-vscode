@@ -3,6 +3,7 @@ import { ClickUpService } from "./service/click_up_service";
 import { LocalStorageService } from "./service/local_storage_service";
 import { TreeViewService } from "./service/tree_view_service";
 import { WebViewService } from "./service/web_view_service";
+import * as path from "path";
 import * as vscode from "vscode";
 
 async function activate(context: vscode.ExtensionContext) {
@@ -46,11 +47,20 @@ async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand(Commands.ClickupAddTask, async () => {
 		if (clickUpService.userToken === undefined) { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
 
-		new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], "Add New Task", {
+		let addTaskWebViewer = new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], "Add New Task", {
+			localResources: [vscode.Uri.file(path.join(context.extensionPath, "html", "add_new_task"))],
 			receiveMessageFunction: (message) => {
 				console.log(message);
 			}
 		});
+
+		addTaskWebViewer.postMessage({
+			command: "Set",
+			data: {
+				"taskName": "New Task",
+				"taskLocation": "New Location"
+			}
+		})
 	});
 
 	vscode.commands.registerCommand(Commands.ClickupDeleteTask, () => {
@@ -64,9 +74,7 @@ async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand("Scrummer.hello", () => {
 		vscode.window.showInformationMessage("Hello from Scrummer!");
 
-		console.log(storageService);
-		console.log(clickUpService);
-		// console.log(treeViewService);
+		console.log(vscode.Uri.file(path.join(context.extensionPath, "html", "add_new_task")));
 	});
 
 	vscode.commands.registerCommand("Scrummer.testing",  async () => {
@@ -97,17 +105,17 @@ async function activate(context: vscode.ExtensionContext) {
 		if( (clickUpService.teams[0].space[0].folder[0].length) == 0)
 		{
 			console.log("Error");
-		}		
+		}
 		console.log( clickUpService.teams[0].space[0].folder[0].length);
 		const list =  clickUpService.teams[0].space[0].list[0].getName();
 		if( (clickUpService.teams[0].space[0].folder[0].list[0].length) == 0)
 		{
 			console.log("Error");
-		}			
+		}
 		console.log( clickUpService.teams[0].space[0].folder[0].list[0].length);
-		console.log( folder);		
+		console.log( folder);
 		console.log(  list);
-		const task =  clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();	
+		const task =  clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();
 		console.log( task);
 		//const body = await clickUpService.teams[0].space[0].folder[0].list[0].newTask("Create_from_VScode_program");
 	});
