@@ -1,5 +1,10 @@
-input, textarea {
+input, textarea, select {
   width: 80%
+}
+
+#new-task {
+  width: 80%;
+  margin: auto
 }
 
 .task-row {

@@ -56,10 +56,13 @@ class WebViewService{
         });
       }
 
-      this.panel.webview.html = this.getWebViewContent(data.toString(), {
-        styleUri: vscode.Uri.file(path.join(...[context.extensionPath].concat(webPath.slice(0, -1)), "style.css")),
-        scriptUri: vscode.Uri.file(path.join(...[context.extensionPath].concat(webPath.slice(0, -1)), "script.js"))
-      });
+      if(optional) {
+        this.panel.webview.html = this.getWebViewContent(data.toString(), {
+          styleUri: vscode.Uri.file(path.join(...[context.extensionPath].concat(webPath.slice(0, -1)), "style.css")),
+          scriptUri: vscode.Uri.file(path.join(...[context.extensionPath].concat(webPath.slice(0, -1)), "script.js"))
+        });
+      }
+      else { this.panel.webview.html = this.getWebViewContent(data.toString()); }
     });
 
     // Attach receiveMessageFunction
