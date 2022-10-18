@@ -8,12 +8,11 @@ class ClickUpService {
   private storageService: LocalStorageService;
   private clickUp: typeof Clickup | undefined;
   public userToken: string | undefined;
-  public teams : any | undefined;
-  public length : number;
-
+  public teams : ClickUpTeam[]=[];
+  private length : number;
+  
   constructor(storageService: LocalStorageService) {
     this.storageService = storageService;
-    this.teams = {};
     this.length = 0;
   }
 
@@ -38,11 +37,11 @@ class ClickUpService {
         // Update user token and setup API
         this.userToken = token;
         this.storageService.setValue("token", this.userToken);
-        await this.createClickUpService(this.userToken);
+        await this.createClickUpService();
       });
     }
-    else {
-      await this.createClickUpService(this.userToken);
+    else { 
+      await this.createClickUpService();    
     }
 
     return true;
@@ -96,29 +95,55 @@ class ClickUpService {
 
     this.userToken = token;
     this.storageService.setValue("token", this.userToken);
-    this.createClickUpService(this.userToken);
+    this.createClickUpService();       
   }
 
-  public async createClickUpService(userToken: string) {
+  public async createClickUpService () {
     this.clickUp = new Clickup(this.userToken);
+    await this.create_instance();
+  }
+
+  public async create_instance () {
     const tmp  = await this.getTeams();
     const team_raw: Array<Teams> = tmp.teams;
     this.length = team_raw.length;
     for(var i=0; i<this.length; i++){
-        this.teams[i] = new clickup_team(this.clickUp, team_raw[i].id,team_raw[i].name);
+        this.teams[i] = new ClickUpTeam(this.clickUp, team_raw[i].id,team_raw[i].name);
         await this.teams[i].create_instance();
     }
   }
 
   public deleteClickUpService () {
-    this.clickUp = undefined;
-    this.teams = undefined;
-  }
+    this.clickUp = undefined;  
+  }  
 
   public async getTeams() {
     const {body}  = await this.clickUp.teams.get();
     return body;
   }
+
+  public async createTeam(name: string) {
+    const { body } = await this.clickUp.teams.create(name);
+    return body;
+  }
+
+  public returnSpace(teamid:String, spaceid: String){
+    for(var i=0; i<this.length;i++){
+        if(this.teams[i].getId()=== teamid){
+          for(var j=0; j<this.teams[i].getLength();j++){
+              if(this.teams[i].space[j].getId()===spaceid){
+                const space : ClickUpSpace = this.teams[i].space[j];
+                return space;
+              }
+          }
+        }
+    }
+    console.log('team Id' + teamid + 'or' +'Space Id' + spaceid + 'Not existed');
+  }
+
+  public getLength(){
+    return this.length;
+  }  
 
 }
 
@@ -126,20 +151,23 @@ class ClickUpBaseClass {
   protected clickUp: typeof Clickup | undefined;
   protected id: string ;
   protected name: string;
-  public length: number;
-
+  protected length: number;
   constructor(clickUp : typeof Clickup, id:string, name: string){
     this.clickUp = clickUp;
     this.id = id;
     this.name = name;
     this.length = 0;
-    }
-  public getId() {// May delete later
+    }    
+  public getId() {
     return this.id;
-  }
-  public getName() {// May delete later
+  } 
+  public getName() {
     return this.name;
-  }
+  } 
+
+  public getLength() {
+    return this.length;
+  }   
 }
 
 /*
@@ -162,38 +190,33 @@ class clickup_directory{
     return body;
   }
 
+  public async createTeam(name: string) {
+    const { body } = await this.clickUp.teams.create(name);
+    return body;
+  }  
 }
 */
-class clickup_team extends ClickUpBaseClass{
-  public space: any | undefined;
+class ClickUpTeam extends ClickUpBaseClass{
+  public space: ClickUpSpace[]=[];
   constructor(clickUp : typeof Clickup, id:string, name: string){
     super(clickUp, id, name);
-    this.space ={};
-    }
+    }    
 
   public async create_instance() {
     const space_raw = await this.getSpaces();
     this.length = space_raw.length;
     for(var i=0; i<this.length; i++){
-        this.space[i] = new clickup_space(this.clickUp, space_raw[i].id,space_raw[i].name);
+        this.space[i]= new ClickUpSpace(this.clickUp, space_raw[i].id,space_raw[i].name);
         await this.space[i].create_instance();
     }
   };
-
-  public async getTeams() {// May delete later
-    const {body}  = await this.clickUp.teams.get();
-    return body;
-  }
 
   public async getSpaces() {
     var {body}  = await this.clickUp.teams.getSpaces(this.id);
     var Space: Array<Space> = body.spaces;
     return Space;
-  }
-  public async createTeam(name: string) {
-    const { body } = await this.clickUp.teams.create(name);
-    return body;
-  }
+  }   
+
   public async createSpace(name: string) {
     const { body } = await this.clickUp.teams.createSpace(this.id, {
         name: name
@@ -202,29 +225,27 @@ class clickup_team extends ClickUpBaseClass{
 }
 }
 
-class clickup_space extends ClickUpBaseClass{
-  public folder: any;
-  public list: any;
-  public list_length: number;
+class ClickUpSpace extends ClickUpBaseClass{
+  public folder: ClickUpFolder[]=[];
+  public list:  ClickUpList[]=[];
+  private list_length: number;
   constructor(clickUp : typeof Clickup, id:string, name: string){
     super(clickUp, id, name);
-    this.folder = {};
-    this.list  = {};
     this.list_length = 0;
    // this.create_instance();
   };
 
-  public async create_instance() {// May delete later
+  public async create_instance() {
     const folder_raw = await this.getFolders();
     const list_raw = await this.getFolderLists();
     this.length = folder_raw.length;
     this.list_length = list_raw.length;
     for(var i=0; i<folder_raw.length; i++){
-        this.folder[i] = new clickup_folder(this.clickUp, folder_raw[i].id, folder_raw[i].name);
+        this.folder[i] = new ClickUpFolder(this.clickUp, folder_raw[i].id, folder_raw[i].name);
         await this.folder[i].create_instance();
     }
     for(var i=0; i<list_raw.length; i++){
-      this.list[i] = new clickup_list(this.clickUp, list_raw[i].id, list_raw[i].name);
+      this.list[i] = new ClickUpList(this.clickUp, list_raw[i].id, list_raw[i].name);
       await this.list[i].create_instance();
     }
   };
@@ -262,23 +283,26 @@ class clickup_space extends ClickUpBaseClass{
   public async getPriorities() {
     const body = await this.getSpace();
     return body.features.priorities.priorities;
-  }
+  }  
+
+  public  getListLength() {
+    return this.list_length;
+  }    
 }
 
-class clickup_folder extends ClickUpBaseClass{
-  public list: any;
+class ClickUpFolder extends ClickUpBaseClass{
+  public list: ClickUpList[]=[];
 
   constructor(clickUp : typeof Clickup, id:string, name: string){
     super(clickUp, id, name);
-    this.list  = {};
    // this.create_instance();
   };
 
-  public async create_instance() {// May delete later
+  public async create_instance() {
     const list_raw = await this.getLists();
     this.length = list_raw.length;
     for(var i=0; i<this.length; i++){
-      this.list[i] = new clickup_list(this.clickUp, list_raw[i].id, list_raw[i].name);
+      this.list[i] = new ClickUpList(this.clickUp, list_raw[i].id, list_raw[i].name);
       await this.list[i].create_instance();
     }
   };
@@ -290,12 +314,11 @@ class clickup_folder extends ClickUpBaseClass{
   }
 }
 
-class clickup_list extends ClickUpBaseClass{
-  public task: any;
+class ClickUpList extends ClickUpBaseClass{
+  public task: ClickUpTask[]=[];
 
   constructor(clickUp : typeof Clickup, id:string, name: string){
     super(clickUp, id, name);
-    this.task  = {};
     //this.create_instance();
   };
 
@@ -303,7 +326,7 @@ class clickup_list extends ClickUpBaseClass{
     const task_raw = await this.getTasks();
     this.length = task_raw.length;
     for(var i=0; i<this.length; i++){
-       this.task[i] = new clickup_task(this.clickUp, task_raw[i].id, task_raw[i].name);
+       this.task[i] = new ClickUpTask(this.clickUp, task_raw[i].id, task_raw[i].name);
     }
   };
 
@@ -337,7 +360,7 @@ class clickup_list extends ClickUpBaseClass{
 }
 
 
-class clickup_task extends ClickUpBaseClass{
+class ClickUpTask extends ClickUpBaseClass{
 
   constructor(clickUp : typeof Clickup, id:string, name: string){
     super(clickUp, id, name);

@@ -77,44 +77,33 @@ async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand("Scrummer.testing",  async () => {
 		// For testing purposes and examples for each features
-		/*
-		const body =  await clickUpService.teams?.getTeams();
-		var space:any =  await clickUpService.teams?.getSpaces("31551016");
-		const user:any =  await clickUpService.list?.getMembers("211510805");
-		const status =  await clickUpService.list?.getStatus("211510805");
-		const folder =  await clickUpService.space?.getFolders("55543351");
-		const list =  await clickUpService.folder?.getLists("115759363");
-		const task =  await clickUpService.list?.getTasks("211510805");
-		const sp_space:any =  await clickUpService.space?.getSpace("55543351");
-		console.log(space[0].id);
-		console.log(user[0].username);
-		console.log(sp_space.id);
-		*/
 		const name0 = clickUpService.teams[0].getName();
 		console.log(name0);
 		const space =   clickUpService.teams[0].space[0].getName();
 		console.log( space);
-		if( (clickUpService.teams[0].space[0].length) == 0)
+		if( (clickUpService.teams[0].space[0].getLength()) == 0)
 		{
 			console.log("Error");
 		}
-		console.log( clickUpService.teams[0].space[0].length);
+		console.log( clickUpService.teams[0].space[0].getLength());
 		const folder =  clickUpService.teams[0].space[0].folder[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].length) == 0)
+		if( (clickUpService.teams[0].space[0].folder[0].getLength()) == 0)
 		{
 			console.log("Error");
-		}
-		console.log( clickUpService.teams[0].space[0].folder[0].length);
+		}		
+		console.log( clickUpService.teams[0].space[0].folder[0].getLength());
 		const list =  clickUpService.teams[0].space[0].list[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].list[0].length) == 0)
+		if( (clickUpService.teams[0].space[0].folder[0].list[0].getLength()) == 0)
 		{
 			console.log("Error");
-		}
-		console.log( clickUpService.teams[0].space[0].folder[0].list[0].length);
-		console.log( folder);
-		console.log(  list);
-		const task =  clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();
-		console.log( task);
+		}			
+		console.log(clickUpService.teams[0].space[0].folder[0].list[0].getLength());
+		console.log(folder);		
+		console.log(list);
+		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();	
+		console.log(task);
+		const getSpace = clickUpService.returnSpace('31551016','55543351');
+		console.log(getSpace);
 		//const body = await clickUpService.teams[0].space[0].folder[0].list[0].newTask("Create_from_VScode_program");
 	});
 }
