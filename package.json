@@ -1,6 +1,7 @@
 {
   "name": "scrummer",
   "displayName": "scrummer",
+  "publisher": "scrummer",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -88,7 +89,7 @@
     "walkthroughs": [
       {
         "id": "quickStart",
-        "title": "Quick Start",
+        "title": "Get started with Scrummer",
         "description": "Set up your ClickUp VSCode extension.",
         "steps": [
           {
