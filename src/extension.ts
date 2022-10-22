@@ -1,4 +1,5 @@
 import { Commands } from "./commands";
+import * as Constants from "./constants";
 import { ClickUpService } from "./service/click_up_service";
 import { LocalStorageService } from "./service/local_storage_service";
 import { TreeViewService } from "./service/tree_view_service";
@@ -14,7 +15,7 @@ async function activate(context: vscode.ExtensionContext) {
 	await clickUpService.setup().then(async (result) => {
 		console.log(`ClickUpService - setup: ${result}`);	// Debug
 
-		if(!result) { return vscode.window.showErrorMessage("Scrummer - Setup failed!"); }
+		if (!result) { return vscode.window.showErrorMessage("Scrummer - Setup failed!"); }
 
 		//let toDoViewService: TreeViewService = new TreeViewService(await clickUpService.teams?.getTeams());
 
@@ -28,15 +29,17 @@ async function activate(context: vscode.ExtensionContext) {
 		}).then((userToken) => clickUpService.setUserToken(userToken));
 	});
 
-	vscode.commands.registerCommand("Scrummer.deleteClickUpToken", async () => {
+	vscode.commands.registerCommand(Commands.ClickupDeleteToken, async () => {
 		await vscode.window.showInformationMessage("Do you really want to delete your token?", ...["Yes", "No"]).then((result) => {
-			if(result === undefined || result === "No") { return; }
-
+			if (result === undefined || result === "No") { return; }
 			clickUpService.deleteUserToken();
+			if (!clickUpService.hasToken()) {
+				vscode.window.showInformationMessage("Your token has been deleted.", ...["OK"]);
+			}
 		});
 	});
 
-	vscode.commands.registerCommand("Scrummer.editClickUpToken", async () => {
+	vscode.commands.registerCommand(Commands.ClickupUpdateToken, async () => {
 		await vscode.window.showInputBox({
 			placeHolder: "Please input a new user token"
 		}).then((userToken) => clickUpService.setUserToken(userToken));
@@ -75,40 +78,42 @@ async function activate(context: vscode.ExtensionContext) {
 		console.log(vscode.Uri.file(path.join(context.extensionPath, "html", "add_new_task")));
 	});
 
-	vscode.commands.registerCommand("Scrummer.testing",  async () => {
+	vscode.commands.registerCommand("Scrummer.testing", async () => {
 		// For testing purposes and examples for each features
 		const name0 = clickUpService.teams[0].getName();
 		console.log(name0);
-		const space =   clickUpService.teams[0].space[0].getName();
-		console.log( space);
-		if( (clickUpService.teams[0].space[0].getLength()) == 0)
-		{
+		const space = clickUpService.teams[0].space[0].getName();
+		console.log(space);
+		if ((clickUpService.teams[0].space[0].getLength()) == 0) {
 			console.log("Error");
 		}
-		console.log( clickUpService.teams[0].space[0].getLength());
-		const folder =  clickUpService.teams[0].space[0].folder[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].getLength()) == 0)
-		{
+		console.log(clickUpService.teams[0].space[0].getLength());
+		const folder = clickUpService.teams[0].space[0].folder[0].getName();
+		if ((clickUpService.teams[0].space[0].folder[0].getLength()) == 0) {
 			console.log("Error");
-		}		
-		console.log( clickUpService.teams[0].space[0].folder[0].getLength());
-		const list =  clickUpService.teams[0].space[0].list[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].list[0].getLength()) == 0)
-		{
+		}
+		console.log(clickUpService.teams[0].space[0].folder[0].getLength());
+		const list = clickUpService.teams[0].space[0].list[0].getName();
+		if ((clickUpService.teams[0].space[0].folder[0].list[0].getLength()) == 0) {
 			console.log("Error");
-		}			
+		}
 		console.log(clickUpService.teams[0].space[0].folder[0].list[0].getLength());
-		console.log(folder);		
+		console.log(folder);
 		console.log(list);
-		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();	
+		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();
 		console.log(task);
-		const getSpace = clickUpService.returnSpace('31551016','55543351');
+		const getSpace = clickUpService.returnSpace('31551016', '55543351');
 		console.log(getSpace);
 		//const body = await clickUpService.teams[0].space[0].folder[0].list[0].newTask("Create_from_VScode_program");
 	});
+
+	let isFirstLaunch = new Boolean(clickUpService.hasToken());
+	if (isFirstLaunch) {
+		vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `scrummer.scrummer#quickStart`);
+	}
 }
 
-function deactivate() {}
+function deactivate() { }
 
 export {
 	activate,
