@@ -77,33 +77,13 @@ async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand("Scrummer.testing",  async () => {
 		// For testing purposes and examples for each features
-		const name0 = clickUpService.teams[0].getName();
-		console.log(name0);
-		const space =   clickUpService.teams[0].space[0].getName();
-		console.log( space);
-		if( (clickUpService.teams[0].space[0].getLength()) == 0)
-		{
-			console.log("Error");
-		}
-		console.log( clickUpService.teams[0].space[0].getLength());
-		const folder =  clickUpService.teams[0].space[0].folder[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].getLength()) == 0)
-		{
-			console.log("Error");
-		}		
-		console.log( clickUpService.teams[0].space[0].folder[0].getLength());
-		const list =  clickUpService.teams[0].space[0].list[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].list[0].getLength()) == 0)
-		{
-			console.log("Error");
-		}			
-		console.log(clickUpService.teams[0].space[0].folder[0].list[0].getLength());
-		console.log(folder);		
-		console.log(list);
-		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();	
-		console.log(task);
-		const getSpace = clickUpService.returnSpace('31551016','55543351');
-		console.log(getSpace);
+		const spaces = await clickUpService.getSpaces("31551016");
+		const space = await clickUpService.getSpaceTree("55543351");
+		console.log(space);
+		const TestSpace = await clickUpService.getSpaceTree("55594352");
+		console.log(TestSpace);
+		const tasks = await clickUpService.getTasksFilters("0", TestSpace,"to do");
+		console.log(tasks);
 		//const body = await clickUpService.teams[0].space[0].folder[0].list[0].newTask("Create_from_VScode_program");
 	});
 }
