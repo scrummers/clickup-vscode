@@ -84,7 +84,60 @@
           "name": "Complete Tasks"
         }
       ]
-    }
+    },
+    "walkthroughs": [
+      {
+        "id": "quickStart",
+        "title": "Quick Start",
+        "description": "Set up your ClickUp VSCode extension.",
+        "steps": [
+          {
+            "id": "setClickUpApiToken",
+            "title": "Set up ClickUp API Token",
+            "description": "A ClickUp API Token is required to access your Spaces.\nYou can find your API Token under Settings > Apps > API Token.\n[Set up my API Token](command:clickup.setToken)",
+            "completionEvents": [
+              "onCommand:clickup.setToken"
+            ],
+            "media": {
+              "image": "media/demo_get_api_token.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          },
+          {
+            "id": "selectClickUpSpace",
+            "title": "Select a ClickUp Space",
+            "description": "Select a ClickUp Space you would like to work with.\nYou can only have one active Space at a time.",
+            "completionEvents": [],
+            "media": {
+              "image": "media/demo_get_api_token.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          },
+          {
+            "id": "createFirstTask",
+            "title": "Create your first ClickUp Task",
+            "description": "Create a ClickUp Task in the current Space.\n[Create a Task](command:clickup.addTask)",
+            "completionEvents": [
+              "onCommand:clickup.clickUp.addTask"
+            ],
+            "media": {
+              "image": "media/demo_get_api_token.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          },
+          {
+            "id": "goodToGo",
+            "title": "Good to go!",
+            "description": "You're all set! You can now start using the extension.",
+            "completionEvents": [],
+            "media": {
+              "image": "media/demo_get_api_token.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
