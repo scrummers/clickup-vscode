@@ -1,5 +1,5 @@
 const { Clickup } = require("clickup.js");
-import { User, Status, Teams, Space, Folder, List, Task} from "../util/typings/clickup";
+import { User, Status, Teams, Space, Folder, List, Task,SpaceLListFile, ListExtend, FolderExtend} from "../util/typings/clickup";
 import { LocalStorageService } from "./local_storage_service";
 
 import * as vscode from "vscode";
@@ -13,7 +13,6 @@ class ClickUpService {
 
   constructor(storageService: LocalStorageService) {
     this.storageService = storageService;
-    this.length = 0;
   }
 
   public async setup(): Promise<boolean> {
@@ -37,7 +36,7 @@ class ClickUpService {
         // Update user token and setup API
         this.userToken = token;
         this.storageService.setValue("token", this.userToken);
-        await this.createClickUpService();
+        this.clickUp = new Clickup(this.userToken);
       });
     }
     else {
@@ -82,7 +81,7 @@ class ClickUpService {
   public deleteUserToken() {
     this.userToken = undefined;
     this.storageService.setValue("token", this.userToken);
-    this.deleteClickUpService();
+    this.deleteClickUp_serivce();
   }
 
   public async getUserToken(): Promise<string> {
@@ -222,66 +221,40 @@ class ClickUpTeam extends ClickUpBaseClass{
         name: name
     });
     return body;
-}
-}
-
-class ClickUpSpace extends ClickUpBaseClass{
-  public folder: ClickUpFolder[]=[];
-  public list:  ClickUpList[]=[];
-  private list_length: number;
-  constructor(clickUp : typeof Clickup, id:string, name: string){
-    super(clickUp, id, name);
-    this.list_length = 0;
-   // this.create_instance();
-  };
-
-  public async create_instance() {
-    const folder_raw = await this.getFolders();
-    const list_raw = await this.getFolderLists();
-    this.length = folder_raw.length;
-    this.list_length = list_raw.length;
-    for(var i=0; i<folder_raw.length; i++){
-        this.folder[i] = new ClickUpFolder(this.clickUp, folder_raw[i].id, folder_raw[i].name);
-        await this.folder[i].create_instance();
-    }
-    for(var i=0; i<list_raw.length; i++){
-      this.list[i] = new ClickUpList(this.clickUp, list_raw[i].id, list_raw[i].name);
-      await this.list[i].create_instance();
-    }
-  };
-
-  public async getSpace() {
-    const {body}  = await this.clickUp.spaces.get(this.id);
-    const space: Space= body;
-    return space;
   }
-  public async getFolders() {
-    const {body}  = await this.clickUp.spaces.getFolders(this.id);
-    const folder: Array<Folder> = body.folders;
-    return folder;
-  }
-  public async getFolderLists() {
-    const { body } = await this.clickUp.spaces.getFolderlessLists(this.id);
-    const lists: Array<List> = body.lists;
-    return lists;
-  }
-  public async deleteSpace() {
-    const { body } = await this.clickUp.spaces.delete(this.id);
+  // Space functions
+  public async getSpace(spaceId: string) {
+    const {body}  = await this.clickUp.spaces.get(spaceId);
+    //const space: Space= body;
     return body;
   }
-  public async createList(name: string) {
-    const { body } = await this.clickUp.spaces.createFolderlessList(this.id, {
+  public async getFolders(spaceId: string) {
+    var {body}  = await this.clickUp.spaces.getFolders(spaceId);
+    var folder: Array<Folder> = body.folders;
+    return folder;
+  }
+  public async getFolderLists(spaceId: string) {
+    var { body } = await this.clickUp.spaces.getFolderlessLists(spaceId);
+    var lists: Array<List> = body.lists;
+    return lists;
+  }
+  public async deleteSpace(spaceId: string) {
+    const { body } = await this.clickUp.spaces.delete(spaceId);
+    return body;
+  }
+  public async createList(spaceId: string, name: string) {
+    const { body } = await this.clickUp.spaces.createFolderlessList(spaceId, {
         name: name
     });
     return body;
   }
-  public async getTags() {
-    const { body } = await this.clickUp.spaces.getTags(this.id);
+  public async getTags(spaceId: string) {
+    var { body } = await this.clickUp.spaces.getTags(spaceId);
     //var tags: Array<Tag> = body.tags;
     return body.tags;
   }
-  public async getPriorities() {
-    const body = await this.getSpace();
+  public async getPriorities(spaceId: string) {
+    var body = await this.getSpace(spaceId);
     return body.features.priorities.priorities;
   }
 
@@ -312,94 +285,126 @@ class ClickUpFolder extends ClickUpBaseClass{
     const lists: Array<List> = body.lists;
     return lists;
   }
-}
-
-class ClickUpList extends ClickUpBaseClass{
-  public task: ClickUpTask[]=[];
-
-  constructor(clickUp : typeof Clickup, id:string, name: string){
-    super(clickUp, id, name);
-    //this.create_instance();
-  };
-
-  public async create_instance() {// May delete later
-    const task_raw = await this.getTasks();
-    this.length = task_raw.length;
-    for(var i=0; i<this.length; i++){
-       this.task[i] = new ClickUpTask(this.clickUp, task_raw[i].id, task_raw[i].name);
-    }
-  };
-
-  public async getTasks() {
-    const { body } = await this.clickUp.lists.getTasks(this.id);
-    const tasks: Array<Task> = body.tasks;
+  // List functions
+  public async getTasks(listId: string) {
+    var { body } = await this.clickUp.lists.getTasks(listId);
+    var tasks: Array<Task> = body.tasks;
     return tasks;
   }
 
-  public async getMembers() {
-    const { body } = await this.clickUp.lists.getMembers(this.id);
-    const members: Array<User> = body.members;
+  public async getMembers(listId: string) {
+    var { body } = await this.clickUp.lists.getMembers(listId);
+    var members: Array<User> = body.members;
     return members;
   }
 
-  public async getStatus() {
-    const { body } = await this.clickUp.lists.get();
-    const status: Array<Status> = body.statuses;
+  public async getStatus(listId: string) {
+    var { body } = await this.clickUp.lists.get(listId);
+    var status: Array<Status> = body.statuses;
     return status;
   }
 
-  public async newTask(data: any) {
-    const { body } = await this.clickUp.lists.createTask(this.id, data);
+  public async newTask(listId: string, data: any) {
+    var { body } = await this.clickUp.lists.createTask(listId, data);
     return body;
   }
 
-  public async countTasks() {
-    const tasks = await this.getTasks();
+  public async countTasks(listId: string) {
+    var tasks = await this.getTasks(listId);
     return tasks.length === undefined ? 0 : tasks.length;
   }
-}
-
-
-class ClickUpTask extends ClickUpBaseClass{
-
-  constructor(clickUp : typeof Clickup, id:string, name: string){
-    super(clickUp, id, name);
-  };
-
-  public async deleteTask() {
-    const { body } = await this.clickUp.tasks.delete(this.id);
+  // Task Functions
+  public async deleteTask(taskId: string) {
+    var { body } = await this.clickUp.tasks.delete(taskId);
     return body;
   }
-  public async updateTask(data: any): Promise<any> {
-    const { body } = await this.clickUp.tasks.update(this.id, data);
+  public async updateTask(taskId: string, data: any): Promise<any> {
+    var { body } = await this.clickUp.tasks.update(taskId, data);
     return body;
   }
 
-  public async updateTaskTags(previousTags: any, tags: any) {
+  public async updateTaskTags(taskId: string, previousTags: any, tags: any) {
     if (tags === undefined) {
         //remove all tags
         Object.values(previousTags).map((tag: any) => {
-            console.log('remove ' + tag.name + 'from task ' + this.id);
-            this.clickUp.tasks.removeTag(this.id, tag.name);
+            console.log('remove ' + tag.name + 'from task ' + taskId);
+            this.clickUp.tasks.removeTag(taskId, tag.name);
         });
         return;
     }
 
     Object.values(previousTags).map((tag: any) => {
         if (Object.values(tags).includes(tag.name) === false) {
-            console.log('remove tag ' + tag.name + 'from task ' + this.id);
-            this.clickUp.tasks.removeTag(this.id, tag.name);
+            console.log('remove tag ' + tag.name + 'from task ' + taskId);
+            this.clickUp.tasks.removeTag(taskId, tag.name);
         }
     });
 
     tags.forEach((tagName: string) => {
         var tagFound = previousTags.filter((obj: any) => obj.name === tagName);
         if (tagFound.length === 0) {
-            console.log('add tag ' + tagName + 'in task ' + this.id);
-            this.clickUp.tasks.addTag(this.id, tagName);
+            console.log('add tag ' + tagName + 'in task ' + taskId);
+            this.clickUp.tasks.addTag(taskId, tagName);
         }
     });
   }
+  // Function: Get all space informations include all list, folder task
+  public async getSpaceTree(spaceId: string){
+    var space  = await this.getSpace(spaceId);
+    var spaceList = await this.getFolderLists(spaceId);
+    var folders = await this.getFolders(spaceId);
+    var tree:SpaceLListFile = space;
+    var rootLists : ListExtend[] = <ListExtend[]>spaceList;
+    tree.folders = folders;
+    tree.root_lists = rootLists;
+    // Search Tasks from Root_list
+    for(var i=0;i<tree.root_lists.length;i++){
+      if(tree.root_lists[i].task_count !=0){
+        var rootList_tasks = await this.getTasks(tree.root_lists[i].id);
+        tree.root_lists[i].tasks =  rootList_tasks;
+      }
+    }
+    // Search Tasks from Folders
+    for(var i=0; i<tree.folders.length; i++){
+      for(var j=0; j<tree.folders[i].lists.length;j++){
+        var list: ListExtend = tree.folders[i].lists[j];
+        if(tree.folders[i].lists[j].task_count !=0){
+          var List_tasks = await this.getTasks(list.id);
+          list.tasks = List_tasks;
+          tree.folders[i].lists[j] =  list;
+        }
+      }
+    }
+    return tree;
+  }
+
+  public async getTasksFilters(user_id:string, space_tree:SpaceLListFile, status:string){
+    var retrunTasks: Task[]=[];
+    if(space_tree==undefined)
+      return null;
+    else{
+      // Search Root list Task
+      for(var i=0; i < space_tree.root_lists.length;i++){
+        for(var j=0; j < space_tree.root_lists[i].task_count; j++)
+            retrunTasks.push(space_tree.root_lists[i].tasks[j]);
+      }
+      for(var i=0; i < space_tree.folders.length; i++){
+        for(var j=0; j < space_tree.folders[i].lists.length;j++){
+          for(var z=0; z <space_tree.folders[i].lists[j].task_count;z++){
+            retrunTasks.push(space_tree.folders[i].lists[j].tasks[z]);
+          }
+        }
+      }
+     // var x = retrunTasks.find((Obj) =>{
+     //   return (Obj.status.status===status && Obj.assignees.find((name)=>{
+     //   return name ===
+      //  }));
+     // });
+
+    }
+    return retrunTasks;
+  }
+
 }
 export { ClickUpService };
 
