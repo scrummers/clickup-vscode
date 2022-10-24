@@ -13,39 +13,43 @@ type WebJSON = {
 
 class WebViewService{
   private panel: vscode.WebviewPanel;
+  private pathToDistHTML: string;
 
   /**
    * Constructor of WebViewService
    * @param context vscode.ExtensionContext
-   * @param webPath string[] - path to HTML file
+   * @param webPath string[] - relative path to HTML file
    * @param webTitle string
    * @param optional Object
-   *                  -> @param localResources Uri[] - Uri to HTML resources files
-   *                  -> @param receiveMessageFunction (...args: any[]) => void
+   *                  -> @param localResources Uri[] - Uri to HTML resources files, e.g. style.css, script.js
+   *                  -> @param receiveMessageFunction (...args: any[]) => void - Function to handle message from the web view
    */
   constructor(context: vscode.ExtensionContext, webPath: string[], webTitle: string, optional?: {
-    localResources?: Uri[],
+    localResources?: string[],
     receiveMessageFunction?: (...args: any[]) => void
   }) {
-    const viewColumn = vscode.window.activeTextEditor ?
-      vscode.window.activeTextEditor.viewColumn : undefined
+    this.pathToDistHTML = path.join(...[context.extensionPath].concat(["dist", "html"]))
+
+    console.log(this.pathToDistHTML)
+
+    let viewColumn = vscode.window.activeTextEditor ?
+      vscode.window.activeTextEditor.viewColumn : undefined;
+    let htmlResources = [vscode.Uri.file(path.join(this.pathToDistHTML, "style"))]
 
     // Create webview panel
-    this.panel = vscode.window.createWebviewPanel(
-      "Scrummer.webPanel",
-      webTitle,
+    this.panel = vscode.window.createWebviewPanel("clickup-vscode.webPanel", webTitle,
       viewColumn ?
         viewColumn : vscode.ViewColumn.One,
       {
         enableScripts: true,
         retainContextWhenHidden: true,
         localResourceRoots: optional?.localResources ?
-          optional.localResources : []
+          htmlResources.concat(optional.localResources.map((lr) => vscode.Uri.file(path.join(this.pathToDistHTML, lr)))) : htmlResources
       }
     );
 
     // Load HTML file to the web panel
-    fs.readFile(path.join(...[context.extensionPath].concat(webPath)), async (error, data) => {
+    fs.readFile(path.join(...[this.pathToDistHTML].concat(webPath)), async (error, data) => {
       if(error) {
         console.error(error);
 
@@ -56,13 +60,10 @@ class WebViewService{
         });
       }
 
-      if(optional) {
-        this.panel.webview.html = this.getWebViewContent(data.toString(), {
-          styleUri: vscode.Uri.file(path.join(...[context.extensionPath].concat(webPath.slice(0, -1)), "style.css")),
-          scriptUri: vscode.Uri.file(path.join(...[context.extensionPath].concat(webPath.slice(0, -1)), "script.js"))
-        });
-      }
-      else { this.panel.webview.html = this.getWebViewContent(data.toString()); }
+      this.panel.webview.html = this.getWebViewContent(data.toString(), {
+        styleUri: vscode.Uri.file(path.join(...[this.pathToDistHTML].concat(webPath.slice(0, -1)), "style.css")),
+        scriptUri: vscode.Uri.file(path.join(...[this.pathToDistHTML].concat(webPath.slice(0, -1)), "script.js"))
+      });
     });
 
     // Attach receiveMessageFunction
@@ -76,27 +77,24 @@ class WebViewService{
 
   // Private Functions
   /**
-   *
+   * Return the evaluated HTML content
    * @param template String - Original HTML
    * @param uri Object - Uri to the local resources
    *              -> @param styleUri Uri - Uri to style.css
    *              -> @param scriptUri Uri - Uri to script.js
    * @returns string - Rendered HTML
    */
-  private getWebViewContent(template: string, uri?: {
+  private getWebViewContent(template: string, uri: {
     styleUri: Uri,
     scriptUri: Uri
   }): string {
-    if(uri) {
       // The following variables is for template string, i.e. eval()
       // Please don't remove it
-      let style: Uri = this.panel.webview.asWebviewUri(uri.styleUri);
-      let script: Uri = this.panel.webview.asWebviewUri(uri.scriptUri);
+    let mainStyle: Uri = this.panel.webview.asWebviewUri(vscode.Uri.file(path.join(this.pathToDistHTML, "style", "main_style.css")));
+    let style: Uri = this.panel.webview.asWebviewUri(uri.styleUri);
+    let script: Uri = this.panel.webview.asWebviewUri(uri.scriptUri);
 
       return eval('`' + template + '`');
-    }
-
-    return template;
   }
 
   // Public Functions

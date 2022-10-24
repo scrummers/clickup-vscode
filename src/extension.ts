@@ -45,20 +45,14 @@ async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand(Commands.ClickupAddTask, async () => {
 		if (clickUpService.userToken === undefined) { return vscode.window.showErrorMessage("Please input your Click Up token to use Scrummer"); }
 
-		let addTaskWebViewer = new WebViewService(context, ["html", "add_new_task", "add_new_task.html"], "Add New Task", {
-			localResources: [vscode.Uri.file(path.join(context.extensionPath, "html", "add_new_task"))],
+		let webFolder: string = "add_new_task";
+
+		let addTaskWebViewer = new WebViewService(context, [webFolder, "add_new_task.html"], "Add New Task", {
+			localResources: [webFolder],
 			receiveMessageFunction: (message) => {
 				console.log(message);
 			}
 		});
-
-		addTaskWebViewer.postMessage({
-			command: "Set",
-			data: {
-				"taskName": "New Task",
-				"taskLocation": "New Location"
-			}
-		})
 	});
 
 	vscode.commands.registerCommand(Commands.ClickupDeleteTask, () => {
@@ -90,17 +84,17 @@ async function activate(context: vscode.ExtensionContext) {
 		if( (clickUpService.teams[0].space[0].folder[0].getLength()) == 0)
 		{
 			console.log("Error");
-		}		
+		}
 		console.log( clickUpService.teams[0].space[0].folder[0].getLength());
 		const list =  clickUpService.teams[0].space[0].list[0].getName();
 		if( (clickUpService.teams[0].space[0].folder[0].list[0].getLength()) == 0)
 		{
 			console.log("Error");
-		}			
+		}
 		console.log(clickUpService.teams[0].space[0].folder[0].list[0].getLength());
-		console.log(folder);		
+		console.log(folder);
 		console.log(list);
-		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();	
+		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();
 		console.log(task);
 		const getSpace = clickUpService.returnSpace('31551016','55543351');
 		console.log(getSpace);

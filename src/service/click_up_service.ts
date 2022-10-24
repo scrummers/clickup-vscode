@@ -10,7 +10,7 @@ class ClickUpService {
   public userToken: string | undefined;
   public teams : ClickUpTeam[]=[];
   private length : number;
-  
+
   constructor(storageService: LocalStorageService) {
     this.storageService = storageService;
     this.length = 0;
@@ -40,8 +40,8 @@ class ClickUpService {
         await this.createClickUpService();
       });
     }
-    else { 
-      await this.createClickUpService();    
+    else {
+      await this.createClickUpService();
     }
 
     return true;
@@ -95,7 +95,7 @@ class ClickUpService {
 
     this.userToken = token;
     this.storageService.setValue("token", this.userToken);
-    this.createClickUpService();       
+    this.createClickUpService();
   }
 
   public async createClickUpService () {
@@ -114,8 +114,8 @@ class ClickUpService {
   }
 
   public deleteClickUpService () {
-    this.clickUp = undefined;  
-  }  
+    this.clickUp = undefined;
+  }
 
   public async getTeams() {
     const {body}  = await this.clickUp.teams.get();
@@ -143,7 +143,7 @@ class ClickUpService {
 
   public getLength(){
     return this.length;
-  }  
+  }
 
 }
 
@@ -157,17 +157,17 @@ class ClickUpBaseClass {
     this.id = id;
     this.name = name;
     this.length = 0;
-    }    
+    }
   public getId() {
     return this.id;
-  } 
+  }
   public getName() {
     return this.name;
-  } 
+  }
 
   public getLength() {
     return this.length;
-  }   
+  }
 }
 
 /*
@@ -193,14 +193,14 @@ class clickup_directory{
   public async createTeam(name: string) {
     const { body } = await this.clickUp.teams.create(name);
     return body;
-  }  
+  }
 }
 */
 class ClickUpTeam extends ClickUpBaseClass{
   public space: ClickUpSpace[]=[];
   constructor(clickUp : typeof Clickup, id:string, name: string){
     super(clickUp, id, name);
-    }    
+    }
 
   public async create_instance() {
     const space_raw = await this.getSpaces();
@@ -215,7 +215,7 @@ class ClickUpTeam extends ClickUpBaseClass{
     var {body}  = await this.clickUp.teams.getSpaces(this.id);
     var Space: Array<Space> = body.spaces;
     return Space;
-  }   
+  }
 
   public async createSpace(name: string) {
     const { body } = await this.clickUp.teams.createSpace(this.id, {
@@ -283,11 +283,11 @@ class ClickUpSpace extends ClickUpBaseClass{
   public async getPriorities() {
     const body = await this.getSpace();
     return body.features.priorities.priorities;
-  }  
+  }
 
   public  getListLength() {
     return this.list_length;
-  }    
+  }
 }
 
 class ClickUpFolder extends ClickUpBaseClass{
