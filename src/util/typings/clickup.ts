@@ -171,7 +171,7 @@ export type Task = {
   date_updated: string
   date_closed: string
   creator: User
-  assignees: string[] // List of user id
+  assignees: User[] // List of user id
   checklists: string[]
   tags: string[]
   parent: string
@@ -234,4 +234,12 @@ export type Status = {
   type: string // "open", "closed",
   orderindex: number // 0, 1,
   color: string // hex value
+}
+
+export enum TaskFilter  {
+  Type_today =  "today",
+  Type_no_due_date =  "no_due",
+  Type_overdue = "overdue",
+  Type_next =  "next",
+  Type_all_task = "*"
 }

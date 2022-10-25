@@ -3,6 +3,7 @@ import { ClickUpService } from "./service/click_up_service";
 import { LocalStorageService } from "./service/local_storage_service";
 import { TreeViewService } from "./service/tree_view_service";
 import { WebViewService } from "./service/web_view_service";
+import { TaskFilter} from "./util/typings/clickup";
 import * as path from "path";
 import * as vscode from "vscode";
 
@@ -71,34 +72,24 @@ async function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand("Scrummer.testing",  async () => {
 		// For testing purposes and examples for each features
-		const name0 = clickUpService.teams[0].getName();
-		console.log(name0);
-		const space =   clickUpService.teams[0].space[0].getName();
-		console.log( space);
-		if( (clickUpService.teams[0].space[0].getLength()) == 0)
-		{
-			console.log("Error");
-		}
-		console.log( clickUpService.teams[0].space[0].getLength());
-		const folder =  clickUpService.teams[0].space[0].folder[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].getLength()) == 0)
-		{
-			console.log("Error");
-		}
-		console.log( clickUpService.teams[0].space[0].folder[0].getLength());
-		const list =  clickUpService.teams[0].space[0].list[0].getName();
-		if( (clickUpService.teams[0].space[0].folder[0].list[0].getLength()) == 0)
-		{
-			console.log("Error");
-		}
-		console.log(clickUpService.teams[0].space[0].folder[0].list[0].getLength());
-		console.log(folder);
-		console.log(list);
-		const task = clickUpService.teams[0].space[0].folder[0].list[0].task[0].getName();
-		console.log(task);
-		const getSpace = clickUpService.returnSpace('31551016','55543351');
-		console.log(getSpace);
-		//const body = await clickUpService.teams[0].space[0].folder[0].list[0].newTask("Create_from_VScode_program");
+		const space = await clickUpService.getSpaceTree("55543351");
+		console.log(space);
+		const TestSpace = await clickUpService.getSpaceTree("55594352");
+		console.log(TestSpace);
+		const ALL_tasks = await clickUpService.getTasksFilters([], TestSpace, TaskFilter.Type_all_task); // Return ALL To-do Task
+		const tasks = await clickUpService.getTasksFilters([49541582], TestSpace, TaskFilter.Type_all_task); // Return Wilson To-do Task
+		const Jtasks = await clickUpService.getTasksFilters([5883240], TestSpace, TaskFilter.Type_all_task); // Return Jacky To-do Task
+		const ALL_tasks_sp = await clickUpService.getTasksFilters([], space, TaskFilter.Type_all_task); // Return ALL To-do Task
+		const done_tasks = await clickUpService.getTasksFilters([], space, "done"); // Return done Task
+		const overdue_tasks = await clickUpService.getTasksFilters([], TestSpace, TaskFilter.Type_overdue); // Return overdue Task
+		const today_tasks = await clickUpService.getTasksFilters([], TestSpace, TaskFilter.Type_today); // Return overdue Task
+		const join_tasks = await clickUpService.getTasksFilters([49541582, 5883240], TestSpace, TaskFilter.Type_all_task); // Return next Task
+		console.log(ALL_tasks);
+		console.log(tasks);
+		console.log(Jtasks);
+		console.log(ALL_tasks_sp);
+		console.log(done_tasks);
+		console.log(overdue_tasks);
 	});
 }
 
