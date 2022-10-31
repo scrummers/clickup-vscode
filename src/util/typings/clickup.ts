@@ -151,7 +151,7 @@ export type ListExtend = {
   archived: boolean
   override_statuses: boolean
   permission_level: string // 'create'
-  tasks : Task[]
+  tasks: Task[]
 }
 
 export type Task = {
@@ -201,7 +201,7 @@ export type Folder = {
   hidden: boolean
   space: Space
   task_count: string // "0"
-  lists: []
+  lists: List[]
   access?: boolean // get list api
 }
 
@@ -218,7 +218,7 @@ export type FolderExtend = {
 }
 
 export type ClickupState = {
-  workspace: Teams[]
+  workspaces: Teams[]
   spaces: Space[]
   folders: Folder[]
   tasks: Task[]
@@ -236,10 +236,41 @@ export type Status = {
   color: string // hex value
 }
 
-export enum TaskFilter  {
-  Type_today =  "today",
-  Type_no_due_date =  "no_due",
-  Type_overdue = "overdue",
-  Type_next =  "next",
-  Type_all_task = "*"
+export enum TaskFilter {
+  Type_today = 'today',
+  Type_no_due_date = 'no_due',
+  Type_overdue = 'overdue',
+  Type_next = 'next',
+  Type_all_task = '*',
+}
+
+/**
+ * APP
+ */
+
+export enum EnumTodoLabel {
+  today = 'Today',
+  overdue = 'Overdue',
+  next = 'Next',
+  noDueDate = 'No Due Date',
+}
+
+// export type TreeViewTodoData = {
+//   [key in keyof typeof EnumTodoLabel]: {
+//     tasks: Task[]
+//   }
+// }
+
+export type TaskTreeViewData = [
+  {
+    label: string
+    tasks: Task[]
+  }
+]
+
+export type TreeViewAllTasksData = {
+  [key in string]: {
+    label: string
+    tasks: Task[]
+  }
 }

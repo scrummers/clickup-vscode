@@ -10,19 +10,16 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:clickup.setToken",
-    "onCommand:clickup.deleteToken",
-    "onCOmmand:clickup.updateToken",
-    "onCommand:clickup.addTask",
-    "onCommand:clickup.deleteTask",
-    "onCommand:clickup.editTask",
-    "onCommand:Scrummer.hello",
-    "onCommand:Scrummer.testing",
-    "onStartupFinished"
+    "*"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "clickup.selectWorkspace",
+        "category": "Click Up",
+        "title": "Select Workspace"
+      },
       {
         "command": "clickup.setToken",
         "category": "Click Up",
@@ -54,36 +51,61 @@
         "title": "Edit Task"
       },
       {
-        "command": "Scrummer.hello",
-        "category": "Scrummer",
-        "title": "Hello"
+        "command": "clickup.getStorageData",
+        "category": "Click Up",
+        "title": "Get storage data"
       },
       {
-        "command": "Scrummer.testing",
-        "category": "Scrummer Testing",
-        "title": "Testing"
+        "command": "clickup.getAppState",
+        "category": "Click Up",
+        "title": "clickup Get AppState"
+      },
+      {
+        "command": "clickup.testing",
+        "category": "Click Up",
+        "title": "TEST: Wilson API testing"
+      },
+      {
+        "command": "clickup.getMyData",
+        "category": "Click Up",
+        "title": "Get My Data"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "Scrummer-Views-Containers",
-          "title": "Scrummer",
+          "id": "clickup-explorer",
+          "title": "Clickup",
           "icon": "media/to_do_list.svg"
         }
       ]
     },
     "views": {
-      "Scrummer-Views-Containers": [
+      "clickup-explorer": [
         {
-          "id": "Today-Tasks",
-          "name": "Today Tasks"
+          "id": "clickup-todo",
+          "name": "To Do"
         },
         {
-          "id": "Complete-Tasks",
-          "name": "Complete Tasks"
+          "id": "clickup-all-tasks",
+          "name": "All Tasks"
         }
       ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "clickup-all-tasks",
+        "contents": "Please enter a token, [learn more](https://clickup.com).\n[Set token](command:clickup.setToken)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+				{
+					"command": "clickup.refresh",
+					"when": "view == clickup-todo",
+					"group": "navigation@1"
+				}
+			]
     }
   },
   "scripts": {
