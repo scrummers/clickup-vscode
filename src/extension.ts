@@ -3,11 +3,11 @@ import * as vscode from 'vscode'
 import { Client } from './clients/Client'
 import { Commands, registerCommands } from './commands'
 import { WebViewService } from './service/web_view_service'
-import { TaskFilter } from './util/typings/clickup'
+import { EnumTodoLabel } from './util/typings/clickup'
 
 async function activate(context: vscode.ExtensionContext) {
   // Initialization
-  const client = new Client(context)
+  const client =  new Client(context)
   const clickUpService = client.service
 
   // Command function
@@ -64,18 +64,26 @@ async function activate(context: vscode.ExtensionContext) {
 
   vscode.commands.registerCommand('clickup.testing', async () => {
     // For testing purposes and examples for each features
-    const space = await clickUpService.getSpaceTree('55543351')
+    const clickUpService_debug = client.service
+    const space = await clickUpService_debug.getSpaceTree('55543351')
     console.log(space)
-    const TestSpace = await clickUpService.getSpaceTree('55594352')
+    const TestSpace = await clickUpService_debug.getSpaceTree('55594352')
     console.log(TestSpace)
-    const ALL_tasks = await clickUpService.getTasksFilters([], TestSpace, TaskFilter.Type_all_task) // Return ALL To-do Task
-    const tasks = await clickUpService.getTasksFilters([49541582], TestSpace, TaskFilter.Type_all_task) // Return Wilson To-do Task
-    const Jtasks = await clickUpService.getTasksFilters([5883240], TestSpace, TaskFilter.Type_all_task) // Return Jacky To-do Task
-    const ALL_tasks_sp = await clickUpService.getTasksFilters([], space, TaskFilter.Type_all_task) // Return ALL To-do Task
-    const done_tasks = await clickUpService.getTasksFilters([], space, 'done') // Return done Task
-    const overdue_tasks = await clickUpService.getTasksFilters([], TestSpace, TaskFilter.Type_overdue) // Return overdue Task
-    const today_tasks = await clickUpService.getTasksFilters([], TestSpace, TaskFilter.Type_today) // Return overdue Task
-    const join_tasks = await clickUpService.getTasksFilters([49541582, 5883240], TestSpace, TaskFilter.Type_all_task) // Return next Task
+    const ALL_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.allTask) // Return ALL To-do Task
+    const tasks = await clickUpService_debug.getTasksFilters([49541582], TestSpace, EnumTodoLabel.allTask) // Return Wilson To-do Task
+    const Jtasks = await clickUpService_debug.getTasksFilters([5883240], TestSpace, EnumTodoLabel.allTask) // Return Jacky To-do Task
+    const ALL_tasks_sp = await clickUpService_debug.getTasksFilters([], space,  EnumTodoLabel.allTask) // Return ALL To-do Task
+    const done_tasks = await clickUpService_debug.getTasksFilters([], space,  'done') // Return done Task
+    const overdue_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.overdue) // Return overdue Task
+    const today_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.today) // Return overdue Task
+    const join_tasks = await clickUpService_debug.getTasksFilters([49541582, 5883240], TestSpace, EnumTodoLabel.allTask) // Return next Task
+    //await clickUpService_debug.createList('55594352', 'Create_list_from_VS'); 
+    //Example
+    //const data8= {
+    //  name: "From VS Code testing 8 name ",
+    //  description:"From VS Code testing 99 description"
+   // }
+    //await clickUpService_debug.newTask("217581024", data8)
     console.log(ALL_tasks)
     console.log(tasks)
     console.log(Jtasks)

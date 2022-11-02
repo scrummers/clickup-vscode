@@ -192,7 +192,25 @@ export type Task = {
   }
   url: string
 }
-
+/*
+export type CreateTask = {
+  name: string
+  description: string
+  assignee: number[]
+  tags: string[]
+  status: string
+  priority: number
+  due_date: number
+  due_date_time: boolean
+  time_estimate: boolean
+  start_date:  number
+  start_date_time: boolean
+  notify_all: boolean
+  parent: string|null
+  links_to: string|null
+  check_required_custom_fields: boolean
+}
+*/
 export type Folder = {
   id: string
   name: string
@@ -236,14 +254,6 @@ export type Status = {
   color: string // hex value
 }
 
-export enum TaskFilter {
-  Type_today = 'today',
-  Type_no_due_date = 'no_due',
-  Type_overdue = 'overdue',
-  Type_next = 'next',
-  Type_all_task = '*',
-}
-
 /**
  * APP
  */
@@ -253,6 +263,7 @@ export enum EnumTodoLabel {
   overdue = 'Overdue',
   next = 'Next',
   noDueDate = 'No Due Date',
+  allTask = '*'
 }
 
 // export type TreeViewTodoData = {

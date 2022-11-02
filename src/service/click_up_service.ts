@@ -10,7 +10,7 @@ import {
   SpaceLListFile,
   ListExtend,
   FolderExtend,
-  TaskFilter,
+  EnumTodoLabel,
 } from '../util/typings/clickup'
 import { LocalStorageService } from './local_storage_service'
 
@@ -28,78 +28,7 @@ class ClickUpService {
     this.userToken = token
     this.clickUp = new Clickup(this.userToken)
   }
-  // public async setup(): Promise<boolean> {
-  //   this.userToken = await this.getUserToken()
-
-  //   // Prompt user to input his/her token if the token is undefined
-  //   if (this.userToken === undefined) {
-  //     vscode.window.showErrorMessage('No Click Up Token!', ...['Add Click Up Token']).then(async (result) => {
-  //       if (result === undefined) {
-  //         return false
-  //       }
-
-  //       let token: string | undefined = await vscode.window.showInputBox({
-  //         placeHolder: 'Please input your user token',
-  //       })
-
-  //       if (token === undefined || token === '') {
-  //         vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
-
-  //         return false
-  //       }
-
-  //       // Update user token and setup API
-  //       this.userToken = token
-  //       this.storageService.setValue('token', this.userToken)
-  //       this.clickUp = new Clickup(this.userToken)
-  //     })
-  //   } else {
-  //     this.clickUp = new Clickup(this.userToken)
-  //   }
-
-  //   return true
-  // }
-
-  // Checking
-  public checkAPI() {
-    if (this.clickUp === undefined) {
-      if (this.userToken === undefined) {
-        this.checkUserToken()
-      } else {
-        vscode.window.showErrorMessage('API not set, Please restart Scrummer', ...['Refresh']).then((result) => {
-          if (result === undefined) {
-            return
-          }
-          vscode.commands.executeCommand('workbench.action.reloadWindow')
-        })
-      }
-
-      return false
-    }
-
-    return true
-  }
-
-  public checkUserToken() {
-    console.log(`ClickUpService - checkUserToken: ${this.userToken}`) // Debug
-
-    if (this.userToken === undefined) {
-      return vscode.window
-        .showErrorMessage('Please add your Click Up token to use Scrummer', ...['Add Click Up Token'])
-        .then(async (result) => {
-          if (result === undefined) {
-            return
-          }
-
-          await vscode.window
-            .showInputBox({
-              placeHolder: 'Please input your user token',
-            })
-            .then((userToken) => this.setUserToken(userToken))
-        })
-    }
-  }
-
+  
   // User token
   public deleteUserToken() {
     this.userToken = undefined
@@ -264,7 +193,7 @@ class ClickUpService {
   public async getSpaceTree(spaceId: string) {
     var space = await this.getSpace(spaceId)
     var spaceList = await this.getFolderLists(spaceId)
-    var folders = await this.getFolders(spaceId)
+    var folders : FolderExtend[]= <FolderExtend[]>await this.getFolders(spaceId)
     var tree: SpaceLListFile = space
     var rootLists: ListExtend[] = <ListExtend[]>spaceList
 
@@ -305,30 +234,27 @@ class ClickUpService {
     else {
       // Search Root list Task
       for (var i = 0; i < space_tree.root_lists.length; i++) {
-        for (var j = 0; j < space_tree.root_lists[i].task_count; j++)
-          retrunTasks.push(space_tree.root_lists[i].tasks[j])
+        retrunTasks = retrunTasks.concat(space_tree.root_lists[i].tasks)
       }
       for (var i = 0; i < space_tree.folders.length; i++) {
         for (var j = 0; j < space_tree.folders[i].lists.length; j++) {
-          for (var z = 0; z < space_tree.folders[i].lists[j].task_count; z++) {
-            retrunTasks.push(space_tree.folders[i].lists[j].tasks[z])
-          }
+          retrunTasks = retrunTasks.concat(space_tree.folders[i].lists[j].tasks)
         }
       }
       // Check status if * , skip
-      if (status != '*')
+      if (status != EnumTodoLabel.allTask)
         retrunTasks = retrunTasks.filter((Obj) => {
           switch (status) {
-            case 'overdue': {
+            case EnumTodoLabel.overdue: {
               return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) < time_down //Obj.due_date define today = today_date+ Time : 04:00
             }
-            case 'today': {
+            case EnumTodoLabel.today: {
               return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) >= time_down
             }
-            case 'no_due': {
+            case EnumTodoLabel.noDueDate: {
               return Obj.due_date == null
             }
-            case 'next': {
+            case EnumTodoLabel.next: {
               return Number(Obj.due_date) >= time_up && Obj.due_date != null
             }
             default: {
