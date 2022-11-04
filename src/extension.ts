@@ -4,12 +4,16 @@ import { Client } from './clients/Client'
 import { Commands, registerCommands } from './commands'
 import { WebViewService } from './service/web_view_service'
 import { EnumTodoLabel } from './util/typings/clickup'
+import { CodelensProvider } from './service/CodelensProvider';
+
+let disposables: vscode.Disposable[] = [];
 
 async function activate(context: vscode.ExtensionContext) {
   // Initialization
   const client =  new Client(context)
   const clickUpService = client.service
-
+  const codelensProvider = new CodelensProvider();
+  vscode.languages.registerCodeLensProvider("*", codelensProvider);
   // Command function
   registerCommands(context, client)
 
@@ -56,13 +60,11 @@ async function activate(context: vscode.ExtensionContext) {
     new WebViewService(context, ['html', 'edit_task', 'edit_task.html'], 'Edit Task')
   })
 
-  vscode.commands.registerCommand('clickup.hello', () => {
-    vscode.window.showInformationMessage('Hello from Scrummer!')
-
-    console.log(vscode.Uri.file(path.join(context.extensionPath, 'html', 'add_new_task')))
+  vscode.commands.registerCommand("clickup.codelentest", () => {
+    codelensProvider.codeLensDisable()
   })
 
-  vscode.commands.registerCommand('clickup.testing', async () => {
+  vscode.commands.registerCommand('clickup.testing', async (args:any) => {
     // For testing purposes and examples for each features
     const clickUpService_debug = client.service
     const space = await clickUpService_debug.getSpaceTree('55543351')
@@ -93,6 +95,11 @@ async function activate(context: vscode.ExtensionContext) {
   })
 }
 
-function deactivate() {}
+function deactivate() {
+  if (disposables) {
+    disposables.forEach(item => item.dispose());
+  }
+  disposables = [];  
+}
 
 export { activate, deactivate }

@@ -222,7 +222,34 @@ class ClickUpService {
   }
 
   public async getTasksFilters(user_id: number[], space_tree: SpaceLListFile, status: string) {
-    var retrunTasks: Task[] = []
+    var returnTasks: Task[] = []
+    if (space_tree == undefined) return null
+    else {
+      // Search Root list Task
+      returnTasks = await this.getAllTasks(space_tree)
+      // Check status if * , skip
+      returnTasks = await this.TasksFilters(user_id, returnTasks, status)
+    }
+    return returnTasks
+  }
+  public async getAllTasks(space_tree: SpaceLListFile) {
+    var returnTasks: Task[] = []
+    if (space_tree == undefined) return returnTasks
+    else {
+      // Search Root list Task
+      for (var i = 0; i < space_tree.root_lists.length; i++) {
+        returnTasks = returnTasks.concat(space_tree.root_lists[i].tasks)
+      }
+      for (var i = 0; i < space_tree.folders.length; i++) {
+        for (var j = 0; j < space_tree.folders[i].lists.length; j++) {
+          returnTasks = returnTasks.concat(space_tree.folders[i].lists[j].tasks)
+        }
+      }
+    }
+    return returnTasks
+  }
+  public async TasksFilters(user_id: number[], tasks: Task[], status: string) {
+    var returnTasks: Task[] = []
     let date = new Date()
     date.setMilliseconds(0)
     date.setSeconds(0)
@@ -230,52 +257,42 @@ class ClickUpService {
     date.setHours(0)
     const time_down = date.getTime()
     const time_up = time_down + 86400000
-    if (space_tree == undefined) return null
-    else {
-      // Search Root list Task
-      for (var i = 0; i < space_tree.root_lists.length; i++) {
-        retrunTasks = retrunTasks.concat(space_tree.root_lists[i].tasks)
-      }
-      for (var i = 0; i < space_tree.folders.length; i++) {
-        for (var j = 0; j < space_tree.folders[i].lists.length; j++) {
-          retrunTasks = retrunTasks.concat(space_tree.folders[i].lists[j].tasks)
-        }
-      }
       // Check status if * , skip
-      if (status != EnumTodoLabel.allTask)
-        retrunTasks = retrunTasks.filter((Obj) => {
-          switch (status) {
-            case EnumTodoLabel.overdue: {
-              return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) < time_down //Obj.due_date define today = today_date+ Time : 04:00
-            }
-            case EnumTodoLabel.today: {
-              return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) >= time_down
-            }
-            case EnumTodoLabel.noDueDate: {
-              return Obj.due_date == null
-            }
-            case EnumTodoLabel.next: {
-              return Number(Obj.due_date) >= time_up && Obj.due_date != null
-            }
-            default: {
-              return Obj.status.status === status
-            }
+    returnTasks = tasks
+    if (status != EnumTodoLabel.allTask)
+      returnTasks = tasks.filter((Obj) => {
+        switch (status) {
+          case EnumTodoLabel.overdue: {
+            return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) < time_down //Obj.due_date define today = today_date+ Time : 04:00
           }
-        })
-      // Serach User_id. If user_id = No Filter
-      if (user_id.length != 0) {
-        retrunTasks = retrunTasks.filter((Obj) => {
-          return Obj.assignees.find((ID) => {
-            let check_retrun = false
+          case EnumTodoLabel.today: {
+            return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) >= time_down
+          }
+          case EnumTodoLabel.noDueDate: {
+            return Obj.due_date == null
+          }
+          case EnumTodoLabel.next: {
+            return Number(Obj.due_date) >= time_up && Obj.due_date != null
+          }
+          default: {
+            return Obj.status.status === status
+          }
+        }
+      })
+    // Serach User_id. If user_id = No Filter
+    if (user_id.length != 0) {
+      returnTasks = returnTasks.filter((Obj) => {
+        return Obj.assignees.find((ID) => {
+          let check_return = false
             for (var i = 0; i < user_id.length; i++) {
-              check_retrun = check_retrun || ID.id == user_id[i]
+              check_return = check_return || ID.id == user_id[i]
             }
-            return check_retrun
-          })
+            return check_return
         })
-      }
+      })
     }
-    return retrunTasks
+    return returnTasks
   }
+  
 }
 export { ClickUpService }

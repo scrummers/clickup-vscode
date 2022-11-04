@@ -66,10 +66,15 @@
         "title": "TEST: Wilson API testing"
       },
       {
+        "command": "clickup.codelentest",
+        "category": "Click Up",
+        "title": "TEST: Codelen disable"
+      },      
+      {
         "command": "clickup.getMyData",
         "category": "Click Up",
         "title": "Get My Data"
-      }
+      }   
     ],
     "viewsContainers": {
       "activitybar": [
