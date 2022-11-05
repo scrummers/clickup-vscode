@@ -1,5 +1,7 @@
 import { Memento } from 'vscode'
+import { EnumLocalStorage } from '../util/typings/system'
 
+const storageKey = Object.values(EnumLocalStorage)
 class LocalStorageService {
   private storage: Memento
 
@@ -7,38 +9,29 @@ class LocalStorageService {
     this.storage = memento
   }
 
-  public async deleteValue(key: string) {
-    console.log(`LocalStorageService - Delete: ${key}`) // Debug
-
-    await this.storage.update(key, undefined)
+  public clearAll() {
+    storageKey.forEach((key) => this.deleteValue(key))
   }
 
-  public async getValue(key: string): Promise<any> {
-    console.log(`LocalStorageService - Get: ${key}`) // Debug
-
-    return await this.storage.get(key)
+  public deleteValue(key: string) {
+    console.log(`[Storage Delete]: ${key}`) // Debug
+    return this.storage.update(key, undefined)
   }
 
-  public async setValue(key: string, value: any) {
-    console.log(`LocalStorageService - Set: ${key} - ${value}`) // Debug
-
-    await this.storage.update(key, value)
+  public getValue(key: string): Object | string {
+    let value = this.storage.get(key) || ''
+    try {
+      value = JSON.parse(value as any)
+    } catch {}
+    console.log(`[Storage GET]: ${key}`) // Debug
+    return value
   }
 
-  public async getObjectValue(key: string) {
-    console.log(`LocalStorageService - Get: ${key}`) // Debug
-
-    const val = this.storage.get<string>(key)
-    if (!val) {
-      return
-    }
-    return JSON.parse(val)
-  }
-
-  public async setObjectValue(key: string, value: Object) {
-    console.log(`LocalStorageService - Set: ${key}`) // Debug
-
-    await this.storage.update(key, JSON.stringify(value))
+  public setValue(key: string, value: any) {
+    const isObjType = typeof value !== 'string'
+    const _value = isObjType ? JSON.stringify(value) : value
+    console.log(`[Storage SET]: ${key} => ${_value}`) // Debug
+    return this.storage.update(key, _value)
   }
 }
 
