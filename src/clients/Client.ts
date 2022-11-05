@@ -24,42 +24,43 @@ export class Client {
       return
     }
 
-    this.init(context)
+    this.storage = new LocalStorageService(context.workspaceState)
+    const token = this.storage.getValue(EnumLocalStorage.Token) as string
+    if (!token) {
+      // window.showWarningMessage('Please enter a valid user token!')
+      commands.executeCommand(Commands.ClickupSetToken)
+      return
+    }
+
+    this.init(token)
   }
 
-  private async init(context: ExtensionContext) {
-    try {
-      this.storage = new LocalStorageService(context.workspaceState)
+  async init(token: string): Promise<User> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const service = new ClickUpService(this.storage)
+        const me = await service.setup(token)
+        this.service = service
 
-      const token = await this.storage.getValue(EnumLocalStorage.Token)
-      if (!token) {
-        window.showWarningMessage('Please enter a valid user token!')
-        commands.executeCommand(Commands.ClickupSetToken)
-        return
+        // init space environment
+        const crntSpace = this.storage.getValue(EnumLocalStorage.CrntSpace) as {
+          name: string
+          id: string
+        }
+        if (!crntSpace) {
+          commands.executeCommand(Commands.ClickupSelectWorkspace)
+          return
+        }
+
+        console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
+
+        this.setupTreeView(crntSpace.id)
+        // update state
+        resolve(me)
+      } catch (err) {
+        reject(err)
       }
-
-      const service = await new ClickUpService(this.storage)
-      service.setup(token)
-      this.service = service
-
-      // init space environment
-      const crntSpace = await this.storage.getObjectValue(EnumLocalStorage.CrntSpace)
-      // const me = await this.storage.getObjectValue(EnumLocalStorage.Me)
-      if (!crntSpace) {
-        commands.executeCommand(Commands.ClickupSelectWorkspace)
-        return
-      }
-      // if (!me) {
-      //   commands.executeCommand(Commands.ClickupGetMyData)
-      //   return
-      // }
-      console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
-
-      this.setupTreeView(crntSpace.id)
-      // update state
-    } catch (err) {
-      console.log('err', err)
-    }
+    })
   }
 
   public async fetchWorkspaces(): Promise<Teams[]> {
@@ -74,7 +75,7 @@ export class Client {
     })
   }
   private async getMe(): Promise<User | null> {
-    const me = await this.storage.getObjectValue(EnumLocalStorage.Me)
+    const me = this.storage.getValue(EnumLocalStorage.Me) as User
     if (!me) {
       commands.executeCommand(Commands.ClickupGetMyData)
       return null
@@ -140,6 +141,29 @@ export class Client {
     this.stateUpdateSpace(spaceTree)
   }
 
+  // token
+  isTokenExist(): boolean {
+    return !!this.storage.getValue(EnumLocalStorage.Token)
+  }
+
+  async setToken(token: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const me = await this.init(token)
+        this.stateUpdateMe(me)
+        this.storage.setValue(EnumLocalStorage.Token, token)
+        resolve()
+      } catch (err) {
+        reject(err)
+      }
+    })
+  }
+
+  // remove all data once token is deleted
+  deleteToken() {
+    this.storage.clearAll()
+  }
+
   // App state related
   stateUpdateSpace(space: SpaceLListFile) {
     AppState.crntSpace = space
@@ -147,11 +171,11 @@ export class Client {
       id: space.id,
       name: space.name,
     }
-    this.storage.setObjectValue(EnumLocalStorage.CrntSpace, crntSpace)
+    this.storage.setValue(EnumLocalStorage.CrntSpace, crntSpace)
   }
   stateUpdateMe(user: User) {
     AppState.me = user
-    this.storage.setObjectValue(EnumLocalStorage.Me, user)
+    this.storage.setValue(EnumLocalStorage.Me, user)
   }
 
   static destory() {

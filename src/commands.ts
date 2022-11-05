@@ -8,7 +8,6 @@ export enum Commands {
   ClickupGetStorageData = 'clickup.getStorageData',
 
   ClickupGetMyData = 'clickup.getMyData',
-
   // Config
   ClickupSetToken = 'clickup.setToken',
   ClickupUpdateToken = 'clickup.updateToken',
@@ -33,9 +32,57 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         .showInputBox({
           placeHolder: 'Please enter your ClickUp API token',
         })
-        .then(async (userToken) => {
-          client.service.setUserToken(userToken)
-          commands.executeCommand(Commands.ClickupGetMyData)
+        .then(async (token) => {
+          if (token) {
+            try {
+              await client.setToken(token)
+              window.showInformationMessage('API token register succeed')
+            } catch (err) {
+              window.showErrorMessage('API token error')
+            }
+          }
+        })
+    }),
+    commands.registerCommand(Commands.ClickupDeleteToken, async () => {
+      if (!client.isTokenExist()) {
+        window.showErrorMessage('Token has not been set')
+        return
+      }
+
+      await window
+        .showInformationMessage('Do you really want to delete your token?', ...['Yes', 'No'])
+        .then(async (result) => {
+          if (result === undefined || result === 'No') {
+            return
+          }
+          client.deleteToken()
+          window.showInformationMessage('Clickup API token is deleted')
+        })
+    }),
+    commands.registerCommand(Commands.ClickupUpdateToken, async () => {
+      if (!client.isTokenExist()) {
+        window.showErrorMessage('Token has not been set')
+        return
+      }
+
+      await window
+        .showInputBox({
+          placeHolder: 'Please enter your ClickUp API token',
+        })
+        .then(async (token) => {
+          if (token) {
+            try {
+              // remove old data
+              client.deleteToken()
+
+              //TODO: should verify whether the new token is valid, otherwise reverse it
+
+              await client.setToken(token)
+              window.showInformationMessage('API token update succeed')
+            } catch (err) {
+              window.showErrorMessage('API token error')
+            }
+          }
         })
     }),
 
@@ -45,12 +92,11 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     commands.registerCommand(Commands.ClickupGetStorageData, async () => {
       const storage = new LocalStorageService(vscodeContext.workspaceState)
       const token = await storage.getValue('token')
-      console.log('get space', token)
     }),
-    commands.registerCommand(Commands.ClickupGetMyData, async () => {
-      const me = await client.service.getMe()
-      client.stateUpdateMe(me)
-    }),
+    // commands.registerCommand(Commands.ClickupGetMyData, async () => {
+    //   const me = await client.service.getMe()
+
+    // }),
     commands.registerCommand(Commands.ClickupSelectWorkspace, async () => {
       try {
         const workspaces = await client.service.getTeams()

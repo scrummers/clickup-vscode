@@ -17,25 +17,25 @@ async function activate(context: vscode.ExtensionContext) {
   // Command function
   registerCommands(context, client)
 
-  vscode.commands.registerCommand('clickup.deleteClickUpToken', async () => {
-    await vscode.window
-      .showInformationMessage('Do you really want to delete your token?', ...['Yes', 'No'])
-      .then((result) => {
-        if (result === undefined || result === 'No') {
-          return
-        }
+  // vscode.commands.registerCommand('clickup.deleteClickUpToken', async () => {
+  //   await vscode.window
+  //     .showInformationMessage('Do you really want to delete your token?', ...['Yes', 'No'])
+  //     .then((result) => {
+  //       if (result === undefined || result === 'No') {
+  //         return
+  //       }
 
-        clickUpService.deleteUserToken()
-      })
-  })
+  //       clickUpService.deleteUserToken()
+  //     })
+  // })
 
-  vscode.commands.registerCommand('clickup.editClickUpToken', async () => {
-    await vscode.window
-      .showInputBox({
-        placeHolder: 'Please input a new user token',
-      })
-      .then((userToken) => clickUpService.setUserToken(userToken))
-  })
+  // vscode.commands.registerCommand('clickup.editClickUpToken', async () => {
+  //   await vscode.window
+  //     .showInputBox({
+  //       placeHolder: 'Please input a new user token',
+  //     })
+  //     .then((userToken) => clickUpService.setUserToken(userToken))
+  // })
 
   vscode.commands.registerCommand(Commands.ClickupAddTask, async () => {
     if (clickUpService.userToken === undefined) {

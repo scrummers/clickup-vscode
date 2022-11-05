@@ -24,44 +24,53 @@ class ClickUpService {
     this.storageService = storageService
   }
 
-  public async setup(token: string) {
-    this.userToken = token
-    this.clickUp = new Clickup(this.userToken)
+  public async setup(token: string): Promise<User> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.userToken = token
+        this.clickUp = new Clickup(this.userToken)
+        const me = await this.getMe()
+        resolve(me)
+      } catch (err) {
+        this.clickUp = undefined
+        reject(err)
+      }
+    })
   }
-  
+
   // User token
-  public deleteUserToken() {
-    this.userToken = undefined
-    this.storageService.setValue('token', this.userToken)
-    this.deleteClickUp_serivce()
-  }
+  // public deleteUserToken() {
+  //   this.userToken = undefined
+  //   this.storageService.setValue('token', this.userToken)
+  //   this.deleteClickUp_serivce()
+  // }
 
-  public async getUserToken(): Promise<string> {
-    if (this.userToken === undefined) {
-      return await this.storageService.getValue('token')
-    }
-    return this.userToken
-  }
+  // public async getUserToken(): Promise<string> {
+  //   if (this.userToken === undefined) {
+  //     return await this.storageService.getValue('token')
+  //   }
+  //   return this.userToken
+  // }
 
-  public setUserToken(token: string | undefined) {
-    if (token === undefined || token === '') {
-      return vscode.window.showWarningMessage('Please enter a valid user token!')
-    }
+  // public setUserToken(token: string | undefined) {
+  //   if (token === undefined || token === '') {
+  //     return vscode.window.showWarningMessage('Please enter a valid user token!')
+  //   }
 
-    this.userToken = token
-    this.storageService.setValue('token', this.userToken)
-    this.clickUp = new Clickup(this.userToken)
-  }
+  //   this.userToken = token
+  //   this.storageService.setValue('token', this.userToken)
+  //   this.clickUp = new Clickup(this.userToken)
+  // }
 
   public deleteClickUp_serivce() {
     this.clickUp = undefined
   }
   // Team Functions
-  public async getMe(): Promise<any> {
+  public async getMe(): Promise<User> {
     const {
       body: { user },
     } = await this.clickUp.authorization.getAuthorizedUser()
-    return user
+    return user as User
   }
 
   public async getTeams(): Promise<Teams[]> {
@@ -193,7 +202,7 @@ class ClickUpService {
   public async getSpaceTree(spaceId: string) {
     var space = await this.getSpace(spaceId)
     var spaceList = await this.getFolderLists(spaceId)
-    var folders : FolderExtend[]= <FolderExtend[]>await this.getFolders(spaceId)
+    var folders: FolderExtend[] = <FolderExtend[]>await this.getFolders(spaceId)
     var tree: SpaceLListFile = space
     var rootLists: ListExtend[] = <ListExtend[]>spaceList
 
@@ -257,7 +266,7 @@ class ClickUpService {
     date.setHours(0)
     const time_down = date.getTime()
     const time_up = time_down + 86400000
-      // Check status if * , skip
+    // Check status if * , skip
     returnTasks = tasks
     if (status != EnumTodoLabel.allTask)
       returnTasks = tasks.filter((Obj) => {
@@ -284,15 +293,14 @@ class ClickUpService {
       returnTasks = returnTasks.filter((Obj) => {
         return Obj.assignees.find((ID) => {
           let check_return = false
-            for (var i = 0; i < user_id.length; i++) {
-              check_return = check_return || ID.id == user_id[i]
-            }
-            return check_return
+          for (var i = 0; i < user_id.length; i++) {
+            check_return = check_return || ID.id == user_id[i]
+          }
+          return check_return
         })
       })
     }
     return returnTasks
   }
-  
 }
 export { ClickUpService }
