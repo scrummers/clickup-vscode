@@ -5,6 +5,7 @@ import { Commands, registerCommands } from './commands'
 import { WebViewService } from './service/web_view_service'
 import { EnumTodoLabel } from './util/typings/clickup'
 import { CodelensProvider } from './service/CodelensProvider';
+import { StatusBarService } from './service/status_bar_service'
 
 let disposables: vscode.Disposable[] = [];
 
@@ -13,6 +14,7 @@ async function activate(context: vscode.ExtensionContext) {
   const client =  new Client(context)
   const clickUpService = client.service
   const codelensProvider = new CodelensProvider();
+  const stausbarService = new StatusBarService()
   vscode.languages.registerCodeLensProvider("*", codelensProvider);
   // Command function
   registerCommands(context, client)
