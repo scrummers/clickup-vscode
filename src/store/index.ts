@@ -1,1 +1,1 @@
-export { AppState } from './AppState'
+export { AppState, appStateChangeEventEmitter } from './AppState'
