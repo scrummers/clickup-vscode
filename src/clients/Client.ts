@@ -3,7 +3,7 @@ import { Commands } from '../commands'
 import { ClickUpService } from '../service/click_up_service'
 import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
-import { AppState } from '../store'
+import { AppState, appStateChangeEventEmitter } from '../store'
 import { EnumTodoLabel, SpaceLListFile, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
@@ -49,7 +49,6 @@ export class Client {
         }
         if (!crntSpace) {
           commands.executeCommand(Commands.ClickupSelectWorkspace)
-          return
         }
 
         console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
@@ -162,6 +161,9 @@ export class Client {
   // remove all data once token is deleted
   deleteToken() {
     this.storage.clearAll()
+    AppState.crntSpace = null
+    AppState.me = null
+    appStateChangeEventEmitter.fire()
   }
 
   // App state related
@@ -172,10 +174,13 @@ export class Client {
       name: space.name,
     }
     this.storage.setValue(EnumLocalStorage.CrntSpace, crntSpace)
+    appStateChangeEventEmitter.fire()
   }
+
   stateUpdateMe(user: User) {
     AppState.me = user
     this.storage.setValue(EnumLocalStorage.Me, user)
+    appStateChangeEventEmitter.fire()
   }
 
   static destory() {
