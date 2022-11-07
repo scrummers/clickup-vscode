@@ -58,7 +58,7 @@ abstract class CustomStatusBarItem {
         }
 }
 
-export class LoadingStatusBarItem extends CustomStatusBarItem {
+class LoadingStatusBarItem extends CustomStatusBarItem {
         constructor(id: string, align: StatusBarAlignment = StatusBarAlignment.Left, priority: number = 0) {
                 super(id, align, priority)
         }
@@ -74,7 +74,7 @@ export class LoadingStatusBarItem extends CustomStatusBarItem {
         }
 }
 
-export class UserStatusBarItem extends CustomStatusBarItem {
+class UserStatusBarItem extends CustomStatusBarItem {
         constructor(id: string, align: StatusBarAlignment = StatusBarAlignment.Left, priority: number = 0) {
                 super(id, align, priority)
         }
@@ -94,7 +94,7 @@ export class UserStatusBarItem extends CustomStatusBarItem {
         }
 }
 
-export class SpaceStatusBarItem extends CustomStatusBarItem {
+class SpaceStatusBarItem extends CustomStatusBarItem {
         constructor(id: string, align: StatusBarAlignment = StatusBarAlignment.Left, priority: number = 0) {
                 super(id, align, priority)
         }
@@ -114,14 +114,12 @@ export class SpaceStatusBarItem extends CustomStatusBarItem {
 }
 
 export class StatusBarService {
-        private _customStatusBarItems: Map<string, CustomStatusBarItem>
-        private _onDidAppStateChange: Event<void> | null = null
+        private _onDidAppStateChange: Event<void>
         private userStatusItems: UserStatusBarItem
         private loadingStatusItems: LoadingStatusBarItem
         private spaceStatusBarItem: SpaceStatusBarItem
 
         constructor() {
-                this._customStatusBarItems = new Map<string, CustomStatusBarItem>
                 this._onDidAppStateChange = appStateChangeEventEmitter.event
                 this._onDidAppStateChange(this.updateStatusBarItems, this)
                 this.userStatusItems = new UserStatusBarItem("clickup.username", StatusBarAlignment.Left, 3)
