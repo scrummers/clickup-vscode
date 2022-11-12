@@ -70,12 +70,12 @@
         "command": "clickup.codelentest",
         "category": "Click Up",
         "title": "TEST: Codelen disable"
-      },      
+      },
       {
         "command": "clickup.getMyData",
         "category": "Click Up",
         "title": "Get My Data"
-      }   
+      }
     ],
     "viewsContainers": {
       "activitybar": [
@@ -106,46 +106,99 @@
     ],
     "menus": {
       "view/title": [
-				{
-					"command": "clickup.refresh",
-					"when": "view == clickup-todo",
-					"group": "navigation@1"
-				}
-			]
+        {
+          "command": "clickup.refresh",
+          "when": "view == clickup-todo",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "walkthroughs": [
+      {
+        "id": "quickStart",
+        "title": "Get started with Scrummer",
+        "description": "Set up your Scrummer ClickUp VSCode extension.",
+        "steps": [
+          {
+            "id": "setClickUpApiToken",
+            "title": "Set up ClickUp API Token",
+            "description": "A ClickUp API Token is required to access your Spaces.\nYou can find your API Token under Settings > Apps > API Token.\n[Set up my API Token](command:clickup.setToken)",
+            "completionEvents": [
+              "onCommand:clickup.setToken"
+            ],
+            "media": {
+              "image": "src/assets/gif/demo_get_token.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          },
+          {
+            "id": "selectClickUpSpace",
+            "title": "Select a ClickUp Space",
+            "description": "Select a ClickUp Space you would like to work with.\nYou can only have one active Space at a time.\n[Select a Space](command:clickup.selectWorkspace)",
+            "completionEvents": [],
+            "media": {
+              "image": "src/assets/gif/demo_set_user.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          },
+          {
+            "id": "createFirstTask",
+            "title": "Create your first ClickUp Task",
+            "description": "Create a ClickUp Task in the current Space.\n[Create a Task](command:clickup.addTask)",
+            "completionEvents": [
+              "onCommand:clickup.clickUp.addTask"
+            ],
+            "media": {
+              "image": "src/assets/gif/demo_set_user.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          },
+          {
+            "id": "goodToGo",
+            "title": "Good to go!",
+            "description": "You're all set! You can now start using the extension.",
+            "completionEvents": [],
+            "media": {
+              "image": "src/assets/gif/demo_set_user.gif",
+              "altText": "Finding your ClickUp API Token."
+            }
+          }
+        ]
+      }
+    ],
+    "scripts": {
+      "vscode:prepublish": "npm run package",
+      "compile": "webpack",
+      "watch": "webpack --watch",
+      "package": "webpack --mode production --devtool hidden-source-map",
+      "compile-tests": "tsc -p . --outDir out",
+      "watch-tests": "tsc -p . -w --outDir out",
+      "pretest": "npm run compile-tests && npm run compile && npm run lint",
+      "lint": "eslint src --ext ts",
+      "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+      "@types/glob": "^7.2.0",
+      "@types/mocha": "^9.1.1",
+      "@types/node": "16.x",
+      "@types/vscode": "^1.71.0",
+      "@typescript-eslint/eslint-plugin": "^5.31.0",
+      "@typescript-eslint/parser": "^5.31.0",
+      "@vscode/test-electron": "^2.1.5",
+      "eslint": "^8.20.0",
+      "eslint-config-prettier": "^8.5.0",
+      "eslint-plugin-prettier": "^4.2.1",
+      "glob": "^8.0.3",
+      "mocha": "^10.0.0",
+      "prettier": "^2.7.1",
+      "ts-loader": "^9.3.1",
+      "typescript": "^4.7.4",
+      "webpack": "^5.74.0",
+      "webpack-cli": "^4.10.0"
+    },
+    "dependencies": {
+      "axios": "^0.27.2",
+      "clickup.js": "^3.0.2"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.2.0",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.71.0",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
-    "@vscode/test-electron": "^2.1.5",
-    "eslint": "^8.20.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "glob": "^8.0.3",
-    "mocha": "^10.0.0",
-    "prettier": "^2.7.1",
-    "ts-loader": "^9.3.1",
-    "typescript": "^4.7.4",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
-  },
-  "dependencies": {
-    "axios": "^0.27.2",
-    "clickup.js": "^3.0.2"
   }
 }
