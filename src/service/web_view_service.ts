@@ -31,6 +31,8 @@ class WebViewService{
     this.pathToDistHTML = path.join(...[context.extensionPath].concat(["dist", "html"]))
 
     console.log(this.pathToDistHTML)
+    console.log(webPath)
+    console.log(path.join(...[this.pathToDistHTML].concat(webPath)))
 
     let viewColumn = vscode.window.activeTextEditor ?
       vscode.window.activeTextEditor.viewColumn : undefined;

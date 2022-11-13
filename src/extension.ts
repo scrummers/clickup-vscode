@@ -59,7 +59,18 @@ async function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand(Commands.ClickupEditTask, () => {
-    new WebViewService(context, ['html', 'edit_task', 'edit_task.html'], 'Edit Task')
+    if (clickUpService.userToken === undefined) {
+      return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
+    }
+
+    let webFolder: string = 'edit_task'
+
+    let editTaskWebViewer = new WebViewService(context, [webFolder, 'edit_task.html'], 'Edit Task', {
+      localResources: [webFolder],
+      receiveMessageFunction: (message) => {
+        console.log(message)
+      },
+    })
   })
 
   vscode.commands.registerCommand("clickup.codelentest", () => {
@@ -81,7 +92,7 @@ async function activate(context: vscode.ExtensionContext) {
     const overdue_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.overdue) // Return overdue Task
     const today_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.today) // Return overdue Task
     const join_tasks = await clickUpService_debug.getTasksFilters([49541582, 5883240], TestSpace, EnumTodoLabel.allTask) // Return next Task
-    //await clickUpService_debug.createList('55594352', 'Create_list_from_VS'); 
+    //await clickUpService_debug.createList('55594352', 'Create_list_from_VS');
     //Example
     //const data8= {
     //  name: "From VS Code testing 8 name ",
@@ -101,7 +112,7 @@ function deactivate() {
   if (disposables) {
     disposables.forEach(item => item.dispose());
   }
-  disposables = [];  
+  disposables = [];
 }
 
 export { activate, deactivate }
