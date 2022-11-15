@@ -1,0 +1,42 @@
+<html>
+<head>
+  <link rel="stylesheet" href="${mainStyle}">
+  <link rel="stylesheet" href="${style}">
+</head>
+<body>
+  <div id="new-task">
+    <h1>{{title}}</h1>
+    <div class="task-row">
+      <h3>Task Name:</h3>
+      <input v-model="task.taskName">
+    </div>
+    <div class="task-row">
+      <h3>Task Location:</h3>
+      <input v-model="task.taskLocation">
+    </div>
+    <div class="task-row">
+      <h3>Assign To:</h3>
+      <select v-model="task.assignTo">
+        <option value="">Everyone</option>
+        <option v-for="member in memberList">{{member}}</option>
+      </select>
+    </div>
+    <div class="task-row">
+      <h3>Description:</h3>
+      <textarea data-provide="markdown" rows="10" v-model="task.description"></textarea>
+    </div>
+    <div class="task-row" v-if="errors.length">
+      <b>Please correct the following errors:</b>
+      <ul>
+        <li v-for="error in errors">{{error}}</li>
+      </ul>
+    </div>
+    <div class="task-row">
+      <button v-on:click="addTask">Add Task</button>
+      <button v-on:click="resetTask">Reset</button>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="${script}"></script>
+</body>
+</html>
