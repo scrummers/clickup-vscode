@@ -263,7 +263,7 @@ export enum EnumTodoLabel {
   overdue = 'Overdue',
   next = 'Next',
   noDueDate = 'No Due Date',
-  allTask = '*'
+  allTask = '*',
 }
 
 // export type TreeViewTodoData = {
@@ -272,12 +272,14 @@ export enum EnumTodoLabel {
 //   }
 // }
 
-export type TaskTreeViewData = [
-  {
-    label: string
-    tasks: Task[]
-  }
-]
+export type TaskTreeViewData = {
+  label: string
+  tasks: Task[]
+}[]
+
+export type TodoTasksMap = {
+  [key in string]: Task[]
+}
 
 export type TreeViewAllTasksData = {
   [key in string]: {

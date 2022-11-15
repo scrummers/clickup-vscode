@@ -4,7 +4,7 @@ import { ClickUpService } from '../service/click_up_service'
 import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
-import { EnumTodoLabel, SpaceLListFile, Teams, User } from '../util/typings/clickup'
+import { EnumTodoLabel, SpaceLListFile, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
 let instance: Client | null = null
@@ -92,24 +92,40 @@ export class Client {
     if (!me) return
 
     const myId = me.id
-    const todos: any = [
-      {
-        label: EnumTodoLabel.today,
-        tasks: await this.service.getTasksFilters([myId], spaceTree, 'today'),
-      },
-      {
-        label: EnumTodoLabel.overdue,
-        tasks: await this.service.getTasksFilters([myId], spaceTree, 'overdue'),
-      },
-      {
-        label: EnumTodoLabel.next,
-        tasks: await this.service.getTasksFilters([myId], spaceTree, 'next'),
-      },
-      {
-        label: EnumTodoLabel.noDueDate,
-        tasks: await this.service.getTasksFilters([myId], spaceTree, 'no_due'),
-      },
-    ]
+    // const t0 = performance.now()
+
+    const todoTaskMap = this.service.getTodoTasks(spaceTree, [myId])
+
+    let todos: TaskTreeViewData = []
+    Object.keys(todoTaskMap).map((key) => {
+      const item = {
+        label: key,
+        tasks: todoTaskMap[key],
+      }
+      todos.push(item)
+    })
+    console.log({ todos })
+
+    // const todos: any = [
+    //   {
+    //     label: EnumTodoLabel.today,
+    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.today),
+    //   },
+    //   {
+    //     label: EnumTodoLabel.overdue,
+    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.overdue),
+    //   },
+    //   {
+    //     label: EnumTodoLabel.next,
+    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.next),
+    //   },
+    //   {
+    //     label: EnumTodoLabel.noDueDate,
+    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.noDueDate),
+    //   },
+    // ]
+    // const t1 = performance.now()
+    // console.log(`Filter tasks took ${t1 - t0} milliseconds.`)
 
     // const allTasks = await this.service.getTasksFilters([me.id], spaceTree, '*')
     const _allTasks = [

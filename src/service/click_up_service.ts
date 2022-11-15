@@ -11,6 +11,7 @@ import {
   ListExtend,
   FolderExtend,
   EnumTodoLabel,
+  TodoTasksMap,
 } from '../util/typings/clickup'
 import { LocalStorageService } from './local_storage_service'
 
@@ -80,8 +81,8 @@ class ClickUpService {
     return teams
   }
   public async getSpaces(teamId: string) {
-    var { body } = await this.clickUp.teams.getSpaces(teamId)
-    var Space: Array<Space> = body.spaces
+    let { body } = await this.clickUp.teams.getSpaces(teamId)
+    let Space: Array<Space> = body.spaces
     return Space
   }
   public async createTeam(name: string) {
@@ -101,13 +102,13 @@ class ClickUpService {
     return body
   }
   public async getFolders(spaceId: string) {
-    var { body } = await this.clickUp.spaces.getFolders(spaceId)
-    var folder: Array<Folder> = body.folders
+    let { body } = await this.clickUp.spaces.getFolders(spaceId)
+    let folder: Array<Folder> = body.folders
     return folder
   }
   public async getFolderLists(spaceId: string) {
-    var { body } = await this.clickUp.spaces.getFolderlessLists(spaceId)
-    var lists: Array<List> = body.lists
+    let { body } = await this.clickUp.spaces.getFolderlessLists(spaceId)
+    let lists: Array<List> = body.lists
     return lists
   }
   public async deleteSpace(spaceId: string) {
@@ -121,55 +122,55 @@ class ClickUpService {
     return body
   }
   public async getTags(spaceId: string) {
-    var { body } = await this.clickUp.spaces.getTags(spaceId)
-    //var tags: Array<Tag> = body.tags;
+    let { body } = await this.clickUp.spaces.getTags(spaceId)
+    //let tags: Array<Tag> = body.tags;
     return body.tags
   }
   public async getPriorities(spaceId: string) {
-    var body = await this.getSpace(spaceId)
+    let body = await this.getSpace(spaceId)
     return body.features.priorities.priorities
   }
   // Folder functions
   public async getLists(folderId: string) {
-    var { body } = await this.clickUp.folders.getLists(folderId)
-    var lists: Array<List> = body.lists
+    let { body } = await this.clickUp.folders.getLists(folderId)
+    let lists: Array<List> = body.lists
     return lists
   }
   // List functions
   public async getTasks(listId: string) {
-    var { body } = await this.clickUp.lists.getTasks(listId)
-    var tasks: Array<Task> = body.tasks
+    let { body } = await this.clickUp.lists.getTasks(listId)
+    let tasks: Array<Task> = body.tasks
     return tasks
   }
 
   public async getMembers(listId: string) {
-    var { body } = await this.clickUp.lists.getMembers(listId)
-    var members: Array<User> = body.members
+    let { body } = await this.clickUp.lists.getMembers(listId)
+    let members: Array<User> = body.members
     return members
   }
 
   public async getStatus(listId: string) {
-    var { body } = await this.clickUp.lists.get(listId)
-    var status: Array<Status> = body.statuses
+    let { body } = await this.clickUp.lists.get(listId)
+    let status: Array<Status> = body.statuses
     return status
   }
 
   public async newTask(listId: string, data: any) {
-    var { body } = await this.clickUp.lists.createTask(listId, data)
+    let { body } = await this.clickUp.lists.createTask(listId, data)
     return body
   }
 
   public async countTasks(listId: string) {
-    var tasks = await this.getTasks(listId)
+    let tasks = await this.getTasks(listId)
     return tasks.length === undefined ? 0 : tasks.length
   }
   // Task Functions
   public async deleteTask(taskId: string) {
-    var { body } = await this.clickUp.tasks.delete(taskId)
+    let { body } = await this.clickUp.tasks.delete(taskId)
     return body
   }
   public async updateTask(taskId: string, data: any): Promise<any> {
-    var { body } = await this.clickUp.tasks.update(taskId, data)
+    let { body } = await this.clickUp.tasks.update(taskId, data)
     return body
   }
 
@@ -191,7 +192,7 @@ class ClickUpService {
     })
 
     tags.forEach((tagName: string) => {
-      var tagFound = previousTags.filter((obj: any) => obj.name === tagName)
+      let tagFound = previousTags.filter((obj: any) => obj.name === tagName)
       if (tagFound.length === 0) {
         console.log('add tag ' + tagName + 'in task ' + taskId)
         this.clickUp.tasks.addTag(taskId, tagName)
@@ -200,28 +201,28 @@ class ClickUpService {
   }
   // Function: Get all space informations include all list, folder task
   public async getSpaceTree(spaceId: string) {
-    var space = await this.getSpace(spaceId)
-    var spaceList = await this.getFolderLists(spaceId)
-    var folders: FolderExtend[] = <FolderExtend[]>await this.getFolders(spaceId)
-    var tree: SpaceLListFile = space
-    var rootLists: ListExtend[] = <ListExtend[]>spaceList
+    let space = await this.getSpace(spaceId)
+    let spaceList = await this.getFolderLists(spaceId)
+    let folders: FolderExtend[] = <FolderExtend[]>await this.getFolders(spaceId)
+    let tree: SpaceLListFile = space
+    let rootLists: ListExtend[] = <ListExtend[]>spaceList
 
     tree.folders = folders
     tree.root_lists = rootLists
     // Search Tasks from Root_list
-    for (var i = 0; i < tree.root_lists.length; i++) {
+    for (let i = 0; i < tree.root_lists.length; i++) {
       if (tree.root_lists[i].task_count != 0) {
-        var rootList_tasks = await this.getTasks(tree.root_lists[i].id)
+        let rootList_tasks = await this.getTasks(tree.root_lists[i].id)
         tree.root_lists[i].tasks = rootList_tasks
       } else tree.root_lists[i].tasks = []
     }
     // Search Tasks from Folders
-    for (var i = 0; i < tree.folders.length; i++) {
-      for (var j = 0; j < tree.folders[i].lists.length; j++) {
-        var list: ListExtend = tree.folders[i].lists[j]
+    for (let i = 0; i < tree.folders.length; i++) {
+      for (let j = 0; j < tree.folders[i].lists.length; j++) {
+        let list: ListExtend = tree.folders[i].lists[j]
         list.tasks = []
         if (tree.folders[i].lists[j].task_count != 0) {
-          var List_tasks = await this.getTasks(list.id)
+          let List_tasks = await this.getTasks(list.id)
           list.tasks = List_tasks
           tree.folders[i].lists[j] = list
         }
@@ -230,77 +231,168 @@ class ClickUpService {
     return tree
   }
 
-  public async getTasksFilters(user_id: number[], space_tree: SpaceLListFile, status: string) {
-    var returnTasks: Task[] = []
-    if (space_tree == undefined) return null
-    else {
-      // Search Root list Task
-      returnTasks = await this.getAllTasks(space_tree)
-      // Check status if * , skip
-      returnTasks = await this.TasksFilters(user_id, returnTasks, status)
+  public getTasksFilters(userIds: number[], spaceTree: SpaceLListFile, toDoLabel?: string) {
+    let _tasks: Task[] = []
+    if (spaceTree == undefined) {
+      return null
     }
-    return returnTasks
-  }
-  public async getAllTasks(space_tree: SpaceLListFile) {
-    var returnTasks: Task[] = []
-    if (space_tree == undefined) return returnTasks
-    else {
-      // Search Root list Task
-      for (var i = 0; i < space_tree.root_lists.length; i++) {
-        returnTasks = returnTasks.concat(space_tree.root_lists[i].tasks)
-      }
-      for (var i = 0; i < space_tree.folders.length; i++) {
-        for (var j = 0; j < space_tree.folders[i].lists.length; j++) {
-          returnTasks = returnTasks.concat(space_tree.folders[i].lists[j].tasks)
-        }
-      }
+    // Search Root list Task
+    _tasks = this.getAllTasks(spaceTree)
+
+    if (!toDoLabel) {
+      return _tasks
     }
-    return returnTasks
+
+    // Check toDoLabel if * , skip
+    _tasks = this.TasksFilters(userIds, _tasks, toDoLabel)
+
+    return _tasks
   }
-  public async TasksFilters(user_id: number[], tasks: Task[], status: string) {
-    var returnTasks: Task[] = []
-    let date = new Date()
+
+  public getTodoTasks(spaceTree: SpaceLListFile, userIds: number[]): TodoTasksMap {
+    const _tasks = this.getAllTasks(spaceTree)
+    const date = new Date()
     date.setMilliseconds(0)
     date.setSeconds(0)
     date.setMinutes(0)
     date.setHours(0)
     const time_down = date.getTime()
     const time_up = time_down + 86400000
+
+    const todoTasks: TodoTasksMap = {
+      [EnumTodoLabel.today]: [],
+      [EnumTodoLabel.overdue]: [],
+      [EnumTodoLabel.next]: [],
+      [EnumTodoLabel.noDueDate]: [],
+    }
+
+    _tasks.forEach((t) => {
+      // skip crnt loop if task's assigned isn't exists in userIds
+      let matched = false
+      t.assignees.every((u) => {
+        if (userIds.includes(u.id)) {
+          matched = true
+          return false
+        }
+        return true
+      })
+      if (!matched) {
+        return
+      }
+
+      // for assigned user
+      // no due date
+      if (t.due_date === null) {
+        todoTasks[EnumTodoLabel.noDueDate].push(t)
+        return
+      }
+
+      // overdue
+      if (+t.due_date < time_up && +t.due_date < time_down) {
+        todoTasks[EnumTodoLabel.overdue].push(t)
+        return
+      }
+
+      // today
+      if (+t.due_date < time_up && +t.due_date >= time_down) {
+        todoTasks[EnumTodoLabel.today].push(t)
+        return
+      }
+      // next day
+      if (+t.due_date >= time_up) {
+        todoTasks[EnumTodoLabel.next].push(t)
+        return
+      }
+    })
+
+    return todoTasks
+  }
+
+  public getAllTasks(spaceTree: SpaceLListFile) {
+    let _tasks: Task[] = []
+    // if (spaceTree == undefined) return _tasks
+    // else {
+    // Search Root list Task
+    for (let i = 0; i < spaceTree.root_lists.length; i++) {
+      _tasks = _tasks.concat(spaceTree.root_lists[i].tasks)
+    }
+    for (let i = 0; i < spaceTree.folders.length; i++) {
+      for (let j = 0; j < spaceTree.folders[i].lists.length; j++) {
+        _tasks = _tasks.concat(spaceTree.folders[i].lists[j].tasks)
+      }
+    }
+    return _tasks
+
+    // const rootListTasks = spaceTree.root_lists.reduce((prev, crnt) => {
+    //   const _tasks = crnt.tasks
+    //   return [...prev, ..._tasks]
+    // }, [] as Task[])
+
+    // const folderListTasks = spaceTree.folders.reduce((prev, crnt) => {
+    //   const _lists = crnt.lists
+    //   let _tasks: Task[] = []
+    //   if (_lists.length > 0) {
+    //     _lists.forEach((l) => {
+    //       _tasks = [..._tasks, ...l.tasks]
+    //     })
+    //   }
+    //   return [...prev, ..._tasks]
+    // }, [] as Task[])
+
+    // return [...rootListTasks, ...folderListTasks]
+  }
+  public TasksFilters(userIds: number[], tasks: Task[], toDoLabel: string) {
+    let _tasks = [...tasks]
+    const date = new Date()
+    date.setMilliseconds(0)
+    date.setSeconds(0)
+    date.setMinutes(0)
+    date.setHours(0)
+    const time_down = date.getTime()
+    const time_up = time_down + 86400000
+
     // Check status if * , skip
-    returnTasks = tasks
-    if (status != EnumTodoLabel.allTask)
-      returnTasks = tasks.filter((Obj) => {
-        switch (status) {
+    if (toDoLabel !== EnumTodoLabel.allTask)
+      _tasks = tasks.filter(({ due_date, status }) => {
+        switch (toDoLabel) {
           case EnumTodoLabel.overdue: {
-            return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) < time_down //Obj.due_date define today = today_date+ Time : 04:00
+            return due_date !== null && +due_date < time_up && +due_date < time_down
+            // return Number(task.due_date) < time_up && task.due_date != null && Number(task.due_date) < time_down //task.due_date define today = today_date+ Time : 04:00
           }
           case EnumTodoLabel.today: {
-            return Number(Obj.due_date) < time_up && Obj.due_date != null && Number(Obj.due_date) >= time_down
+            return due_date !== null && +due_date < time_up && +due_date >= time_down
+            // return Number(task.due_date) < time_up && task.due_date != null && Number(task.due_date) >= time_down
           }
           case EnumTodoLabel.noDueDate: {
-            return Obj.due_date == null
+            return due_date == null
           }
           case EnumTodoLabel.next: {
-            return Number(Obj.due_date) >= time_up && Obj.due_date != null
+            return due_date !== null && +due_date >= time_up
+            // return Number(task.due_date) >= time_up && task.due_date != null
           }
           default: {
-            return Obj.status.status === status
+            return status.status === toDoLabel
           }
         }
       })
-    // Serach User_id. If user_id = No Filter
-    if (user_id.length != 0) {
-      returnTasks = returnTasks.filter((Obj) => {
-        return Obj.assignees.find((ID) => {
-          let check_return = false
-          for (var i = 0; i < user_id.length; i++) {
-            check_return = check_return || ID.id == user_id[i]
-          }
-          return check_return
-        })
-      })
+
+    // return all tasks if userIds is empty
+    if (userIds.length === 0) {
+      return _tasks
     }
-    return returnTasks
+    // return only userIds' tasks
+    _tasks = _tasks.filter((task) => {
+      let matched = false
+      task.assignees.every((usr) => {
+        if (userIds.includes(usr.id)) {
+          matched = true
+          return false
+        }
+        return true
+      })
+      return matched
+    })
+    return _tasks
   }
 }
 export { ClickUpService }
