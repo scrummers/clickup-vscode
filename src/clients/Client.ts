@@ -41,6 +41,7 @@ export class Client {
         const service = new ClickUpService(this.storage)
         const me = await service.setup(token)
         this.service = service
+        this.stateUpdateMe(me)
 
         // init space environment
         const crntSpace = this.storage.getValue(EnumLocalStorage.CrntSpace) as {
