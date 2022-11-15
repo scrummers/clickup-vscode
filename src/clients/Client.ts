@@ -38,6 +38,7 @@ export class Client {
   async init(token: string): Promise<User> {
     return new Promise(async (resolve, reject) => {
       try {
+        this.setIsLoading(true)
         const service = new ClickUpService(this.storage)
         const me = await service.setup(token)
         this.service = service
@@ -54,10 +55,11 @@ export class Client {
 
         console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
 
-        this.setupTreeView(crntSpace.id)
+        await this.setupTreeView(crntSpace.id)
         // update state
         resolve(me)
       } catch (err) {
+        this.setIsLoading(false)
         reject(err)
       }
     })
@@ -139,6 +141,7 @@ export class Client {
     })
 
     this.stateUpdateSpace(spaceTree)
+    this.setIsLoading(false)
   }
 
   // token
@@ -168,6 +171,11 @@ export class Client {
   }
 
   // App state related
+  setIsLoading(bool: Boolean) {
+    AppState.isLoading = bool
+    appStateChangeEventEmitter.fire()
+  }
+
   stateUpdateSpace(space: SpaceLListFile) {
     AppState.crntSpace = space
     const crntSpace = {

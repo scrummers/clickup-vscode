@@ -14,17 +14,17 @@ const initAppState = {
   crntSpace: null,
   crntSpaceId: '',
   crntWorkspaceId: '',
-  isLoading: false,
-  me: null
+  isLoading: true,
+  me: null,
 }
 
-type AppState = {
+type TAppState = {
   clickup: ClickupState | null
   crntSpace: SpaceLListFile | null
   me: User | null
   isLoading: Boolean
 }
 
-export let AppState: AppState = {
+export let AppState: TAppState = {
   ...initAppState,
 }
