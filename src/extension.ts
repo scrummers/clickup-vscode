@@ -11,12 +11,13 @@ let disposables: vscode.Disposable[] = [];
 
 async function activate(context: vscode.ExtensionContext) {
   // Initialization
-  const client =  new Client(context)
+  const client = new Client(context)
   const clickUpService = client.service
   const codelensProvider = new CodelensProvider();
   const stausbarService = new StatusBarService()
   vscode.languages.registerCodeLensProvider("*", codelensProvider);
   // Command function
+  console.log('started')
   registerCommands(context, client)
 
   // vscode.commands.registerCommand('clickup.deleteClickUpToken', async () => {
@@ -40,9 +41,9 @@ async function activate(context: vscode.ExtensionContext) {
   // })
 
   vscode.commands.registerCommand(Commands.ClickupAddTask, async () => {
-    if (clickUpService.userToken === undefined) {
-      return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
-    }
+    // if (clickUpService.userToken === undefined) {
+    //   return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
+    // }
 
     let webFolder: string = 'add_new_task'
 
@@ -59,9 +60,9 @@ async function activate(context: vscode.ExtensionContext) {
   })
 
   vscode.commands.registerCommand(Commands.ClickupEditTask, () => {
-    if (clickUpService.userToken === undefined) {
-      return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
-    }
+    // if (clickUpService.userToken === undefined) {
+    //   return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
+    // }
 
     let webFolder: string = 'edit_task'
 
@@ -77,7 +78,7 @@ async function activate(context: vscode.ExtensionContext) {
     codelensProvider.codeLensDisable()
   })
 
-  vscode.commands.registerCommand('clickup.testing', async (args:any) => {
+  vscode.commands.registerCommand('clickup.testing', async (args: any) => {
     // For testing purposes and examples for each features
     const clickUpService_debug = client.service
     const space = await clickUpService_debug.getSpaceTree('55543351')
@@ -87,8 +88,8 @@ async function activate(context: vscode.ExtensionContext) {
     const ALL_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.allTask) // Return ALL To-do Task
     const tasks = await clickUpService_debug.getTasksFilters([49541582], TestSpace, EnumTodoLabel.allTask) // Return Wilson To-do Task
     const Jtasks = await clickUpService_debug.getTasksFilters([5883240], TestSpace, EnumTodoLabel.allTask) // Return Jacky To-do Task
-    const ALL_tasks_sp = await clickUpService_debug.getTasksFilters([], space,  EnumTodoLabel.allTask) // Return ALL To-do Task
-    const done_tasks = await clickUpService_debug.getTasksFilters([], space,  'done') // Return done Task
+    const ALL_tasks_sp = await clickUpService_debug.getTasksFilters([], space, EnumTodoLabel.allTask) // Return ALL To-do Task
+    const done_tasks = await clickUpService_debug.getTasksFilters([], space, 'done') // Return done Task
     const overdue_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.overdue) // Return overdue Task
     const today_tasks = await clickUpService_debug.getTasksFilters([], TestSpace, EnumTodoLabel.today) // Return overdue Task
     const join_tasks = await clickUpService_debug.getTasksFilters([49541582, 5883240], TestSpace, EnumTodoLabel.allTask) // Return next Task
@@ -97,7 +98,7 @@ async function activate(context: vscode.ExtensionContext) {
     //const data8= {
     //  name: "From VS Code testing 8 name ",
     //  description:"From VS Code testing 99 description"
-   // }
+    // }
     //await clickUpService_debug.newTask("217581024", data8)
     console.log(ALL_tasks)
     console.log(tasks)

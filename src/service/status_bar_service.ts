@@ -139,10 +139,10 @@ export class StatusBarService {
   }
 
   private updateStatusBarItems() {
-    console.log('[StatusBarItems]: Listener Invoked')
+    // console.log('[StatusBarItems]: Listener Invoked')
     this.userStatusItems.update()
     this.spaceStatusBarItem.update()
     this.loadingStatusItems.update()
-    console.log('[StatusBarItems]: Listener End')
+    // console.log('[StatusBarItems]: Listener End')
   }
 }

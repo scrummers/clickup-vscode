@@ -1,5 +1,9 @@
 out
-dist
+dist/extension.js*
 node_modules
 .vscode-test/
 *.vsix
+
+bak
+package-lock.json
+yarn.lock
