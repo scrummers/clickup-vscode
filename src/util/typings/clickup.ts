@@ -281,9 +281,54 @@ export type TodoTasksMap = {
   [key in string]: Task[]
 }
 
-export type TreeViewAllTasksData = {
-  [key in string]: {
-    label: string
-    tasks: Task[]
+/* will use later */
+
+// type TaskCustomFieldFilters = {
+//   field_id: string
+//   value: string
+//   operator: string
+// }
+
+/**
+ * API body schema
+ */
+export type ApiNewTaskSchema = {
+  name: string
+  description: string
+  assignees: number[]
+  tags: string[]
+  status: string[]
+  priority: number[]
+  due_date: number[]
+  due_date_time: boolean
+  time_estimate: number[]
+  start_date: number[]
+  start_date_time: boolean
+  notify_all: boolean
+  parent: string | null
+  links_to: string | null
+  check_required_custom_fields: boolean
+  custom_fields: {
+    id: string
+    value: string
+  }[] //TaskCustomFieldFilters
+}
+
+export type ApiUpdateTaskSchema = {
+  name: string
+  description: string
+  status: string
+  priority: number[]
+  // tags: string[]
+  due_date: number[]
+  due_date_time: boolean
+  time_estimate: number[]
+  start_date: number[]
+  start_date_time: boolean
+  parent: string
+  assignees: {
+    add: number[]
+    rem: number[]
   }
+  achived: boolean
 }

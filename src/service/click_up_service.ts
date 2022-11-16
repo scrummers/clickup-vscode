@@ -12,6 +12,8 @@ import {
   FolderExtend,
   EnumTodoLabel,
   TodoTasksMap,
+  ApiNewTaskSchema,
+  ApiUpdateTaskSchema,
 } from '../util/typings/clickup'
 import { LocalStorageService } from './local_storage_service'
 
@@ -155,7 +157,7 @@ class ClickUpService {
     return status
   }
 
-  public async newTask(listId: string, data: any) {
+  public async newTask(listId: string, data: ApiNewTaskSchema) {
     let { body } = await this.clickUp.lists.createTask(listId, data)
     return body
   }
@@ -169,7 +171,7 @@ class ClickUpService {
     let { body } = await this.clickUp.tasks.delete(taskId)
     return body
   }
-  public async updateTask(taskId: string, data: any): Promise<any> {
+  public async updateTask(taskId: string, data: ApiUpdateTaskSchema): Promise<any> {
     let { body } = await this.clickUp.tasks.update(taskId, data)
     return body
   }
