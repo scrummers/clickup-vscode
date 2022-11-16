@@ -1,6 +1,7 @@
 import { commands, DebugConsoleMode, ExtensionContext, window } from 'vscode'
 import { Client } from './clients/Client'
 import { LocalStorageService } from './service/local_storage_service'
+import { TaskTreeView } from './service/TreeView/TaskTreeView'
 import { AppState } from './store'
 import { INIT } from './util/const'
 import { ApiNewTaskSchema } from './util/typings/clickup'
@@ -9,14 +10,22 @@ export enum Commands {
   // temp
   ClickupGetStorageData = 'clickup.getStorageData',
 
+  // Treeview
+  ClickupRefresh = 'clickup.refresh',
+  ClickupItemClick = 'clickup.itemClick',
+  ClickupContextMenuCommand0 = 'clickup.contextMenuCommand0',
+  ClickupContextMenuCommand1 = 'clickup.contextMenuCommand1',
+  
+  
   ClickupGetMyData = 'clickup.getMyData',
   // Config
   ClickupSetToken = 'clickup.setToken',
   ClickupUpdateToken = 'clickup.updateToken',
   ClickupDeleteToken = 'clickup.deleteToken',
-
+  
   // Task
   ClickupQuickAddTask = 'clickup.quickAddTask',
+  ClickupAddTaskFromList = 'clickup.addTaskFromList',
 
   ClickupAddTask = 'clickup.addTask',
   ClickupEditTask = 'clickup.editTask',
@@ -31,6 +40,9 @@ export enum Commands {
 
 export function registerCommands(vscodeContext: ExtensionContext, client: Client) {
   vscodeContext.subscriptions.push(
+    commands.registerCommand(Commands.ClickupAddTaskFromList, async (item) => {
+      console.log('item', item)
+    }),
     commands.registerCommand(Commands.ClickupQuickAddTask, async () => {
       try {
         const spaceList = AppState.spaceList

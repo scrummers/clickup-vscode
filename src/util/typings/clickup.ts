@@ -154,6 +154,13 @@ export type ListExtend = {
   tasks: Task[]
 }
 
+export type Tag = {
+  creator: number, // user id
+  name: string,
+  tag_bg: string // # hash color
+  tag_fg: string // # hash color
+}
+
 export type Task = {
   id: string
   custom_id: string
@@ -173,7 +180,7 @@ export type Task = {
   creator: User
   assignees: User[] // List of user id
   checklists: string[]
-  tags: string[]
+  tags: Tag[]
   parent: string
   priority: string
   due_date: string
@@ -272,10 +279,17 @@ export enum EnumTodoLabel {
 //   }
 // }
 
+export enum EnumTreeLevel {
+  First,
+  Second,
+  Third,
+}
+
 export type TaskTreeViewData = {
   label: string
+  // level: EnumTreeLevel
   tasks: Task[]
-}[]
+}
 
 export type TodoTasksMap = {
   [key in string]: Task[]

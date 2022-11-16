@@ -1,8 +1,9 @@
-import { commands, ExtensionContext, window } from 'vscode'
+import { commands, ExtensionContext, TreeView, window } from 'vscode'
 import { Commands } from '../commands'
 import { ClickUpService } from '../service/click_up_service'
 import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
+import { TaskItem } from '../service/TreeView/TaskTreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
 import { ApiNewTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
@@ -11,7 +12,9 @@ let instance: Client | null = null
 
 export class Client {
   public service!: ClickUpService
+  public tree!: TreeView<TaskItem>
   private storage!: LocalStorageService
+  private context!: ExtensionContext
 
   constructor(context?: ExtensionContext) {
     if (instance) {
@@ -23,6 +26,8 @@ export class Client {
     if (!context) {
       return
     }
+
+    this.context = context
 
     this.storage = new LocalStorageService(context.workspaceState)
     const token = this.storage.getValue(EnumLocalStorage.Token) as string
@@ -96,7 +101,7 @@ export class Client {
 
     const todoTaskMap = this.service.getTodoTasks(spaceTree, [myId])
 
-    let todos: TaskTreeViewData = []
+    let todos: TaskTreeViewData[] = []
     Object.keys(todoTaskMap).map((key) => {
       const item = {
         label: key,
@@ -106,28 +111,6 @@ export class Client {
     })
     console.log({ spaceTree })
 
-    // const todos: any = [
-    //   {
-    //     label: EnumTodoLabel.today,
-    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.today),
-    //   },
-    //   {
-    //     label: EnumTodoLabel.overdue,
-    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.overdue),
-    //   },
-    //   {
-    //     label: EnumTodoLabel.next,
-    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.next),
-    //   },
-    //   {
-    //     label: EnumTodoLabel.noDueDate,
-    //     tasks: this.service.getTasksFilters([myId], spaceTree, EnumTodoLabel.noDueDate),
-    //   },
-    // ]
-    // const t1 = performance.now()
-    // console.log(`Filter tasks took ${t1 - t0} milliseconds.`)
-
-    // const allTasks = await this.service.getTasksFilters([me.id], spaceTree, '*')
     const _allTasks = [
       ...spaceTree.folders,
       {
@@ -147,14 +130,37 @@ export class Client {
     })
     // console.log({ todos })
 
-    window.createTreeView(EnumTreeView.Todo, {
-      treeDataProvider: new TreeViewDataProvider.TaskTreeView(todos),
+    this.tree = window.createTreeView('clickup-tasks', {
+      treeDataProvider: new TreeViewDataProvider.TaskTreeView([
+        {
+          label: 'To Do',
+          items: todos,
+        },
+        {
+          label: 'All Tasks',
+          items: flatAllTasks,
+        },
+      ]),
       showCollapseAll: false,
     })
-    window.createTreeView(EnumTreeView.AllTasks, {
-      treeDataProvider: new TreeViewDataProvider.TaskTreeView(flatAllTasks),
-      showCollapseAll: false,
+    this.tree.onDidChangeSelection(e => {
+      // console.log(e)
     })
+    this.tree.onDidCollapseElement(e => {
+      // console.log(e); // breakpoint here for debug
+    });
+    this.tree.onDidChangeVisibility(e => {
+      // console.log(e); // breakpoint here for debug
+    });
+    this.tree.onDidExpandElement(e => {
+      // console.log(e); // breakpoint here for debug
+    });
+
+    this.context.subscriptions.push(this.tree);
+    // window.createTreeView(EnumTreeView.AllTasks, {
+    //   treeDataProvider: new TreeViewDataProvider.TaskTreeView(flatAllTasks),
+    //   showCollapseAll: false,
+    // })
 
     this.stateUpdateSpaceList(spaceTree)
     this.stateUpdateSpace(spaceTree)

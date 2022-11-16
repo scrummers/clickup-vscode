@@ -11,8 +11,13 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:clickup.itemClick",
     "*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scrummers/clickup-vscode"
+  },
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -47,6 +52,15 @@
         "title": "Add Task"
       },
       {
+        "command": "clickup.addTaskFromList",
+        "category": "Click Up",
+        "title": "Add Task From List",
+        "icon": {
+          "light": "resources/light/document.svg",
+          "dark": "resources/dark/document.svg"
+        }
+      },
+      {
         "command": "clickup.deleteTask",
         "category": "Click Up",
         "title": "Delete Task"
@@ -54,7 +68,11 @@
       {
         "command": "clickup.editTask",
         "category": "Click Up",
-        "title": "Edit Task"
+        "title": "Edit Task",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
       },
       {
         "command": "clickup.getStorageData",
@@ -72,6 +90,14 @@
         "title": "TEST: Wilson API testing"
       },
       {
+        "command": "clickup.refresh",
+        "title": "Click Up",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
         "command": "clickup.codelentest",
         "category": "Click Up",
         "title": "TEST: Codelen disable"
@@ -80,6 +106,14 @@
         "command": "clickup.getMyData",
         "category": "Click Up",
         "title": "Get My Data"
+      },
+      {
+        "command": "clickup.contextMenuCommand0",
+        "title": "Menu option 1"
+      },
+      {
+        "command": "clickup.contextMenuCommand1",
+        "title": "Menu option 2"
       }
     ],
     "viewsContainers": {
@@ -92,29 +126,45 @@
       ]
     },
     "views": {
-      "clickup-explorer": [
+      "explorer": [
         {
-          "id": "clickup-todo",
-          "name": "To Do"
-        },
-        {
-          "id": "clickup-all-tasks",
-          "name": "All Tasks"
+          "id": "clickup-tasks",
+          "name": "Clickup"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "clickup-all-tasks",
-        "contents": "Please enter a token, [learn more](https://clickup.com).\n[Set token](command:clickup.setToken)"
-      }
-    ],
     "menus": {
       "view/title": [
         {
           "command": "clickup.refresh",
-          "when": "view == clickup-todo",
+          "when": "view == clickup-tasks",
           "group": "navigation@1"
+        },
+        {
+          "command": "clickup.quickAddTask",
+          "when": "view == clickup-tasks"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "clickup.contextMenuCommand0",
+          "when": "view == clickup-tasks",
+          "group": "clickup@0"
+        },
+        {
+          "command": "clickup.contextMenuCommand1",
+          "when": "view == clickup-tasks",
+          "group": "clickup@1"
+        },
+        {
+          "command": "clickup.editTask",
+          "when": "view == clickup-tasks && viewItem == task",
+          "group": "inline"
+        },
+        {
+          "command": "clickup.addTaskFromList",
+          "when": "view == clickup-tasks && viewItem == list",
+          "group": "inline"
         }
       ]
     },
@@ -204,6 +254,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "clickup.js": "^3.0.2"
+    "clickup.js": "^3.0.2",
+    "dayjs": "^1.11.6"
   }
 }

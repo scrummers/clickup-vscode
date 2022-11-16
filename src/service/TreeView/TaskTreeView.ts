@@ -1,66 +1,140 @@
 import * as vscode from 'vscode'
-import { Task, TaskTreeViewData } from '../../util/typings/clickup'
+import { EnumTreeLevel, Task, TaskTreeViewData } from '../../util/typings/clickup'
+import { getDate } from '../../util/helper'
+import { Commands } from '../../commands'
+import path = require('path')
+
+type TaskData = {
+  label: string,
+  // level: EnumTreeLevel
+  // level: 'top'
+  items: TaskTreeViewData[]
+}
 
 export class TaskTreeView implements vscode.TreeDataProvider<TaskItem> {
+  // private taskData: TaskData[]
   private data: TaskItem[]
+  private event_emitter: vscode.EventEmitter<TaskItem | undefined> = new vscode.EventEmitter<TaskItem | undefined>();
   private m_onDidChangeTreeData: vscode.EventEmitter<TaskItem | undefined> = new vscode.EventEmitter<
     TaskItem | undefined
   >()
   // and vscode will access the event by using a readonly onDidChangeTreeData (this member has to be named like here, otherwise vscode doesnt update our treeview.
   readonly onDidChangeTreeData?: vscode.Event<TaskItem | undefined> = this.m_onDidChangeTreeData.event
 
-  constructor(todoTasks: TaskTreeViewData) {
-    this.data = todoTasks.map((t) => new TaskItem(t.label, t.tasks))
-    console.log(this.data)
+  constructor(taskData: TaskData[]) {
+    this.data = taskData.map((td) => new TaskItem(td.label, td, EnumTreeLevel.First))
+
+
+    vscode.commands.registerCommand(Commands.ClickupRefresh, async () => {
+      TaskTreeView.refresh()
+    })
+    vscode.commands.registerCommand(Commands.ClickupItemClick, async item => {
+      this.itemClicked(item)
+    })
+    vscode.commands.registerCommand(Commands.ClickupContextMenuCommand0, async item => {
+      this.command0(item)
+    })
+    vscode.commands.registerCommand(Commands.ClickupContextMenuCommand1, async item => {
+      this.command1(item)
+    })
   }
 
   getTreeItem(element: TaskItem): vscode.TreeItem {
+    element.command = {
+      command: 'clickup.itemClick',
+      title: element.label,
+      arguments: [element]
+    }
     return element
   }
 
   getChildren(element?: TaskItem): vscode.ProviderResult<TaskItem[]> {
     if (element === undefined) {
-      console.log('undefined')
       return this.data
-    } else {
-      console.log('el tasks')
-      return element.tasks
     }
+
+    return element.children
   }
 
-  public itemClicked(item: TaskItem) {
+  itemClicked(item: TaskItem) {
     console.log(item)
   }
 
-  public refresh() {
-    console.log('refresh')
+  command0(item: TaskItem) {
+    console.log("context menu command 0 clickd with: ", item.label);
+  }
+  command1(item: TaskItem) {
+    console.log("context menu command 1 clickd with: ", item.label);
+  }
+
+  static refresh() {
+    console.log('refresh, not yet done')
+
   }
 }
 
-class TaskItem extends vscode.TreeItem {
-  public tasks: TaskItem[] = []
+export class TaskItem extends vscode.TreeItem {
+  public itemLevel: EnumTreeLevel = EnumTreeLevel.First
+  // public tasks: TaskItem[] = []
+  public children: TaskItem[] = []
 
   constructor(
     public readonly label: string,
-    private _tasks: Task[] | Task // public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    item: TaskData | TaskTreeViewData[] | Task[] | Task,
+    level: EnumTreeLevel
   ) {
     super(label, vscode.TreeItemCollapsibleState.Collapsed)
 
-    if (Array.isArray(this._tasks)) {
-      this.tasks = (_tasks as Task[]).map((_t) => new TaskItem(_t.name, _t))
-      this.description = `(${this._tasks.length})`
+    this.itemLevel = level
+
+    // Top level label
+    if (level === EnumTreeLevel.First) {
+      this.children = (item as TaskData).items.map((i) => new TaskItem(i.label, i.tasks, EnumTreeLevel.Second))
+      if ((item as TaskData).label === 'To Do') {
+        this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded
+      }
       return
     }
-    const t = _tasks as Task
-    this.tooltip = `${this.label}-${t.due_date}`
-    this.description = t.status.status.toUpperCase()
+
+    // Todo label / List label
+    if (level === EnumTreeLevel.Second) {
+      this.children = (item as Task[]).map((i) => new TaskItem(i.name, i, EnumTreeLevel.Third))
+      this.description = `(${this.children.length})`
+
+      if (this.children.length === 0) {
+        this.collapsibleState = vscode.TreeItemCollapsibleState.None
+      }
+
+      this.iconPath = {
+        light: path.join(__filename, '..', '..', 'resources', 'light', 'folder.svg'),
+        dark: path.join(__filename, '..', '..', 'resources', 'dark', 'folder.svg')
+      }
+      this.contextValue = "list"
+      return
+    }
+
+    // Task List
+    const task = item as Task
+    let tags = 'No Tags'
+    if (task.tags.length) {
+      tags = 'Tags: ' + task.tags.reduce((prev, crnt) => !prev ? crnt.name : prev + '|' + crnt.name, '')
+    }
+    const dueDate = task.due_date === null ? 'No Due Date' : getDate(+task.due_date)
+    this.description = task.status.status
+    this.tooltip = `${tags} (${dueDate})`
     this.collapsibleState = vscode.TreeItemCollapsibleState.None
+    this.contextValue = "task"
   }
 
   public add_child(child: TaskItem) {
     // this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
     // this.children.push(child);
   }
+
+  // iconPath = this.itemLevel === EnumTreeLevel.Second ? {
+  //   light: path.join(__filename, '..', '..', 'resources', 'light', 'folder.svg'),
+  //   dark: path.join(__filename, '..', '..', 'resources', 'dark', 'folder.svg')
+  // } : undefined
 
   // iconPath = {
   //   light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
