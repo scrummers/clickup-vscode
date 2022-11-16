@@ -290,6 +290,16 @@ export type TodoTasksMap = {
 // }
 
 /**
+ * State
+ */
+export interface StateSpaceList extends List {
+  label: string,
+  foldername: string | null
+  folderId: string | null,
+}
+
+
+/**
  * API body schema
  */
 export type ApiNewTaskSchema = {
@@ -297,12 +307,12 @@ export type ApiNewTaskSchema = {
   description: string
   assignees: number[]
   tags: string[]
-  status: string[]
-  priority: number[]
-  due_date: number[]
+  status: string
+  priority: number
+  due_date: number
   due_date_time: boolean
-  time_estimate: number[]
-  start_date: number[]
+  time_estimate: number
+  start_date: number
   start_date_time: boolean
   notify_all: boolean
   parent: string | null

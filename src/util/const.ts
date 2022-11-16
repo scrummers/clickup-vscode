@@ -1,15 +1,22 @@
-export const INIT = {
+import { ApiNewTaskSchema, ApiUpdateTaskSchema } from "./typings/clickup"
+
+type TInit = {
+  newTask: ApiNewTaskSchema,
+  updateTask: ApiUpdateTaskSchema
+}
+
+export const INIT: TInit = {
   newTask: {
     name: '',
     description: '',
     assignees: [],
     tags: [],
-    status: [],
-    priority: [],
-    due_date: [],
+    status: '',
+    priority: 1,
+    due_date: 0,
     due_date_time: false,
-    time_estimate: [],
-    start_date: [],
+    time_estimate: 0,
+    start_date: 0,
     start_date_time: false,
     notify_all: false,
     parent: null,
@@ -28,7 +35,7 @@ export const INIT = {
     start_date: [],
     start_date_time: false,
     parent: '',
-    assignees: {},
+    assignees: { add: [], rem: [] },
     achived: false,
   },
 }

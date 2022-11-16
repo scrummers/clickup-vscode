@@ -17,7 +17,6 @@ async function activate(context: vscode.ExtensionContext) {
   const stausbarService = new StatusBarService()
   vscode.languages.registerCodeLensProvider("*", codelensProvider);
   // Command function
-  console.log('started')
   registerCommands(context, client)
 
   // vscode.commands.registerCommand('clickup.deleteClickUpToken', async () => {

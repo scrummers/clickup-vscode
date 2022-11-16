@@ -37,6 +37,11 @@
         "title": "Edit Click Up Token"
       },
       {
+        "command": "clickup.quickAddTask",
+        "category": "Click Up",
+        "title": "Quick Add Task"
+      },
+      {
         "command": "clickup.addTask",
         "category": "Click Up",
         "title": "Add Task"

@@ -4,7 +4,7 @@ import { ClickUpService } from '../service/click_up_service'
 import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
-import { EnumTodoLabel, SpaceLListFile, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
+import { ApiNewTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
 let instance: Client | null = null
@@ -104,7 +104,7 @@ export class Client {
       }
       todos.push(item)
     })
-    console.log({ todos })
+    console.log({ spaceTree })
 
     // const todos: any = [
     //   {
@@ -156,6 +156,7 @@ export class Client {
       showCollapseAll: false,
     })
 
+    this.stateUpdateSpaceList(spaceTree)
     this.stateUpdateSpace(spaceTree)
     this.setIsLoading(false)
   }
@@ -178,6 +179,22 @@ export class Client {
     })
   }
 
+  // API handler
+  async createNewTask(listId: string, data: ApiNewTaskSchema) {
+    try {
+      this.setIsLoading(true)
+      console.log({ data })
+      const resp = await this.service.newTask(listId, data)
+      console.log({ resp })
+      return resp
+    } catch (err) {
+      console.error(err)
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
+
   // remove all data once token is deleted
   deleteToken() {
     this.storage.clearAll()
@@ -186,10 +203,48 @@ export class Client {
     appStateChangeEventEmitter.fire()
   }
 
-  // App state related
+  // // App state with side effect
+  async reloadSpaceTree() {
+    try {
+      this.setIsLoading(true)
+      if (!AppState.crntSpace) {
+        return
+      }
+      await this.setupTreeView(AppState.crntSpace.id)
+    } catch (err) {
+
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
   setIsLoading(bool: Boolean) {
     AppState.isLoading = bool
     appStateChangeEventEmitter.fire()
+  }
+
+  stateUpdateSpaceList(spaceTree: SpaceLListFile) {
+    const spaceList: StateSpaceList[] = []
+    spaceTree.folders.forEach((f) => {
+      f.lists.forEach((l) => {
+        spaceList.push({
+          label: `${f.name}/${l.name}`,
+          folderId: f.id,
+          foldername: f.name,
+          ...l
+        })
+      })
+    })
+    spaceTree.root_lists.forEach((l) => {
+      spaceList.push({
+        label: `$root/${l.name}`,
+        folderId: null,
+        foldername: null,
+        ...l
+      })
+    })
+    console.log({ spaceList })
+    AppState.spaceList = spaceList
   }
 
   stateUpdateSpace(space: SpaceLListFile) {
