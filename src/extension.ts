@@ -106,6 +106,11 @@ async function activate(context: vscode.ExtensionContext) {
     console.log(done_tasks)
     console.log(overdue_tasks)
   })
+
+  if (!client.isTokenExist()) {
+    console.log("[ClickUp] First Launch")
+    vscode.commands.executeCommand("workbench.action.openWalkthrough", "scrummer.scrummer#quickStart")
+  }
 }
 
 function deactivate() {
