@@ -39,3 +39,16 @@ export const INIT: TInit = {
     achived: false,
   },
 }
+
+export type MultStepGroup={
+  multi_quene: MultStepCell[]
+  return_label:string[]
+}
+
+export type MultStepCell={
+    title: string,
+    items: string[],
+    placeholder?: string,
+    prompt?:  string
+    inputBox_Set: boolean,
+}

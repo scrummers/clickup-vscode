@@ -112,6 +112,11 @@
         "title": "clickup Get AppState"
       },
       {
+        "command": "clickup.quickInput",
+        "category": "Click Up",
+        "title": "TEST: QuickInput"
+      },           
+      {
         "command": "clickup.testing",
         "category": "Click Up",
         "title": "TEST: Wilson API testing"

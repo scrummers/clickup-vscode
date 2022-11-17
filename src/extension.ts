@@ -6,6 +6,8 @@ import { WebViewService } from './service/web_view_service'
 import { EnumTodoLabel } from './util/typings/clickup'
 import { CodelensProvider } from './service/CodelensProvider';
 import { StatusBarService } from './service/status_bar_service'
+import { multiStepInput } from './service/multiStepInput';
+import { MultStepCell, MultStepGroup } from './util/const';
 
 let disposables: vscode.Disposable[] = [];
 
@@ -18,7 +20,14 @@ async function activate(context: vscode.ExtensionContext) {
   vscode.languages.registerCodeLensProvider("*", codelensProvider);
   // Command function
   registerCommands(context, client)
-
+  context.subscriptions.push(vscode.commands.registerCommand('clickup.quickInput', async () => {
+    const step1 : MultStepCell = {title: 'Select Space Command', items : ['workspace1', 'workspace2'], placeholder: 'Choose workspace', inputBox_Set:false}
+    const step2 : MultStepCell = {title: 'Select Space Command', items : ['space1', 'space2'] , placeholder: 'Choose space', inputBox_Set:false}// For select items
+    const step3 : MultStepCell = {title: 'Select Space Command', items : [] , inputBox_Set: true, prompt: 'Enter your task name'}// for Input Box
+    const mult_step_in : MultStepGroup = {multi_quene: [step1, step2, step3], return_label:[]}
+    multiStepInput(context, mult_step_in)
+    console.log(mult_step_in)
+	}));
   // vscode.commands.registerCommand('clickup.deleteClickUpToken', async () => {
   //   await vscode.window
   //     .showInformationMessage('Do you really want to delete your token?', ...['Yes', 'No'])
