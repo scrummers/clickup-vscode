@@ -1,11 +1,11 @@
-import { commands, ExtensionContext, TreeView, window } from 'vscode'
+import { commands, ExtensionContext, ThemeIcon, TreeView, window } from 'vscode'
 import { Commands } from '../commands'
 import { ClickUpService } from '../service/click_up_service'
 import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
 import { TaskItem } from '../service/TreeView/TaskTreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
-import { ApiNewTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
+import { ApiNewTaskSchema, ApiUpdateTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, Status, Task, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
 let instance: Client | null = null
@@ -61,6 +61,7 @@ export class Client {
         console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
 
         await this.setupTreeView(crntSpace.id)
+        this.setIsLoading(false)
         // update state
         resolve(me)
       } catch (err) {
@@ -92,55 +93,17 @@ export class Client {
 
   // setup tree view
   async setupTreeView(spaceId: string) {
-    const spaceTree = await this.service.getSpaceTree(spaceId + '')
+    // const spaceTree = await this.service.getSpaceTree(spaceId + '')
     const me = await this.getMe()
     if (!me) return
-
     const myId = me.id
-    // const t0 = performance.now()
 
-    const todoTaskMap = this.service.getTodoTasks(spaceTree, [myId])
+    const treeData = await this.fetchTreeViewData(spaceId, myId)
 
-    let todos: TaskTreeViewData[] = []
-    Object.keys(todoTaskMap).map((key) => {
-      const item = {
-        label: key,
-        tasks: todoTaskMap[key],
-      }
-      todos.push(item)
-    })
-    console.log({ spaceTree })
-
-    const _allTasks = [
-      ...spaceTree.folders,
-      {
-        name: 'Root',
-        lists: [...spaceTree.root_lists],
-      },
-    ]
-
-    const flatAllTasks: any = []
-    _allTasks.forEach((item) => {
-      item.lists.forEach((list) => {
-        flatAllTasks.push({
-          label: `${item.name}/${list.name}`,
-          tasks: list.tasks,
-        })
-      })
-    })
-    // console.log({ todos })
+    if (!treeData) return
 
     this.tree = window.createTreeView('clickup-tasks', {
-      treeDataProvider: new TreeViewDataProvider.TaskTreeView([
-        {
-          label: 'To Do',
-          items: todos,
-        },
-        {
-          label: 'All Tasks',
-          items: flatAllTasks,
-        },
-      ]),
+      treeDataProvider: new TreeViewDataProvider.TaskTreeView(treeData),
       showCollapseAll: false,
     })
     this.tree.onDidChangeSelection(e => {
@@ -157,14 +120,14 @@ export class Client {
     });
 
     this.context.subscriptions.push(this.tree);
-    // window.createTreeView(EnumTreeView.AllTasks, {
-    //   treeDataProvider: new TreeViewDataProvider.TaskTreeView(flatAllTasks),
-    //   showCollapseAll: false,
-    // })
 
-    this.stateUpdateSpaceList(spaceTree)
-    this.stateUpdateSpace(spaceTree)
-    this.setIsLoading(false)
+
+    // const templistId = spaceTree.folders[0].lists[0].id
+    // this.stateGetListStatus(templistId)
+    // this.stateGetListMembers(templistId)
+    // this.stateGetProrities(spaceId)
+    // this.stateGetSpaceTags(spaceId)
+    // this.stateGetSpaceTeams()
   }
 
   // token
@@ -185,13 +148,119 @@ export class Client {
     })
   }
 
+  async fetchTreeViewData(spaceId: string, myId: number) {
+    try {
+      this.setIsLoading(true)
+      const spaceTree = await this.service.getSpaceTree(spaceId + '')
+      const todoTaskMap = this.service.getTodoTasks(spaceTree, [myId])
+
+      let todos: TaskTreeViewData[] = []
+      Object.keys(todoTaskMap).map((key) => {
+        const item = {
+          label: key,
+          tasks: todoTaskMap[key],
+        }
+        todos.push(item)
+      })
+
+      const _allTasks = [
+        ...spaceTree.folders,
+        {
+          name: '$Root',
+          lists: [...spaceTree.root_lists],
+        },
+      ]
+
+      const flatAllTasks: TaskTreeViewData[] = []
+      _allTasks.forEach((item) => {
+        item.lists.forEach((list) => {
+          flatAllTasks.push({
+            label: `${item.name}/${list.name}`,
+            tasks: list.tasks,
+            ...(list.id && { listId: list.id }),
+            ...(list.folder && { folderId: list.folder.id }),
+          })
+        })
+      })
+
+      this.stateUpdateSpaceList(spaceTree)
+      this.stateUpdateSpace(spaceTree)
+      this.setIsLoading(false)
+
+
+      return [
+        {
+          label: 'To Do',
+          items: todos,
+        },
+        {
+          label: 'All Space Tasks',
+          items: flatAllTasks,
+        },
+      ]
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   // API handler
   async createNewTask(listId: string, data: ApiNewTaskSchema) {
     try {
       this.setIsLoading(true)
-      console.log({ data })
       const resp = await this.service.newTask(listId, data)
       console.log({ resp })
+      return resp
+    } catch (err) {
+      console.error(err)
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
+  async updateTaskField(listId: string, taskId: string, fieldname: keyof ApiUpdateTaskSchema, value: any) {
+    try {
+      const latestTask = await this.stateGetTaskData(listId, taskId)
+      if (!latestTask) {
+        throw new Error('Task not found, maybe deleted from platform')
+      }
+      const assigneesRem = latestTask.assignees.map((a) => a.id)
+      const initData: ApiUpdateTaskSchema = {
+        name: latestTask.name,
+        description: latestTask.description,
+        priority: latestTask.priority ? +latestTask.priority.id : null,
+        due_date: +latestTask.due_date,
+        due_date_time: false,
+        time_estimate: +latestTask.time_estimate,
+        start_date: +latestTask.start_date,
+        start_date_time: false,
+        parent: latestTask.parent,
+        archived: latestTask.archived,
+        assignees: {
+          add: [],
+          rem: assigneesRem
+        },
+        status: latestTask.status.status,
+      }
+
+
+      const data: ApiUpdateTaskSchema = {
+        ...initData,
+        ...(fieldname !== "assignees" && { [fieldname]: value }),
+        ...(fieldname === "assignees" && { assignees: { ...initData.assignees, add: value } })
+      }
+
+      console.log({ data })
+      return this.updateTask(taskId, data)
+    } catch (err) {
+      this.setIsLoading(false)
+    }
+  }
+
+  async updateTask(taskId: string, data: ApiUpdateTaskSchema) {
+    try {
+      this.setIsLoading(true)
+      const resp = await this.service.updateTask(taskId, data)
       return resp
     } catch (err) {
       console.error(err)
@@ -210,6 +279,83 @@ export class Client {
   }
 
   // // App state with side effect
+  async stateGetTaskData(listId: string, taskId: string) {
+    try {
+      this.setIsLoading(true)
+      const tasks = await this.service.getTasks(listId)
+      const task = tasks.find((t) => t.id === taskId)
+      return task
+    } catch (err) {
+
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
+  async stateGetSpaceTags(spaceId: string) {
+    try {
+      this.setIsLoading(true)
+      const resp = await this.service.getTags(spaceId)
+      console.log({ resp })
+    } catch (err) {
+
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
+  async stateGetListStatus(listId: string): Promise<Status[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.setIsLoading(true)
+        const status = await this.service.getStatus(listId)
+        resolve(status)
+        AppState.listStatus = status
+      } catch (err) {
+        reject(err)
+      } finally {
+        this.setIsLoading(false)
+      }
+    })
+  }
+
+  async stateGetProrities(spaceId: string) {
+    try {
+      this.setIsLoading(true)
+      const resp = await this.service.getPriorities(spaceId)
+      console.log({ resp })
+    } catch (err) {
+
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
+  async stateGetListMembers(listId: string) {
+    try {
+      this.setIsLoading(true)
+      const members = await this.service.getMembers(listId)
+      return members
+    } catch (err) {
+
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
+  async stateGetSpaceTeams(listId: string) {
+    try {
+      this.setIsLoading(true)
+      const resp = await this.service.getTeams()
+      // return all member in this list
+      console.log({ resp })
+    } catch (err) {
+
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
   async reloadSpaceTree() {
     try {
       this.setIsLoading(true)

@@ -139,10 +139,10 @@ class ClickUpService {
     return lists
   }
   // List functions
-  public async getTasks(listId: string) {
-    let { body } = await this.clickUp.lists.getTasks(listId)
-    let tasks: Array<Task> = body.tasks
-    return tasks
+  public async getTasks(listId: string): Promise<Task[]> {
+    let { body: { tasks } } = await this.clickUp.lists.getTasks(listId)
+    // let tasks: Array<Task> = body.tasks
+    return tasks as Task[]
   }
 
   public async getMembers(listId: string) {

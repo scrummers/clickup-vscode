@@ -10,11 +10,12 @@ class LocalStorageService {
   }
 
   public clearAll() {
+    console.log('all storage data deleted')
     storageKey.forEach((key) => this.deleteValue(key))
   }
 
   public deleteValue(key: string) {
-    console.log(`[Storage Delete]: ${key}`) // Debug
+    // console.log(`[Storage Delete]: ${key}`) // Debug
     return this.storage.update(key, undefined)
   }
 
@@ -23,14 +24,14 @@ class LocalStorageService {
     try {
       value = JSON.parse(value as any)
     } catch {}
-    console.log(`[Storage GET]: ${key}`) // Debug
+    // console.log(`[Storage GET]: ${key}`) // Debug
     return value
   }
 
   public setValue(key: string, value: any) {
     const isObjType = typeof value !== 'string'
     const _value = isObjType ? JSON.stringify(value) : value
-    console.log(`[Storage SET]: ${key} => ${_value}`) // Debug
+    // console.log(`[Storage SET]: ${key} => ${_value}`) // Debug
     return this.storage.update(key, _value)
   }
 }

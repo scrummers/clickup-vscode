@@ -42,19 +42,14 @@
         "title": "Edit Click Up Token"
       },
       {
-        "command": "clickup.quickAddTask",
-        "category": "Click Up",
-        "title": "Quick Add Task"
-      },
-      {
         "command": "clickup.addTask",
         "category": "Click Up",
         "title": "Add Task"
       },
       {
-        "command": "clickup.addTaskFromList",
+        "command": "clickup.quickAddTask",
         "category": "Click Up",
-        "title": "Add Task From List",
+        "title": "Quick Add Task",
         "icon": {
           "light": "resources/light/new.svg",
           "dark": "resources/dark/new.svg"
@@ -189,7 +184,7 @@
           "group": "inline"
         },
         {
-          "command": "clickup.addTaskFromList",
+          "command": "clickup.quickAddTask",
           "when": "view == clickup-tasks && viewItem == list",
           "group": "inline"
         },

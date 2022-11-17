@@ -64,7 +64,6 @@ class LoadingStatusBarItem extends CustomStatusBarItem {
   }
 
   public update(): void {
-    console.log(AppState.isLoading)
     if (AppState.isLoading) {
       this.setText('$(loading~spin) ClickUp: Retrieving Data')
       this.show()

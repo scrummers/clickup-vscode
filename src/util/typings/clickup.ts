@@ -161,6 +161,13 @@ export type Tag = {
   tag_fg: string // # hash color
 }
 
+export type Priority = {
+  id: string,
+  priority: string // 'urgent', 'high', 'normal',
+  color: string, // '#f50000'
+  orderindex: string // '1', '2', '3', '4'
+}
+
 export type Task = {
   id: string
   custom_id: string
@@ -182,7 +189,7 @@ export type Task = {
   checklists: string[]
   tags: Tag[]
   parent: string
-  priority: string
+  priority: Priority
   due_date: string
   start_date: string
   time_estimate: string
@@ -197,7 +204,8 @@ export type Task = {
   space: {
     id: string
   }
-  url: string
+  url: string,
+  archived: boolean
 }
 /*
 export type CreateTask = {
@@ -255,8 +263,9 @@ export type ClickupState = {
 }
 
 export type Status = {
-  status: string // "todo", "complete",
-  type: string // "open", "closed",
+  id: string
+  status: string // "todo", "complete", "done" <- user defined
+  type: string // "open", "closed", "custom" <- clickup internal type
   orderindex: number // 0, 1,
   color: string // hex value
 }
@@ -287,6 +296,8 @@ export enum EnumTreeLevel {
 
 export type TaskTreeViewData = {
   label: string
+  folderId?: string
+  listId?: string
   // level: EnumTreeLevel
   tasks: Task[]
 }
@@ -341,18 +352,19 @@ export type ApiNewTaskSchema = {
 export type ApiUpdateTaskSchema = {
   name: string
   description: string
-  status: string
-  priority: number[]
+  status: string // 'in progress' 
+  priority: number | null// 1
   // tags: string[]
-  due_date: number[]
+  due_date: number // 1508369194377
   due_date_time: boolean
-  time_estimate: number[]
-  start_date: number[]
+  time_estimate: number //8640000
+  start_date: number // 1567780450202
   start_date_time: boolean
   parent: string
   assignees: {
     add: number[]
     rem: number[]
   }
-  achived: boolean
+  archived: boolean
+  tags?: string[]
 }
