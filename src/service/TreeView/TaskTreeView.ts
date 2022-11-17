@@ -1,8 +1,9 @@
 import * as vscode from 'vscode'
 import { EnumTreeLevel, Task, TaskTreeViewData } from '../../util/typings/clickup'
-import { getDate } from '../../util/helper'
+import { getDate, getIcon } from '../../util/helper'
 import { Commands } from '../../commands'
 import path = require('path')
+import { AppState } from '../../store'
 
 type TaskData = {
   label: string,
@@ -105,10 +106,7 @@ export class TaskItem extends vscode.TreeItem {
         this.collapsibleState = vscode.TreeItemCollapsibleState.None
       }
 
-      this.iconPath = {
-        light: path.join(__filename, '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', 'resources', 'dark', 'folder.svg')
-      }
+      this.iconPath = getIcon("folder.svg")
       this.contextValue = "list"
       return
     }
@@ -124,20 +122,38 @@ export class TaskItem extends vscode.TreeItem {
     this.tooltip = `${tags} (${dueDate})`
     this.collapsibleState = vscode.TreeItemCollapsibleState.None
     this.contextValue = "task"
+
+    // show assignees icon corresponding to task
+    // only me
+    const myId = AppState.me?.id
+    if (myId && task.assignees.length === 1) {
+      if (task.assignees[0].id = myId) {
+        this.iconPath = getIcon("me.svg")
+      }
+      return
+    }
+
+    // group
+    if (myId && task.assignees.length > 1) {
+      let isMine = false
+      task.assignees.every((u) => {
+        if (u.id === myId) {
+          isMine = true
+          return false
+        }
+        return true
+      })
+
+      this.iconPath = isMine ? getIcon("group_me.svg") : getIcon("group.svg")
+      return
+    }
+
+    // no one assigned
+    this.iconPath = getIcon("invisible.svg")
   }
 
   public add_child(child: TaskItem) {
     // this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
     // this.children.push(child);
   }
-
-  // iconPath = this.itemLevel === EnumTreeLevel.Second ? {
-  //   light: path.join(__filename, '..', '..', 'resources', 'light', 'folder.svg'),
-  //   dark: path.join(__filename, '..', '..', 'resources', 'dark', 'folder.svg')
-  // } : undefined
-
-  // iconPath = {
-  //   light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-  //   dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg'),
-  // }
 }

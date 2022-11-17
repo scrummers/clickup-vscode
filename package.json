@@ -56,8 +56,35 @@
         "category": "Click Up",
         "title": "Add Task From List",
         "icon": {
-          "light": "resources/light/document.svg",
-          "dark": "resources/dark/document.svg"
+          "light": "resources/light/new.svg",
+          "dark": "resources/dark/new.svg"
+        }
+      },
+      {
+        "command": "clickup.updateTag",
+        "category": "Click Up",
+        "title": "Update Tag",
+        "icon": {
+          "light": "resources/light/tag.svg",
+          "dark": "resources/dark/tag.svg"
+        }
+      },
+      {
+        "command": "clickup.updateStatus",
+        "category": "Click Up",
+        "title": "Change Status",
+        "icon": {
+          "light": "resources/light/complete.svg",
+          "dark": "resources/dark/complete.svg"
+        }
+      },
+      {
+        "command": "clickup.assignTask",
+        "category": "Click Up",
+        "title": "Assign To",
+        "icon": {
+          "light": "resources/light/assign.svg",
+          "dark": "resources/dark/assign.svg"
         }
       },
       {
@@ -164,6 +191,21 @@
         {
           "command": "clickup.addTaskFromList",
           "when": "view == clickup-tasks && viewItem == list",
+          "group": "inline"
+        },
+        {
+          "command": "clickup.updateTag",
+          "when": "view == clickup-tasks && viewItem == task",
+          "group": "inline"
+        },
+        {
+          "command": "clickup.updateStatus",
+          "when": "view == clickup-tasks && viewItem == task",
+          "group": "inline"
+        },
+        {
+          "command": "clickup.assignTask",
+          "when": "view == clickup-tasks && viewItem == task",
           "group": "inline"
         }
       ]
