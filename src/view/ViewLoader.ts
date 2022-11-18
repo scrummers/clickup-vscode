@@ -13,7 +13,7 @@ export class ViewLoader {
     this.disposables = [];
     console.log('constructing view loader')
 
-    this.panel = vscode.window.createWebviewPanel('reactApp', 'React App', vscode.ViewColumn.One, {
+    this.panel = vscode.window.createWebviewPanel('clickup', 'ClickUp', vscode.ViewColumn.One, {
       enableScripts: true,
       retainContextWhenHidden: true,
       localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'out', 'app'))],
