@@ -47,6 +47,15 @@
         "title": "Add Task"
       },
       {
+        "command": "clickup.viewTask",
+        "category": "Click Up",
+        "title": "View Task",
+        "icon": {
+          "light": "resources/light/view.svg",
+          "dark": "resources/dark/view.svg"
+        }
+      },
+      {
         "command": "clickup.quickAddTask",
         "category": "Click Up",
         "title": "Quick Add Task",
@@ -179,7 +188,7 @@
           "group": "clickup@1"
         },
         {
-          "command": "clickup.editTask",
+          "command": "clickup.viewTask",
           "when": "view == clickup-tasks && viewItem == task",
           "group": "inline"
         },
