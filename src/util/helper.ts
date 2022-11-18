@@ -23,8 +23,9 @@ export const getUtcTodayEnd = (): number => {
 }
 
 export const getIcon = (filename: string): IconPath => {
+    const resourcePath = path.join(__filename, '..', '..', '..', '..', 'resources')
     return {
-        light: path.join(__filename, '..', '..', 'resources', 'light', filename),
-        dark: path.join(__filename, '..', '..', 'resources', 'dark', filename)
+        light: path.join(resourcePath, 'light', filename),
+        dark: path.join(resourcePath, 'dark', filename)
     }
 }

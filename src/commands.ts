@@ -2,10 +2,12 @@ import { commands, ExtensionContext, TreeItemCollapsibleState, window } from 'vs
 import { Client } from './clients/Client'
 import { LocalStorageService } from './service/local_storage_service'
 import { TaskItem } from './service/TreeView/TaskTreeView'
+import { WebViewService } from './service/web_view_service'
 import { AppState } from './store'
 import { INIT } from './util/const'
 import { getUtcTodayEnd, getUtcTodayStart } from './util/helper'
 import { ApiNewTaskSchema, EnumTodoLabel, EnumTreeLevel, Task } from './util/typings/clickup'
+import { ViewLoader } from './view/ViewLoader'
 
 export enum Commands {
   // temp
@@ -31,6 +33,7 @@ export enum Commands {
   ClickupAssignTask = 'clickup.assignTask',
   ClickupAddTask = 'clickup.addTask',
   ClickupEditTask = 'clickup.editTask',
+  ClickupViewTask = 'clickup.viewTask',
   ClickupDeleteTask = 'clickup.deleteTask',
   ClickupUpdateTags = 'clickup.updateTags',
 

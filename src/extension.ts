@@ -6,6 +6,7 @@ import { WebViewService } from './service/web_view_service'
 import { EnumTodoLabel } from './util/typings/clickup'
 import { CodelensProvider } from './service/CodelensProvider';
 import { StatusBarService } from './service/status_bar_service'
+import { ViewLoader } from './view/ViewLoader'
 
 let disposables: vscode.Disposable[] = [];
 
@@ -19,59 +20,12 @@ async function activate(context: vscode.ExtensionContext) {
   // Command function
   registerCommands(context, client)
 
-  // vscode.commands.registerCommand('clickup.deleteClickUpToken', async () => {
-  //   await vscode.window
-  //     .showInformationMessage('Do you really want to delete your token?', ...['Yes', 'No'])
-  //     .then((result) => {
-  //       if (result === undefined || result === 'No') {
-  //         return
-  //       }
 
-  //       clickUpService.deleteUserToken()
-  //     })
-  // })
-
-  // vscode.commands.registerCommand('clickup.editClickUpToken', async () => {
-  //   await vscode.window
-  //     .showInputBox({
-  //       placeHolder: 'Please input a new user token',
-  //     })
-  //     .then((userToken) => clickUpService.setUserToken(userToken))
-  // })
-
-  vscode.commands.registerCommand(Commands.ClickupAddTask, async () => {
-    // if (clickUpService.userToken === undefined) {
-    //   return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
-    // }
-
-    let webFolder: string = 'add_new_task'
-
-    let addTaskWebViewer = new WebViewService(context, [webFolder, 'add_new_task.html'], 'Add New Task', {
-      localResources: [webFolder],
-      receiveMessageFunction: (message) => {
-        console.log(message)
-      },
-    })
+  /** WEBVIEW */
+  vscode.commands.registerCommand(Commands.ClickupViewTask, async () => {
+    ViewLoader.showWebview(context);
   })
-
-  vscode.commands.registerCommand(Commands.ClickupDeleteTask, () => {
-    vscode.window.showInformationMessage('Deleting Task...')
-  })
-
-  vscode.commands.registerCommand(Commands.ClickupEditTask, () => {
-    // if (clickUpService.userToken === undefined) {
-    //   return vscode.window.showErrorMessage('Please input your Click Up token to use Scrummer')
-    // }
-
-    let webFolder: string = 'edit_task'
-
-    let editTaskWebViewer = new WebViewService(context, [webFolder, 'edit_task.html'], 'Edit Task', {
-      localResources: [webFolder],
-      receiveMessageFunction: (message) => {
-        console.log(message)
-      },
-    })
-  })
+  // context.subscriptions.push(disposable);
 
   vscode.commands.registerCommand("clickup.codelentest", () => {
     codelensProvider.codeLensDisable()
