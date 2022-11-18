@@ -260,6 +260,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     commands.registerCommand(Commands.ClickupSelectWorkspace, async () => {
       try {
         const workspaces = await client.service.getTeams()
+        console.log({ workspaces })
         const options = workspaces.map((ws) => ({
           label: ws.name,
           id: ws.id,
@@ -286,6 +287,9 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         })
 
         if (!slctSpace) return
+
+        const selectedTeam = workspaces.find((w) => w.id == slctWorkspace.id)
+        client.stateUpdateTeams(selectedTeam!)
 
         if (!client.tree) {
           client.setupTreeView(slctSpace.id)

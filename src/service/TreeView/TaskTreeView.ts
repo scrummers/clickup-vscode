@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { EnumTreeLevel, Task, TaskTreeViewData } from '../../util/typings/clickup'
+import { EnumTodoLabel, EnumTreeLevel, Task, TaskTreeViewData } from '../../util/typings/clickup'
 import { getDate, getIcon } from '../../util/helper'
 import { Commands } from '../../commands'
 import path = require('path')
@@ -112,9 +112,7 @@ export class TaskItem extends vscode.TreeItem {
         _treeItem.folderId = i.folderId
         return _treeItem
       })
-      if ((item as TaskData).label === 'To Do') {
-        this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded
-      }
+      this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded
       return
     }
 
@@ -126,6 +124,11 @@ export class TaskItem extends vscode.TreeItem {
       if (this.children.length === 0) {
         this.collapsibleState = vscode.TreeItemCollapsibleState.None
       }
+
+      if (this.label === EnumTodoLabel.today) {
+        this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded
+      }
+
       this.iconPath = getIcon("folder.svg")
       this.contextValue = "list"
       return

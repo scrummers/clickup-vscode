@@ -112,7 +112,7 @@ class SpaceStatusBarItem extends CustomStatusBarItem {
 
     this.setCommand(Commands.ClickupSelectWorkspace)
     if (AppState.crntSpace !== null) {
-      this.setText(`$(briefcase) ${AppState?.crntSpace.name}`)
+      this.setText(`$(briefcase) ${AppState?.crntWorkspace?.name}/${AppState?.crntSpace.name}`)
       this.setBackgroundColor(undefined)
     } else {
       this.setText(`$(warning) No ClickUp Space Selected`)

@@ -58,6 +58,9 @@ export class Client {
           commands.executeCommand(Commands.ClickupSelectWorkspace)
         }
 
+        const crntWorkspace = this.storage.getValue(EnumLocalStorage.CrntWorkspace) as Teams
+        this.stateUpdateTeams(crntWorkspace)
+
         console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
 
         await this.setupTreeView(crntSpace.id)
@@ -401,11 +404,18 @@ export class Client {
 
   stateUpdateSpace(space: SpaceLListFile) {
     AppState.crntSpace = space
+    AppState.crntSpaceId = space.id
     const crntSpace = {
       id: space.id,
       name: space.name,
     }
     this.storage.setValue(EnumLocalStorage.CrntSpace, crntSpace)
+    appStateChangeEventEmitter.fire()
+  }
+
+  stateUpdateTeams(team: Teams) {
+    AppState.crntWorkspace = team
+    this.storage.setValue(EnumLocalStorage.CrntWorkspace, team)
     appStateChangeEventEmitter.fire()
   }
 
