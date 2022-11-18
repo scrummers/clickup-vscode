@@ -18,6 +18,7 @@ import {
 import { LocalStorageService } from './local_storage_service'
 
 import * as vscode from 'vscode'
+import { performance } from 'perf_hooks'
 
 class ClickUpService {
   private storageService: LocalStorageService
@@ -202,35 +203,72 @@ class ClickUpService {
     })
   }
   // Function: Get all space informations include all list, folder task
-  public async getSpaceTree(spaceId: string) {
+  public async getSpaceTree(spaceId: string): Promise<SpaceLListFile> {
     let space = await this.getSpace(spaceId)
     let spaceList = await this.getFolderLists(spaceId)
     let folders: FolderExtend[] = <FolderExtend[]>await this.getFolders(spaceId)
     let tree: SpaceLListFile = space
     let rootLists: ListExtend[] = <ListExtend[]>spaceList
 
-    tree.folders = folders
-    tree.root_lists = rootLists
-    // Search Tasks from Root_list
-    for (let i = 0; i < tree.root_lists.length; i++) {
-      if (tree.root_lists[i].task_count != 0) {
-        let rootList_tasks = await this.getTasks(tree.root_lists[i].id)
-        tree.root_lists[i].tasks = rootList_tasks
-      } else tree.root_lists[i].tasks = []
-    }
-    // Search Tasks from Folders
-    for (let i = 0; i < tree.folders.length; i++) {
-      for (let j = 0; j < tree.folders[i].lists.length; j++) {
-        let list: ListExtend = tree.folders[i].lists[j]
-        list.tasks = []
-        if (tree.folders[i].lists[j].task_count != 0) {
-          let List_tasks = await this.getTasks(list.id)
-          list.tasks = List_tasks
-          tree.folders[i].lists[j] = list
+    const t0 = performance.now();
+
+    const getPromiseRootList = (lists: ListExtend[]) => lists.map((l) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const tasks = await this.getTasks(l.id)
+          resolve({ ...l, tasks })
+        } catch (err) {
+          reject(err)
         }
-      }
-    }
-    return tree
+      })
+    })
+
+    const promiseFolders = folders.map((f) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const lists = await Promise.all(getPromiseRootList(f.lists))
+          resolve({ ...f, lists })
+        } catch (err) {
+          reject(err)
+        }
+      })
+    })
+
+    space.root_lists = await Promise.all(
+      getPromiseRootList(rootLists)
+    )
+    space.folders = await Promise.all(
+      promiseFolders
+    )
+
+    // tree.folders = folders
+    // tree.root_lists = rootLists
+
+    // // Search Tasks from Root_list
+    // for (let i = 0; i < tree.root_lists.length; i++) {
+    //   if (tree.root_lists[i].task_count != 0) {
+    //     let rootList_tasks = await this.getTasks(tree.root_lists[i].id)
+    //     tree.root_lists[i].tasks = rootList_tasks
+    //   } else tree.root_lists[i].tasks = []
+    // }
+    // // Search Tasks from Folders
+    // for (let i = 0; i < tree.folders.length; i++) {
+    //   for (let j = 0; j < tree.folders[i].lists.length; j++) {
+    //     let list: ListExtend = tree.folders[i].lists[j]
+    //     list.tasks = []
+    //     if (tree.folders[i].lists[j].task_count != 0) {
+    //       let List_tasks = await this.getTasks(list.id)
+    //       list.tasks = List_tasks
+    //       tree.folders[i].lists[j] = list
+    //     }
+    //   }
+    // }
+
+    const t1 = performance.now();
+    console.log(`Fetch space tree took ${t1 - t0} milliseconds.`);
+
+    // return tree
+    return space
   }
 
   public getTasksFilters(userIds: number[], spaceTree: SpaceLListFile, toDoLabel?: string) {
