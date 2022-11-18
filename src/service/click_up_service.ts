@@ -14,11 +14,14 @@ import {
   TodoTasksMap,
   ApiNewTaskSchema,
   ApiUpdateTaskSchema,
+  Tag,
 } from '../util/typings/clickup'
 import { LocalStorageService } from './local_storage_service'
 
 import * as vscode from 'vscode'
 import { performance } from 'perf_hooks'
+import { resolve } from 'path'
+import { rejects } from 'assert'
 
 class ClickUpService {
   private storageService: LocalStorageService
@@ -177,30 +180,35 @@ class ClickUpService {
     return body
   }
 
-  public async updateTaskTags(taskId: string, previousTags: any, tags: any) {
-    if (tags === undefined) {
-      //remove all tags
-      Object.values(previousTags).map((tag: any) => {
-        console.log('remove ' + tag.name + 'from task ' + taskId)
-        this.clickUp.tasks.removeTag(taskId, tag.name)
+  public async updateTaskTags(taskId: string, previousTags: Tag[], tags: string[]): Promise<void> {
+    try {
+      if (tags === undefined || tags.length === 0) {
+        //remove all tags
+        Object.values(previousTags).map(async (tag) => {
+          console.log('remove ' + tag.name + ' from task ' + taskId)
+          await this.clickUp.tasks.removeTag(taskId, tag.name)
+        })
+        return
+      }
+
+      Object.values(previousTags).map(async (tag: any) => {
+        if (Object.values(tags).includes(tag.name) === false) {
+          console.log('remove tag [' + tag.name + '] from task ' + taskId)
+          await this.clickUp.tasks.removeTag(taskId, tag.name)
+        }
       })
-      return
+
+      tags.forEach(async (tagName: string) => {
+        let tagFound = previousTags.filter((obj: any) => obj.name === tagName)
+        if (tagFound.length === 0) {
+          console.log('add tag [' + tagName + '] in task ' + taskId)
+          await this.clickUp.tasks.addTag(taskId, tagName)
+        }
+      })
+      resolve()
+    } catch (err) {
+      rejects(err)
     }
-
-    Object.values(previousTags).map((tag: any) => {
-      if (Object.values(tags).includes(tag.name) === false) {
-        console.log('remove tag ' + tag.name + 'from task ' + taskId)
-        this.clickUp.tasks.removeTag(taskId, tag.name)
-      }
-    })
-
-    tags.forEach((tagName: string) => {
-      let tagFound = previousTags.filter((obj: any) => obj.name === tagName)
-      if (tagFound.length === 0) {
-        console.log('add tag ' + tagName + 'in task ' + taskId)
-        this.clickUp.tasks.addTag(taskId, tagName)
-      }
-    })
   }
   // Function: Get all space informations include all list, folder task
   public async getSpaceTree(spaceId: string): Promise<SpaceLListFile> {

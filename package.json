@@ -56,9 +56,9 @@
         }
       },
       {
-        "command": "clickup.updateTag",
+        "command": "clickup.updateTags",
         "category": "Click Up",
-        "title": "Update Tag",
+        "title": "Set Tags",
         "icon": {
           "light": "resources/light/tag.svg",
           "dark": "resources/dark/tag.svg"
@@ -189,7 +189,7 @@
           "group": "inline"
         },
         {
-          "command": "clickup.updateTag",
+          "command": "clickup.updateTags",
           "when": "view == clickup-tasks && viewItem == task",
           "group": "inline"
         },

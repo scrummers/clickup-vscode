@@ -5,7 +5,7 @@ import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
 import { TaskItem } from '../service/TreeView/TaskTreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
-import { ApiNewTaskSchema, ApiUpdateTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, Status, Task, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
+import { ApiNewTaskSchema, ApiUpdateTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, Status, Tag, Task, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
 let instance: Client | null = null
@@ -221,6 +221,20 @@ export class Client {
     }
   }
 
+  async updateTaskTags(listId: string, taskId: string, newTags: string[]): Promise<void> {
+    try {
+      const latestTask = await this.stateGetTaskData(listId, taskId)
+      if (!latestTask) {
+        throw new Error('Task not found, maybe deleted from platform')
+      }
+      await this.service.updateTaskTags(taskId, latestTask.tags, newTags)
+      Promise.resolve()
+
+    } catch (err) {
+      Promise.reject(err)
+    }
+  }
+
   async updateTaskField(listId: string, taskId: string, fieldname: keyof ApiUpdateTaskSchema, value: any) {
     try {
       const latestTask = await this.stateGetTaskData(listId, taskId)
@@ -245,7 +259,6 @@ export class Client {
         },
         status: latestTask.status.status,
       }
-
 
       const data: ApiUpdateTaskSchema = {
         ...initData,
@@ -295,13 +308,13 @@ export class Client {
     }
   }
 
-  async stateGetSpaceTags(spaceId: string) {
+  async stateGetSpaceTags(spaceId: string): Promise<Tag[]> {
     try {
       this.setIsLoading(true)
-      const resp = await this.service.getTags(spaceId)
-      console.log({ resp })
+      const tags = await this.service.getTags(spaceId)
+      return Promise.resolve(tags)
     } catch (err) {
-
+      return Promise.reject()
     } finally {
       this.setIsLoading(false)
     }

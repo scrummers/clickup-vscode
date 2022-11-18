@@ -1,9 +1,10 @@
-import { commands, ExtensionContext, window } from 'vscode'
+import { commands, ExtensionContext, TreeItemCollapsibleState, window } from 'vscode'
 import { Client } from './clients/Client'
 import { LocalStorageService } from './service/local_storage_service'
 import { TaskItem } from './service/TreeView/TaskTreeView'
 import { AppState } from './store'
 import { INIT } from './util/const'
+import { getUtcTodayEnd, getUtcTodayStart } from './util/helper'
 import { ApiNewTaskSchema, EnumTodoLabel, EnumTreeLevel, Task } from './util/typings/clickup'
 
 export enum Commands {
@@ -28,10 +29,10 @@ export enum Commands {
   ClickupAddTaskFromList = 'clickup.addTaskFromList',
   ClickupUpdateStatus = 'clickup.updateStatus',
   ClickupAssignTask = 'clickup.assignTask',
-
   ClickupAddTask = 'clickup.addTask',
   ClickupEditTask = 'clickup.editTask',
   ClickupDeleteTask = 'clickup.deleteTask',
+  ClickupUpdateTags = 'clickup.updateTags',
 
   // Workspace
   ClickupSelectWorkspace = 'clickup.selectWorkspace',
@@ -43,6 +44,57 @@ export enum Commands {
 export function registerCommands(vscodeContext: ExtensionContext, client: Client) {
   vscodeContext.subscriptions.push(
     /** TASK */
+    commands.registerCommand(Commands.ClickupUpdateTags, async (item: TaskItem) => {
+      try {
+        const { taskId, listId } = item
+        if (!listId || !taskId || !item) return
+
+        const tags = await client.stateGetSpaceTags(AppState.crntSpaceId)
+        if (tags.length === 0) {
+          const actionString = await window.showInformationMessage('No tags in current space, do you want to create a tag now?', ...['Create', 'Cancel'])
+          if (actionString === 'Create') {
+            // TODO: create tag
+            console.log('exe create tag command')
+          }
+          return
+        }
+
+        const options = tags.map((t) => ({
+          label: t.name,
+          description: item.tags?.includes(t.name) ? '(Current)' : '',
+          id: t.name,
+        }))
+
+        const selected = await window.showQuickPick(options, {
+          matchOnDetail: true,
+          canPickMany: true,
+          matchOnDescription: true,
+          title: `Select tags for the task (${item.label})`,
+          placeHolder: 'Check the tags to set or check again to unset',
+        })
+
+        if (!selected) return
+
+        // const selectedTags = selected.map((s) => !item.tags?.includes(s.id) ? s.id)
+        const selectedTags: string[] = selected.reduce((prev, crnt) => {
+          if (item.tags?.includes(crnt.id)) {
+            return [...prev]
+          }
+          return [...prev, crnt.id]
+        }, [] as string[])
+
+        console.log({ selectedTags })
+
+        await client.updateTaskTags(listId, taskId, selectedTags)
+
+        commands.executeCommand(Commands.ClickupRefresh)
+        window.showInformationMessage('Tag update success')
+
+      } catch (err) {
+        window.showErrorMessage(err.message)
+      }
+    }),
+
     commands.registerCommand(Commands.ClickupAssignTask, async (item: TaskItem) => {
       try {
         const { taskId, listId } = item
@@ -126,7 +178,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           })
 
           if (!selectedList) {
-            throw new Error('Please select a list')
+            return
           }
 
           listId = selectedList.id
@@ -135,11 +187,14 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         if (!listId) return
 
         const taskInput = await window.showInputBox({
-          placeHolder: 'Enter task name',
+          placeHolder: 'Task name @[date] #[tags] %[assignee]',
+          title: `Please enter a task name`,
+          ignoreFocusOut: true,
         })
 
         if (!taskInput) {
-          throw new Error('Please enter a task name')
+          window.showInformationMessage("Cancelled")
+          return
         }
 
         const data: ApiNewTaskSchema = {
@@ -153,8 +208,8 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           time_estimate: 8640000,
 
           ...(isToday && {
-            start_date: new Date().setHours(0, 0, 0, 0),
-            due_date: new Date().setHours(23, 59, 59, 999)
+            start_date: getUtcTodayStart(),
+            due_date: getUtcTodayEnd()
           }),
 
           ...(isTodoCategory && {
@@ -182,8 +237,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         const action = await window.showInformationMessage(message, ...['Open Task', 'OK'])
         console.log({ action })
       } catch (err) {
-        console.error(err)
-        window.showErrorMessage('Something error')
+        window.showErrorMessage(err.message)
       }
 
     }),

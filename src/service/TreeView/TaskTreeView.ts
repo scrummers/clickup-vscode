@@ -8,8 +8,6 @@ import { Client } from '../../clients/Client'
 
 type TaskData = {
   label: string,
-  // level: EnumTreeLevel
-  // level: 'top'
   items: TaskTreeViewData[]
 }
 
@@ -87,6 +85,7 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskItem> {
 
 export class TaskItem extends vscode.TreeItem {
   public myId!: number
+  public tags?: string[]
   public assigneeIds?: number[]
   public folderId?: string
   public listId?: string
@@ -136,13 +135,16 @@ export class TaskItem extends vscode.TreeItem {
 
     // Task List
     const task = item as Task
-    let tags = 'No Tags'
+    let tags = ''
     if (task.tags.length) {
-      tags = 'Tags: ' + task.tags.reduce((prev, crnt) => !prev ? crnt.name : prev + '|' + crnt.name, '')
+      tags = `#` + task.tags.reduce((prev, crnt) => !prev ? crnt.name : prev + ',' + crnt.name, '')
     }
     const dueDate = task.due_date === null ? 'No Due Date' : getDate(+task.due_date)
-    this.description = task.status.status
-    this.tooltip = `${tags} (${dueDate})`
+    this.description = `${task.status.status} ${tags}`
+
+    const taskAssigneeNames = task.assignees.map((a) => a.username).join(',')
+    this.tooltip = `Assigned to: ${taskAssigneeNames || 'No One' } | Due: ${dueDate}`
+    this.tags = task.tags.map((t) => t.name)
     this.taskId = task.id
     this.listId = task.list.id
     this.collapsibleState = vscode.TreeItemCollapsibleState.None
