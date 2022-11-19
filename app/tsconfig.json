@@ -7,7 +7,11 @@
     "jsx": "react",
     "sourceMap": true,
     "experimentalDecorators": true,
-    "lib": ["dom", "ES2015"],
+    "useUnknownInCatchVariables": false,
+    "lib": [
+      "dom",
+      "ES2015"
+    ],
     "strict": true
-  }
+  },
 }

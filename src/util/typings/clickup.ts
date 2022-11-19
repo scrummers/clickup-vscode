@@ -195,9 +195,7 @@ export type Task = {
   time_estimate: string
   time_spent: string
   custom_fields: any // TODO:need to fill
-  list: {
-    id: string
-  }
+  list: List
   folder: {
     id: string
   }
@@ -355,10 +353,10 @@ export type ApiUpdateTaskSchema = {
   status: string // 'in progress' 
   priority: number | null// 1
   // tags: string[]
-  due_date: number // 1508369194377
+  due_date: number | null// 1508369194377
   due_date_time: boolean
-  time_estimate: number //8640000
-  start_date: number // 1567780450202
+  time_estimate?: number | null //8640000
+  start_date: number | null // 1567780450202
   start_date_time: boolean
   parent: string
   assignees: {

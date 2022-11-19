@@ -5,7 +5,8 @@ import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
 import { TaskItem } from '../service/TreeView/TaskTreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
-import { ApiNewTaskSchema, ApiUpdateTaskSchema, EnumTodoLabel, SpaceLListFile, StateSpaceList, Status, Tag, Task, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
+import { TAppState } from '../store/AppState'
+import { ApiNewTaskSchema, ApiUpdateTaskSchema, EnumTodoLabel, Priority, SpaceLListFile, StateSpaceList, Status, Tag, Task, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
 let instance: Client | null = null
@@ -187,6 +188,7 @@ export class Client {
       })
 
       this.stateUpdateSpaceList(spaceTree)
+      this.stateUpdateSpacePriorities(spaceTree)
       this.stateUpdateSpace(spaceTree)
       this.setIsLoading(false)
 
@@ -247,10 +249,10 @@ export class Client {
         description: latestTask.description,
         priority: latestTask.priority ? +latestTask.priority.id : null,
         due_date: +latestTask.due_date,
-        due_date_time: false,
+        due_date_time: true,
         time_estimate: +latestTask.time_estimate,
         start_date: +latestTask.start_date,
-        start_date_time: false,
+        start_date_time: true,
         parent: latestTask.parent,
         archived: latestTask.archived,
         assignees: {
@@ -266,7 +268,6 @@ export class Client {
         ...(fieldname === "assignees" && { assignees: { ...initData.assignees, add: value } })
       }
 
-      console.log({ data })
       return this.updateTask(taskId, data)
     } catch (err) {
       this.setIsLoading(false)
@@ -295,6 +296,10 @@ export class Client {
   }
 
   // // App state with side effect
+  get getAppState(): TAppState {
+    return AppState
+  }
+
   async stateGetTaskData(listId: string, taskId: string) {
     try {
       this.setIsLoading(true)
@@ -306,6 +311,10 @@ export class Client {
     } finally {
       this.setIsLoading(false)
     }
+  }
+
+  async stateGetSpaceList(): Promise<StateSpaceList[]> {
+    return Promise.resolve(AppState.spaceList || [])
   }
 
   async stateGetSpaceTags(spaceId: string): Promise<Tag[]> {
@@ -335,16 +344,8 @@ export class Client {
     })
   }
 
-  async stateGetProrities(spaceId: string) {
-    try {
-      this.setIsLoading(true)
-      const resp = await this.service.getPriorities(spaceId)
-      console.log({ resp })
-    } catch (err) {
-
-    } finally {
-      this.setIsLoading(false)
-    }
+  async stateGetProrities(): Promise<Priority[]> {
+    return Promise.resolve(AppState.spacePriorities || [])
   }
 
   async stateGetListMembers(listId: string) {
@@ -415,20 +416,25 @@ export class Client {
     AppState.spaceList = spaceList
   }
 
-  stateUpdateSpace(space: SpaceLListFile) {
-    AppState.crntSpace = space
-    AppState.crntSpaceId = space.id
+  stateUpdateSpace(spaceTree: SpaceLListFile) {
+    AppState.crntSpace = spaceTree
+    AppState.crntSpaceId = spaceTree.id
     const crntSpace = {
-      id: space.id,
-      name: space.name,
+      id: spaceTree.id,
+      name: spaceTree.name,
     }
     this.storage.setValue(EnumLocalStorage.CrntSpace, crntSpace)
     appStateChangeEventEmitter.fire()
   }
 
+  stateUpdateSpacePriorities(spaceTree: SpaceLListFile) {
+    AppState.spacePriorities = spaceTree.features.priorities.priorities
+    appStateChangeEventEmitter.fire()
+  }
+
   stateUpdateTeams(team: Teams) {
     AppState.crntWorkspace = team
-    this.storage.setValue(EnumLocalStorage.CrntWorkspace, team)
+    // this.storage.setValue(EnumLocalStorage.CrntWorkspace, team)
     appStateChangeEventEmitter.fire()
   }
 

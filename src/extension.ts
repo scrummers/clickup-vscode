@@ -6,7 +6,7 @@ import { WebViewService } from './service/web_view_service'
 import { EnumTodoLabel } from './util/typings/clickup'
 import { CodelensProvider } from './service/CodelensProvider';
 import { StatusBarService } from './service/status_bar_service'
-import { ViewLoader } from './view/ViewLoader'
+import { ViewLoader } from './service/WebView/ViewLoader'
 
 let disposables: vscode.Disposable[] = [];
 
@@ -22,9 +22,9 @@ async function activate(context: vscode.ExtensionContext) {
 
 
   /** WEBVIEW */
-  vscode.commands.registerCommand(Commands.ClickupViewTask, async () => {
-    ViewLoader.showWebview(context);
-  })
+  // vscode.commands.registerCommand(Commands.ClickupViewTask, async () => {
+  //   ViewLoader.showWebview(context);
+  // })
   // context.subscriptions.push(disposable);
 
   vscode.commands.registerCommand("clickup.codelentest", () => {

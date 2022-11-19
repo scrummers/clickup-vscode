@@ -7,7 +7,8 @@ import { AppState } from './store'
 import { INIT } from './util/const'
 import { getUtcTodayEnd, getUtcTodayStart } from './util/helper'
 import { ApiNewTaskSchema, EnumTodoLabel, EnumTreeLevel, Task } from './util/typings/clickup'
-import { ViewLoader } from './view/ViewLoader'
+import { ViewLoader } from './service/WebView/ViewLoader'
+import { EnumInitWebRoute } from './util/typings/system'
 
 export enum Commands {
   // temp
@@ -46,6 +47,31 @@ export enum Commands {
 
 export function registerCommands(vscodeContext: ExtensionContext, client: Client) {
   vscodeContext.subscriptions.push(
+    /** Web View */
+    commands.registerCommand(Commands.ClickupViewTask, async (item: TaskItem) => {
+      try {
+        const { taskId, listId } = item
+        if (!listId || !taskId || !item) return
+
+        ViewLoader.currentPanel?.dispose()
+
+        const data = {
+          task: await client.stateGetTaskData(listId, taskId),
+          teams: await client.stateGetListMembers(listId),
+          status: await client.stateGetListStatus(listId),
+          lists: await client.stateGetSpaceList(),
+          tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
+          priorities: await client.stateGetProrities()
+        }
+        console.log({ data })
+
+        ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.ViewTask, JSON.stringify(data));
+      } catch (err) {
+        window.showErrorMessage(err.message)
+      }
+    }),
+
+
     /** TASK */
     commands.registerCommand(Commands.ClickupUpdateTags, async (item: TaskItem) => {
       try {
@@ -200,19 +226,21 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           return
         }
 
-        const data: ApiNewTaskSchema = {
+        const data: any = {
           ...INIT.newTask,
           name: taskInput,
           description: 'new task ddesc',
-          priority: 2,
+          // priority: 2,
           status: 'to do',
-          start_date: Date.now(),
-          due_date: Date.now() + 1000000,
-          time_estimate: 8640000,
+          // start_date: null,
+          // due_date: Date.now() + 1000000,
+          // time_estimate: 8640000,
 
           ...(isToday && {
             start_date: getUtcTodayStart(),
-            due_date: getUtcTodayEnd()
+            start_date_time: true,
+            due_date: getUtcTodayEnd(),
+            due_date_time: true
           }),
 
           ...(isTodoCategory && {

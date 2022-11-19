@@ -2,7 +2,6 @@ import * as vscode from 'vscode'
 import { EnumTodoLabel, EnumTreeLevel, Task, TaskTreeViewData } from '../../util/typings/clickup'
 import { getDate, getIcon } from '../../util/helper'
 import { Commands } from '../../commands'
-import path = require('path')
 import { AppState } from '../../store'
 import { Client } from '../../clients/Client'
 

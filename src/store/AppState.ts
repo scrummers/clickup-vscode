@@ -1,4 +1,4 @@
-import { ClickupState, SpaceLListFile, StateSpaceList, Status, Tag, Teams, User } from '../util/typings/clickup'
+import { ClickupState, Priority, SpaceLListFile, StateSpaceList, Status, Tag, Teams, User } from '../util/typings/clickup'
 import { EventEmitter } from 'vscode'
 
 class AppStateChangeEventEmitter extends EventEmitter<void> {
@@ -15,7 +15,7 @@ const initAppState = {
   crntSpace: null,
   crntWorkspaceId: '',
   crntSpaceId: '',
-  spaceList: null,
+  spaceList: [],
   spaceTags: [],
   spaceMembers: [],
   spacePriorities: [],
@@ -25,15 +25,15 @@ const initAppState = {
   me: null,
 }
 
-type TAppState = {
+export type TAppState = {
   clickup: ClickupState | null
   crntWorkspace: Teams | null
   crntSpace: SpaceLListFile | null
   crntSpaceId: string
-  spaceList: StateSpaceList[] | null
+  spaceList: StateSpaceList[]
   spaceTags: Tag[]
   spaceMembers: User[]
-  spacePriorities: any
+  spacePriorities: Priority[]
   listMembers: User[]
   listStatus: Status[]
   me: User | null

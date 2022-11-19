@@ -1,6 +1,7 @@
-import * as dayjs from 'dayjs'
-import * as utc from 'dayjs/plugin/utc'
-import path = require('path')
+/* tslint:disable */ 
+import path from 'path'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 
 type IconPath = {
