@@ -185,7 +185,7 @@ class ClickUpService {
       if (tags === undefined || tags.length === 0) {
         //remove all tags
         Object.values(previousTags).map(async (tag) => {
-          console.log('remove ' + tag.name + ' from task ' + taskId)
+          // console.log('remove ' + tag.name + ' from task ' + taskId)
           await this.clickUp.tasks.removeTag(taskId, tag.name)
         })
         return
@@ -193,7 +193,7 @@ class ClickUpService {
 
       Object.values(previousTags).map(async (tag: any) => {
         if (Object.values(tags).includes(tag.name) === false) {
-          console.log('remove tag [' + tag.name + '] from task ' + taskId)
+          // console.log('remove tag [' + tag.name + '] from task ' + taskId)
           await this.clickUp.tasks.removeTag(taskId, tag.name)
         }
       })
@@ -201,7 +201,7 @@ class ClickUpService {
       tags.forEach(async (tagName: string) => {
         let tagFound = previousTags.filter((obj: any) => obj.name === tagName)
         if (tagFound.length === 0) {
-          console.log('add tag [' + tagName + '] in task ' + taskId)
+          // console.log('add tag [' + tagName + '] in task ' + taskId)
           await this.clickUp.tasks.addTag(taskId, tagName)
         }
       })
@@ -276,7 +276,7 @@ class ClickUpService {
     // }
 
     const t1 = performance.now();
-    console.log(`Fetch space tree took ${t1 - t0} milliseconds.`);
+    // console.log(`Fetch space tree took ${t1 - t0} milliseconds.`);
 
     // return tree
     return spaceTree

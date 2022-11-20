@@ -218,7 +218,7 @@ export class Client {
     try {
       this.setIsLoading(true)
       const resp = await this.service.newTask(listId, data)
-      console.log({ resp })
+      // console.log({ resp })
       return resp
     } catch (err) {
       console.error(err)
@@ -416,7 +416,7 @@ export class Client {
         ...l
       })
     })
-    console.log({ spaceList })
+    // console.log({ spaceList })
     AppState.spaceList = spaceList
   }
 

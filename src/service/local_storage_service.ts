@@ -10,7 +10,7 @@ class LocalStorageService {
   }
 
   public clearAll() {
-    console.log('all storage data deleted')
+    // console.log('all storage data deleted')
     storageKey.forEach((key) => this.deleteValue(key))
   }
 

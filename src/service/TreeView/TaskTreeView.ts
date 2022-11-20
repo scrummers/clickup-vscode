@@ -29,12 +29,12 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskItem> {
     vscode.commands.registerCommand(Commands.ClickupItemClick, async item => {
       this.itemClicked(item)
     })
-    vscode.commands.registerCommand(Commands.ClickupContextMenuCommand0, async item => {
-      this.command0(item)
-    })
-    vscode.commands.registerCommand(Commands.ClickupContextMenuCommand1, async item => {
-      this.command1(item)
-    })
+    // vscode.commands.registerCommand(Commands.ClickupContextMenuCommand0, async item => {
+    //   this.command0(item)
+    // })
+    // vscode.commands.registerCommand(Commands.ClickupContextMenuCommand1, async item => {
+    //   this.command1(item)
+    // })
   }
 
   buildTaskItem(taskData: TaskData[]) {
@@ -62,12 +62,12 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskItem> {
     // console.log(item)
   }
 
-  command0(item: TaskItem) {
-    console.log("context menu command 0 clickd with: ", item.label);
-  }
-  command1(item: TaskItem) {
-    console.log("context menu command 1 clickd with: ", item.label);
-  }
+  // command0(item: TaskItem) {
+  //   // console.log("context menu command 0 clickd with: ", item.label);
+  // }
+  // command1(item: TaskItem) {
+  //   // console.log("context menu command 1 clickd with: ", item.label);
+  // }
 
   async refresh(fullReload: boolean, item?: TaskItem) {
     if (item && !fullReload) {

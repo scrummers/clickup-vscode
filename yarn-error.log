@@ -140,11 +140,6 @@ npm manifest:
           "title": "Get storage data"
         },
         {
-          "command": "clickup.getAppState",
-          "category": "Click Up",
-          "title": "clickup Get AppState"
-        },
-        {
           "command": "clickup.testing",
           "category": "Click Up",
           "title": "TEST: Wilson API testing"

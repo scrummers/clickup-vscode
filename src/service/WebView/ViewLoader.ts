@@ -116,7 +116,7 @@ export class ViewLoader {
           case 'CREATE':
             try {
               const newTask: Task & { listId: string } = JSON.parse(text)
-              console.log({ newTask })
+              // console.log({ newTask })
 
               const data: ApiNewTaskSchema = {
                 name: newTask.name,

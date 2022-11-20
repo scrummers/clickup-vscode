@@ -2,7 +2,6 @@ import { commands, ExtensionContext, TreeItemCollapsibleState, window } from 'vs
 import { Client } from './clients/Client'
 import { LocalStorageService } from './service/local_storage_service'
 import { TaskItem } from './service/TreeView/TaskTreeView'
-import { WebViewService } from './service/web_view_service'
 import { AppState } from './store'
 import { INIT } from './util/const'
 import { getUtcTodayEnd, getUtcTodayStart } from './util/helper'
@@ -12,13 +11,13 @@ import { EnumInitWebRoute } from './util/typings/system'
 
 export enum Commands {
   // temp
-  ClickupGetStorageData = 'clickup.getStorageData',
+  // ClickupGetStorageData = 'clickup.getStorageData',
 
   // Treeview
   ClickupRefresh = 'clickup.refresh',
   ClickupItemClick = 'clickup.itemClick',
-  ClickupContextMenuCommand0 = 'clickup.contextMenuCommand0',
-  ClickupContextMenuCommand1 = 'clickup.contextMenuCommand1',
+  // ClickupContextMenuCommand0 = 'clickup.contextMenuCommand0',
+  // ClickupContextMenuCommand1 = 'clickup.contextMenuCommand1',
 
 
   ClickupGetMyData = 'clickup.getMyData',
@@ -40,7 +39,7 @@ export enum Commands {
   ClickupSelectWorkspace = 'clickup.selectWorkspace',
 
   // System
-  GetAppState = 'clickup.getAppState',
+  // GetAppState = 'clickup.getAppState',
 }
 
 export function registerCommands(vscodeContext: ExtensionContext, client: Client) {
@@ -64,7 +63,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
           priorities: client.getAppState.spacePriorities,
         }
-        console.log({ data })
+        // console.log({ data })
 
         ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.ViewTask, JSON.stringify(data));
       } catch (err) {
@@ -85,7 +84,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
           priorities: client.getAppState.spacePriorities
         }
-        console.log({ data })
+        // console.log({ data })
 
         ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.AddTask, JSON.stringify(data));
       } catch (err) {
@@ -102,12 +101,14 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
         const tags = await client.stateGetSpaceTags(AppState.crntSpaceId)
         if (tags.length === 0) {
-          const actionString = await window.showInformationMessage('No tags in current space, do you want to create a tag now?', ...['Create', 'Cancel'])
-          if (actionString === 'Create') {
-            // TODO: create tag
-            console.log('exe create tag command')
-          }
+          await window.showInformationMessage('No tags in current space, do you want to create a tag now?', ...['OK'])
           return
+          // const actionString = await window.showInformationMessage('No tags in current space, do you want to create a tag now?', ...['Create', 'Cancel'])
+          // if (actionString === 'Create') {
+          //   // TODO: create tag
+          //   console.log('exe create tag command')
+          // }
+          // return
         }
 
         const options = tags.map((t) => ({
@@ -134,7 +135,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           return [...prev, crnt.id]
         }, [] as string[])
 
-        console.log({ selectedTags })
+        // console.log({ selectedTags })
 
         await client.updateTaskTags(listId, taskId, selectedTags)
 
@@ -271,7 +272,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         }
 
         const task = await client.createNewTask(listId, data)
-        console.log('new task', task, data)
+        // console.log('new task', task, data)
 
         // if (item) {
         //   item.addChild(new TaskItem(task.name, task, EnumTreeLevel.Third))
@@ -288,7 +289,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
         // TODO: reload tree view
         const action = await window.showInformationMessage(message, ...['Open Task', 'OK'])
-        console.log({ action })
+        // console.log({ action })
       } catch (err) {
         window.showErrorMessage(err.message)
       }
@@ -353,13 +354,13 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         })
     }),
 
-    commands.registerCommand(Commands.GetAppState, async () => {
-      console.log(JSON.stringify(AppState, null, 4))
-    }),
-    commands.registerCommand(Commands.ClickupGetStorageData, async () => {
-      const storage = new LocalStorageService(vscodeContext.workspaceState)
-      const token = await storage.getValue('token')
-    }),
+    // commands.registerCommand(Commands.GetAppState, async () => {
+      // console.log(JSON.stringify(AppState, null, 4))
+    // }),
+    // commands.registerCommand(Commands.ClickupGetStorageData, async () => {
+    //   const storage = new LocalStorageService(vscodeContext.workspaceState)
+    //   const token = await storage.getValue('token')
+    // }),
     // commands.registerCommand(Commands.ClickupGetMyData, async () => {
     //   const me = await client.service.getMe()
 
@@ -367,7 +368,6 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     commands.registerCommand(Commands.ClickupSelectWorkspace, async () => {
       try {
         const workspaces = await client.service.getTeams()
-        console.log({ workspaces })
         const options = workspaces.map((ws) => ({
           label: ws.name,
           id: ws.id,
@@ -377,7 +377,6 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         const slctWorkspace = await window.showQuickPick(options, {
           matchOnDetail: true,
           title: 'Select Workspace',
-          // onDidSelectItem: (item) => console.log('selected', item),
         })
 
         if (!slctWorkspace) return

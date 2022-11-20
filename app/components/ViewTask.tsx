@@ -61,7 +61,7 @@ export const ViewTask = () => {
   const theme = useTheme()
   const inputOptions = useRef<InputOptions>()
   const [task, setTask] = useState<TaskEx>()
-  const [isEditMode, setIsEditMode] = useState(true)
+  const [isEditMode, setIsEditMode] = useState(false)
   const [updatedTask, setUpdatedTask] = useState<TaskEx>()
   const [showDateInput, setShowDateInput] = useState<{ [key in TaskDate]: boolean }>({
     start_date: false,
@@ -144,7 +144,7 @@ export const ViewTask = () => {
       }
     }
     setUpdatedTask(_task as any)
-    console.log({ _task })
+    // console.log({ _task })
   }
 
   const onSave = () => {
@@ -174,7 +174,7 @@ export const ViewTask = () => {
       due_date: !!data.task.due_date,
     })
 
-    console.log(data)
+    // console.log(data)
   }, [])
 
   useEffect(() => {

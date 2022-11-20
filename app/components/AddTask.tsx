@@ -161,7 +161,6 @@ export const AddTask = () => {
       }
     }
     setNewTask(_task as any)
-    console.log({ _task })
   }
 
   const onLeave = () => {
@@ -189,7 +188,6 @@ export const AddTask = () => {
       priorities: data.priorities,
     })
 
-    console.log(data)
   }, [])
 
   useEffect(() => {
@@ -217,9 +215,9 @@ export const AddTask = () => {
     }
   }, [newTask.listId])
 
-  useEffect(() => {
-    console.log({ newTask })
-  }, [newTask])
+  // useEffect(() => {
+  //   console.log({ newTask })
+  // }, [newTask])
 
   if (!newTask) {
     return null
