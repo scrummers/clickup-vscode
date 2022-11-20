@@ -48,7 +48,7 @@ export const App = () => {
       <ThemeProvider theme={darkTheme}>
         <CssBaseline enableColorScheme/>
         <main>
-          <button onClick={handleReloadWebview}>Reload Webview</button>
+          {/* <button onClick={handleReloadWebview}>Reload Webview</button> */}
           <MessagesContext.Provider value={messagesFromExtension}>
             <Switch>
               {routes!.map((route, i) => (
