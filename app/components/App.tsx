@@ -47,7 +47,7 @@ export const App = () => {
     <Router initialEntries={['/', '/addTask', '/updateTask']}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline enableColorScheme/>
-        <main>
+        <main className='py-4'>
           {/* <button onClick={handleReloadWebview}>Reload Webview</button> */}
           <MessagesContext.Provider value={messagesFromExtension}>
             <Switch>

@@ -11,7 +11,7 @@ async function activate(context: vscode.ExtensionContext) {
   const client = new Client(context)
   // const clickUpService = client.service
   const codelensProvider = new CodelensProvider();
-  // const stausbarService = new StatusBarService()
+  new StatusBarService()
   vscode.languages.registerCodeLensProvider("*", codelensProvider);
   // Command function
   registerCommands(context, client)

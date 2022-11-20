@@ -190,9 +190,11 @@ export class Client {
           })
         })
       })
+      console.log('dfsadf', { spaceTree })
 
       this.stateUpdateSpaceList(spaceTree)
       this.stateUpdateSpacePriorities(spaceTree)
+      // this.stateUpdateSpacePriorities(spaceTree)
       this.stateUpdateSpace(spaceTree)
       this.setIsLoading(false)
 
@@ -432,7 +434,7 @@ export class Client {
   }
 
   stateUpdateSpacePriorities(spaceTree: SpaceLListFile) {
-    AppState.spacePriorities = spaceTree.features.priorities.priorities
+    AppState.spacePriorities = spaceTree.features.priorities ? spaceTree.features.priorities.priorities : []
     appStateChangeEventEmitter.fire()
   }
 
