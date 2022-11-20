@@ -14,7 +14,10 @@ export type Teams = {
   name: string
   color: string
   avatar: string
-  members: User[]
+  members: {
+    invited_by: User,
+    user: User
+  }[]
 }
 
 export type Space = {
@@ -113,11 +116,12 @@ export type List = {
     color: string // hex value
     hide_label: boolean
   }
+  statuses: Status[]
   priority: {
     priority: string // 'high'
     color: string
   }
-  assignee: any | null //TODO:
+  assignee: User | null //TODO:
   task_count: any | null
   due_date: string // '1567780450202'
   start_date: string | null
@@ -315,7 +319,7 @@ export type TodoTasksMap = {
 /**
  * State
  */
-export interface StateSpaceList extends List {
+export interface StateSpaceList extends ListExtend {
   label: string,
   foldername: string | null
   folderId: string | null,
@@ -331,17 +335,17 @@ export type ApiNewTaskSchema = {
   assignees: number[]
   tags: string[]
   status: string
-  priority: number
-  due_date: number
-  due_date_time: boolean
-  time_estimate: number
-  start_date: number
-  start_date_time: boolean
+  priority: number | null
+  due_date: number | null
+  due_date_time: boolean | null
+  time_estimate: number | null
+  start_date: number | null
+  start_date_time: boolean | null
   notify_all: boolean
   parent: string | null
-  links_to: string | null
-  check_required_custom_fields: boolean
-  custom_fields: {
+  links_to?: string | null
+  check_required_custom_fields?: boolean
+  custom_fields?: {
     id: string
     value: string
   }[] //TaskCustomFieldFilters

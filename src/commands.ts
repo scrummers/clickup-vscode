@@ -29,11 +29,9 @@ export enum Commands {
 
   // Task
   ClickupQuickAddTask = 'clickup.quickAddTask',
-  ClickupAddTaskFromList = 'clickup.addTaskFromList',
   ClickupUpdateStatus = 'clickup.updateStatus',
   ClickupAssignTask = 'clickup.assignTask',
   ClickupAddTask = 'clickup.addTask',
-  ClickupEditTask = 'clickup.editTask',
   ClickupViewTask = 'clickup.viewTask',
   ClickupDeleteTask = 'clickup.deleteTask',
   ClickupUpdateTags = 'clickup.updateTags',
@@ -57,15 +55,39 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
         const data = {
           task: await client.stateGetTaskData(listId, taskId),
-          teams: await client.stateGetListMembers(listId),
-          status: await client.stateGetListStatus(listId),
-          lists: await client.stateGetSpaceList(),
+          teams: client.getAppState.spaceMembers,
+          lists: client.getAppState.spaceList,
+          // teams: await client.stateGetListMembers(listId),
+          statuses: await client.stateGetListStatus(listId),
+          // lists: await client.stateGetSpaceList(),
+          // priorities: await client.stateGetProrities()
           tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
-          priorities: await client.stateGetProrities()
+          priorities: client.getAppState.spacePriorities,
         }
         console.log({ data })
 
         ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.ViewTask, JSON.stringify(data));
+      } catch (err) {
+        window.showErrorMessage(err.message)
+      }
+    }),
+
+    commands.registerCommand(Commands.ClickupAddTask, async () => {
+      try {
+
+        ViewLoader.currentPanel?.dispose()
+
+        const data = {
+          teams: client.getAppState.spaceMembers,
+          statuses: [],
+          // status: await client.stateGetListStatus(listId),
+          lists: client.getAppState.spaceList,
+          tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
+          priorities: client.getAppState.spacePriorities
+        }
+        console.log({ data })
+
+        ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.AddTask, JSON.stringify(data));
       } catch (err) {
         window.showErrorMessage(err.message)
       }

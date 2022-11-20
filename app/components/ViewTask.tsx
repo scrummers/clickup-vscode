@@ -24,7 +24,7 @@ import { MessagesContext } from '../context/MessageContext'
 
 type InputOptions = {
   lists: List[]
-  status: Status[]
+  statuses: Status[]
   tags: Tag[]
   teams: User[]
   priorities: Priority[]
@@ -69,15 +69,15 @@ export const ViewTask = () => {
   })
 
   const toggleEditMode = () => setIsEditMode(!isEditMode)
+
   const toggleShowDateInput = (field: TaskDate & keyof TaskEx, bool?: boolean) => {
     const _showDateInput = { ...showDateInput, [field]: bool !== undefined ? bool : !showDateInput[field] }
     setShowDateInput(_showDateInput)
 
-    if (!_showDateInput[field]) {
-      const _updatedTask = { ...updatedTask } as TaskEx
-      _updatedTask[field] = null as any
-      setUpdatedTask(_updatedTask)
-    }
+    const _updatedTask = { ...updatedTask } as TaskEx
+    const timestamp = dayjs().unix()
+    _updatedTask[field] = _showDateInput[field] ? (timestamp * 1000).toString() : (null as any)
+    setUpdatedTask(_updatedTask)
   }
   const onCancel = () => {
     setUpdatedTask(task)
@@ -92,7 +92,7 @@ export const ViewTask = () => {
     if (field in _task && inputOptions.current) {
       switch (field) {
         case 'status':
-          const statusValue = inputOptions.current.status.find((o) => o.status === value)
+          const statusValue = inputOptions.current.statuses.find((o) => o.status === value)
           _task[field] = statusValue
           break
         case 'priority':
@@ -163,7 +163,7 @@ export const ViewTask = () => {
 
     inputOptions.current = {
       lists: data.lists,
-      status: data.status,
+      statuses: data.statuses,
       tags: data.tags,
       teams: data.teams,
       priorities: data.priorities,
@@ -284,7 +284,7 @@ export const ViewTask = () => {
                 fullWidth
                 size="small"
               >
-                {inputOptions.current?.status.map((option) => (
+                {inputOptions.current?.statuses.map((option) => (
                   <MenuItem key={option.id} value={option.status} className="capitalize">
                     {option.status}
                   </MenuItem>

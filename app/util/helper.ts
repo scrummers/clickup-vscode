@@ -2,8 +2,8 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 
-export const getDate = (timestamp: number, humanReadable: boolean = false): string => {
-    if (humanReadable) {
+export const getDate = (timestamp?: number, humanRead?: boolean): string => {
+    if (humanRead) {
         return dayjs(timestamp).utc().local().format('DD/MM/YYYY, HH:mm A')
     }
     return dayjs(timestamp).utc().local().format('YYYY-MM-DDTHH:mm')

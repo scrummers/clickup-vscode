@@ -55,12 +55,16 @@ export class Client {
           name: string
           id: string
         }
+
         if (!crntSpace) {
           commands.executeCommand(Commands.ClickupSelectWorkspace)
         }
 
         const crntWorkspace = this.storage.getValue(EnumLocalStorage.CrntWorkspace) as Teams
-        this.stateUpdateTeams(crntWorkspace)
+        // if (!crntWorkspace) {
+        //   crntWorkspace = await this.service.getTeams()
+        // }
+        this.stateGetWorkspace(crntWorkspace.id)
 
         console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
 
@@ -75,17 +79,17 @@ export class Client {
     })
   }
 
-  public async fetchWorkspaces(): Promise<Teams[]> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const teams = await this.service.getTeams()
-        // AppState.clickup.workspaces = teams
-        resolve(teams)
-      } catch (err) {
-        reject(err)
-      }
-    })
-  }
+  // public async fetchWorkspaces(): Promise<Teams[]> {
+  //   return new Promise(async (resolve, reject) => {
+  //     try {
+  //       const teams = await this.service.getTeams()
+  //       // AppState.clickup.workspaces = teams
+  //       resolve(teams)
+  //     } catch (err) {
+  //       reject(err)
+  //     }
+  //   })
+  // }
   private async getMe(): Promise<User | null> {
     const me = this.storage.getValue(EnumLocalStorage.Me) as User
     if (!me) {
@@ -131,7 +135,7 @@ export class Client {
     // this.stateGetListMembers(templistId)
     // this.stateGetProrities(spaceId)
     // this.stateGetSpaceTags(spaceId)
-    // this.stateGetSpaceTeams()
+    // this.stateGetWorkspace()
   }
 
   // token
@@ -335,7 +339,6 @@ export class Client {
         this.setIsLoading(true)
         const status = await this.service.getStatus(listId)
         resolve(status)
-        AppState.listStatus = status
       } catch (err) {
         reject(err)
       } finally {
@@ -354,18 +357,19 @@ export class Client {
       const members = await this.service.getMembers(listId)
       return members
     } catch (err) {
-
     } finally {
       this.setIsLoading(false)
     }
   }
 
-  async stateGetSpaceTeams(listId: string) {
+  async stateGetWorkspace(teamId: string) {
     try {
       this.setIsLoading(true)
-      const resp = await this.service.getTeams()
-      // return all member in this list
-      console.log({ resp })
+      const allTeams = await this.service.getTeams()
+      const team = allTeams.find((t) => t.id === teamId)
+      const members = team?.members!.map((m) => m.user)
+      AppState.spaceMembers = members!
+      this.stateUpdateTeams(team!)
     } catch (err) {
 
     } finally {
@@ -434,7 +438,10 @@ export class Client {
 
   stateUpdateTeams(team: Teams) {
     AppState.crntWorkspace = team
-    // this.storage.setValue(EnumLocalStorage.CrntWorkspace, team)
+    this.storage.setValue(EnumLocalStorage.CrntWorkspace, {
+      id: team.id,
+      team: team.name
+    })
     appStateChangeEventEmitter.fire()
   }
 

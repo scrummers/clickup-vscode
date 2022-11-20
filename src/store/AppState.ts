@@ -20,7 +20,6 @@ const initAppState = {
   spaceMembers: [],
   spacePriorities: [],
   listMembers: [],
-  listStatus: [],
   isLoading: true,
   me: null,
 }
@@ -35,7 +34,6 @@ export type TAppState = {
   spaceMembers: User[]
   spacePriorities: Priority[]
   listMembers: User[]
-  listStatus: Status[]
   me: User | null
   isLoading: Boolean
 }

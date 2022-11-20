@@ -102,7 +102,7 @@ class ClickUpService {
     return body
   }
   // Space functions
-  public async getSpace(spaceId: string) {
+  public async getSpace(spaceId: string): Promise<Space> {
     const { body } = await this.clickUp.spaces.get(spaceId)
     //const space: Space= body;
     return body
@@ -212,15 +212,15 @@ class ClickUpService {
   }
   // Function: Get all space informations include all list, folder task
   public async getSpaceTree(spaceId: string): Promise<SpaceLListFile> {
-    let space = await this.getSpace(spaceId)
-    let spaceList = await this.getFolderLists(spaceId)
-    let folders: FolderExtend[] = <FolderExtend[]>await this.getFolders(spaceId)
-    let tree: SpaceLListFile = space
-    let rootLists: ListExtend[] = <ListExtend[]>spaceList
+    const space = await this.getSpace(spaceId)
+    const spaceList = await this.getFolderLists(spaceId)
+    const folders = await this.getFolders(spaceId)
+    const spaceTree: SpaceLListFile = { ...space, root_lists: [] as ListExtend[], folders: [] as FolderExtend[] }
+    // const rootLists: ListExtend[] = <ListExtend[]>spaceList
 
     const t0 = performance.now();
 
-    const getPromiseRootList = (lists: ListExtend[]) => lists.map((l) => {
+    const getPromiseRootList = (lists: ListExtend[]): Promise<ListExtend>[] => lists.map((l) => {
       return new Promise(async (resolve, reject) => {
         try {
           const tasks = await this.getTasks(l.id)
@@ -231,9 +231,11 @@ class ClickUpService {
       })
     })
 
-    const promiseFolders = folders.map((f) => {
+    const promiseFolders: Promise<FolderExtend>[] = (folders).map((f) => {
       return new Promise(async (resolve, reject) => {
         try {
+          // TODO: check type
+          // @ts-ignore
           const lists = await Promise.all(getPromiseRootList(f.lists))
           resolve({ ...f, lists })
         } catch (err) {
@@ -242,10 +244,11 @@ class ClickUpService {
       })
     })
 
-    space.root_lists = await Promise.all(
-      getPromiseRootList(rootLists)
+    spaceTree.root_lists = await Promise.all(
+      // @ts-ignore
+      getPromiseRootList(spaceList)
     )
-    space.folders = await Promise.all(
+    spaceTree.folders = await Promise.all(
       promiseFolders
     )
 
@@ -276,7 +279,7 @@ class ClickUpService {
     console.log(`Fetch space tree took ${t1 - t0} milliseconds.`);
 
     // return tree
-    return space
+    return spaceTree
   }
 
   public getTasksFilters(userIds: number[], spaceTree: SpaceLListFile, toDoLabel?: string) {

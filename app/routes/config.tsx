@@ -1,7 +1,6 @@
 import React from 'react'
 import { Home } from '../components/Home'
 import { AddTask } from '../components/AddTask'
-import { UpdateTask } from '../components/UpdateTask'
 import { ViewTask } from '../components/ViewTask'
 
 export type RouteConfigComponentProps = Pick<RouteConfig, 'routes'>
@@ -20,15 +19,11 @@ export const routes: RouteConfig[] = [
     exact: true,
   },
   {
-    path: '/view-task',
+    path: '/view-task', // view and update
     component: ViewTask,
   },
   {
     path: '/add-task',
     component: AddTask,
-  },
-  {
-    path: '/update-task',
-    component: UpdateTask,
   },
 ]

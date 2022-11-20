@@ -3,7 +3,7 @@ import * as path from 'path';
 import { CommonMessage, Message } from '../../util/typings/message';
 import { Client } from '../../clients/Client';
 import { EnumInitWebRoute } from '../../util/typings/system';
-import { ApiUpdateTaskSchema, Task } from '../../util/typings/clickup';
+import { ApiNewTaskSchema, ApiUpdateTaskSchema, Task } from '../../util/typings/clickup';
 import { Commands } from '../../commands';
 
 export class ViewLoader {
@@ -114,7 +114,48 @@ export class ViewLoader {
             }
             break
           case 'CREATE':
+            try {
+              const newTask: Task & { listId: string } = JSON.parse(text)
+              console.log({ newTask })
 
+              const data: ApiNewTaskSchema = {
+                name: newTask.name,
+                description: newTask.description,
+                status: newTask.status.status,
+                priority: newTask.priority ? +newTask.priority.id : null,
+
+                due_date: newTask.due_date ? +newTask.due_date : null,
+                due_date_time: true,
+                time_estimate: newTask.time_estimate ? +newTask.time_estimate : null,
+                start_date: newTask.start_date ? +newTask.start_date : null,
+                start_date_time: true,
+
+                parent: newTask.parent,
+                // archived: newTask.archived,
+                notify_all: false,
+                assignees: newTask.assignees.map((a) => a.id),
+                tags: newTask.tags.map((t) => t.name)
+              }
+
+              await this.client.createNewTask(newTask.listId, data)
+              ViewLoader.postMessageToWebview({
+                type: 'COMMON',
+                payload: JSON.stringify({
+                  success: true
+                })
+              })
+
+              vscode.commands.executeCommand(Commands.ClickupRefresh)
+              vscode.window.showInformationMessage(`Create Task Success`);
+            } catch (err) {
+              ViewLoader.postMessageToWebview({
+                type: 'COMMON',
+                payload: JSON.stringify({
+                  success: false
+                })
+              })
+            }
+            break
         }
       },
       null,
