@@ -24,10 +24,10 @@
 			"request": "launch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/index"
+				"--extensionTestsPath=${workspaceFolder}/out/src/test/suite/index"
 			],
 			"outFiles": [
-				"${workspaceFolder}/out/test/**/*.js"
+				"${workspaceFolder}/out/src/test/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}",
 			"sourceMaps": true
