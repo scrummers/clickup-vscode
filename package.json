@@ -268,6 +268,7 @@
     "css-loader": "^6.7.2",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
     "file-loader": "^6.2.0",
     "glob": "^8.0.3",
