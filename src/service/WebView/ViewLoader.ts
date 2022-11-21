@@ -39,6 +39,10 @@ export class ViewLoader {
         switch (message.type) {
           case 'RELOAD':
             vscode.commands.executeCommand('workbench.action.webview.reloadWebviewAction');
+            ViewLoader.postMessageToWebview({
+              type: 'INIT',
+              payload: this.initData
+            })
             break
           case 'COMMON':
             vscode.window.showInformationMessage(`Received message from Webview: ${text}`);
@@ -174,6 +178,13 @@ export class ViewLoader {
   private renderWebview() {
     const html = this.render();
     this.panel.webview.html = html;
+
+    setTimeout(() => {
+      ViewLoader.postMessageToWebview({
+        type: 'INIT',
+        payload: this.initData
+      })
+    }, 200)
   }
 
   static showWebview(context: vscode.ExtensionContext, initRoute?: EnumInitWebRoute, initData?: string) {
@@ -229,7 +240,6 @@ export class ViewLoader {
           <script>
             const vscode = acquireVsCodeApi();
             const initRoute = '${this.initRoute}';
-            const initData = '${this.initData}';
           </script>
           <script src="${bundleScriptPath}"></script>
         </body>

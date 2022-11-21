@@ -1,5 +1,5 @@
 
-export type MessageType = 'RELOAD' | 'COMMON' | 'UPDATE' | 'CREATE' | 'CLOSE';
+export type MessageType = 'RELOAD' | 'COMMON' | 'UPDATE' | 'CREATE' | 'CLOSE' | 'INIT';
 export interface Message {
     type: MessageType;
     payload?: any;
@@ -17,6 +17,11 @@ export interface CommonMessage extends Message {
 
 export interface UpdateTaskMessage extends Message {
     type: 'UPDATE';
+    payload: string;
+}
+
+export interface InitMessage extends Message {
+    type: 'INIT';
     payload: string;
 }
 export interface CloseMessage extends Message {

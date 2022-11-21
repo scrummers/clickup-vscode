@@ -355,7 +355,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     }),
 
     // commands.registerCommand(Commands.GetAppState, async () => {
-      // console.log(JSON.stringify(AppState, null, 4))
+    // console.log(JSON.stringify(AppState, null, 4))
     // }),
     // commands.registerCommand(Commands.ClickupGetStorageData, async () => {
     //   const storage = new LocalStorageService(vscodeContext.workspaceState)
@@ -390,6 +390,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         }))
         const slctSpace = await window.showQuickPick(spacesOptions, {
           matchOnDetail: true,
+          title: 'Select the Space to focus on',
         })
 
         if (!slctSpace) return

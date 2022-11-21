@@ -3,6 +3,7 @@ type CommonMessage = import('../src/util/typings/message').CommonMessage;
 type CreateTaskMessage = import('../src/util/typings/message').CreateTaskMessage;
 type UpdateTaskMessage = import('../src/util/typings/message').UpdateTaskMessage;
 type CloseMessage = import('../src/util/typings/message').CloseMessage;
+type InitMessage = import('../src/util/typings/message').InitMessage;
 
 type VSCode = {
   postMessage<T extends Message = Message>(message: T): void;

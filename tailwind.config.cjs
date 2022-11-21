@@ -5,6 +5,10 @@ module.exports = {
     extend: {
       borderWidth: {
         '1': '1px'
+      },
+      scale: {
+        '80': 'transform: scale(0.80)',
+        '85': 'transform: scale(0.85)',
       }
     },
   },

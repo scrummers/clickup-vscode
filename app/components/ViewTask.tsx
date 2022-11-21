@@ -156,8 +156,9 @@ export const ViewTask = () => {
     })
   }
 
-  useEffect(() => {
+  const init = (initData: string) => {
     const data = JSON.parse(initData)
+    console.log(data)
     setTask(data.task)
     setUpdatedTask(data.task)
 
@@ -168,22 +169,26 @@ export const ViewTask = () => {
       teams: data.teams,
       priorities: data.priorities,
     }
-
     setShowDateInput({
       start_date: !!data.task.start_date,
       due_date: !!data.task.due_date,
     })
-
-    // console.log(data)
-  }, [])
+  }
 
   useEffect(() => {
     if (receivedMessages.length > 0) {
-      const message = JSON.parse(receivedMessages[0])
-      if (message.success) {
-        vscode.postMessage<CloseMessage>({
-          type: 'CLOSE',
-        })
+      const msg = receivedMessages[0]
+      const payload = msg.data.payload
+      if (msg.data.type === 'INIT') {
+        init(payload)
+      }
+      if (msg.data.type === 'COMMON') {
+        const message = JSON.parse(payload)
+        if (message.success) {
+          vscode.postMessage<CloseMessage>({
+            type: 'CLOSE',
+          })
+        }
       }
     }
   }, [receivedMessages])
@@ -222,7 +227,7 @@ export const ViewTask = () => {
           )}
         </div>
         <div className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <div className="text-lg text-slate-300">Task</div>
             {!isEditMode ? (
               <div className="text-xl">{task.name}</div>
@@ -238,7 +243,7 @@ export const ViewTask = () => {
                 />
               </div>
             )}
-            <span className="text-sm px-2 py-1 bg-slate-500 rounded-sm shrink"> in {task.list.name}</span>
+            <span className="text-sm px-2 py-1 bg-slate-500 rounded-sm shrink block"> in {task.list.name}</span>
           </div>
 
           <div>
@@ -334,10 +339,10 @@ export const ViewTask = () => {
               task.assignees.length === 0 ? (
                 <div className=" bg-slate-800 p-2 rounded-sm text-slate-500 capitalize">no Assignees</div>
               ) : (
-                <div className="text-sm space-x-1 space-y-1 mt-1">
+                <div className="text-sm mt-1 flex flex-col">
                   {task.assignees.map((a) => (
                     <div key={a.username} className="p-2 h-10">
-                      <span className="w-full h-full text-xs rounded-full p-2" style={{ background: a.color }}>
+                      <span className="w-10 h-full text-xs rounded-full p-2" style={{ background: a.color }}>
                         {a.initials}
                       </span>{' '}
                       {a.username}
@@ -438,7 +443,9 @@ export const ViewTask = () => {
             <div className="w-full text-sm">
               <label className="text-xs text-slate-300 uppercase">start date</label>
               {!isEditMode ? (
-                <div className="bg-slate-800 p-2 rounded-sm">{getDate(+task.start_date, true)}</div>
+                <div className="bg-slate-800 p-2 rounded-sm h-9">
+                  {task.start_date ? getDate(+task.start_date, true) : ''}
+                </div>
               ) : showDateInput?.start_date ? (
                 <div className="flex space-x-2">
                   <TextField
@@ -475,7 +482,9 @@ export const ViewTask = () => {
             <div className="w-full text-sm">
               <label className="text-xs text-slate-300 uppercase">due date</label>
               {!isEditMode ? (
-                <div className="bg-slate-800 p-2 rounded-sm">{getDate(+task.start_date, true)}</div>
+                <div className="bg-slate-800 p-2 rounded-sm h-9">
+                  {task.due_date ? getDate(+task.due_date, true) : ''}
+                </div>
               ) : showDateInput?.due_date ? (
                 <div className="flex space-x-2">
                   <TextField

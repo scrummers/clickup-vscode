@@ -177,7 +177,7 @@ export const AddTask = () => {
     })
   }
 
-  useEffect(() => {
+  const init = (initData: string) => {
     const data = JSON.parse(initData)
 
     setInputOptions({
@@ -187,14 +187,20 @@ export const AddTask = () => {
       teams: data.teams,
       priorities: data.priorities,
     })
-
-  }, [])
+  }
 
   useEffect(() => {
     if (receivedMessages.length > 0) {
-      const message = JSON.parse(receivedMessages[0])
-      if (message.success) {
-        onLeave()
+      const msg = receivedMessages[0]
+      const payload = msg.data.payload
+      if (msg.data.type === 'INIT') {
+        init(payload)
+      }
+      if (msg.data.type === 'COMMON') {
+        const message = JSON.parse(payload)
+        if (message.success) {
+          onLeave()
+        }
       }
     }
   }, [receivedMessages])

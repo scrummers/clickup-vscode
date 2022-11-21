@@ -14,14 +14,15 @@ const darkTheme = createTheme({
 })
 
 export const App = () => {
-  const [messagesFromExtension, setMessagesFromExtension] = useState<string[]>([])
+  const [messagesFromExtension, setMessagesFromExtension] = useState<MessageEvent<Message>[]>([])
 
   const handleMessagesFromExtension = useCallback(
     (event: MessageEvent<Message>) => {
-      if (event.data.type === 'COMMON') {
-        const message = event.data as CommonMessage
-        setMessagesFromExtension([...messagesFromExtension, message.payload])
-      }
+      // if (event.data.type === 'COMMON' || event.data.type === 'INIT') {
+      //   const message = event.data as CommonMessage
+      //   setMessagesFromExtension([...messagesFromExtension, message.payload])
+      // }
+      setMessagesFromExtension([...messagesFromExtension, event])
     },
     [messagesFromExtension]
   )
@@ -43,11 +44,17 @@ export const App = () => {
     })
   }
 
+  useEffect(() => {
+    if (messagesFromExtension.length > 0) {
+      setMessagesFromExtension([])
+    }
+  }, [messagesFromExtension])
+
   return (
     <Router initialEntries={['/', '/addTask', '/updateTask']}>
       <ThemeProvider theme={darkTheme}>
-        <CssBaseline enableColorScheme/>
-        <main className='py-4'>
+        <CssBaseline enableColorScheme />
+        <main className="py-4 scale-90 origin-top-left">
           {/* <button onClick={handleReloadWebview}>Reload Webview</button> */}
           <MessagesContext.Provider value={messagesFromExtension}>
             <Switch>
