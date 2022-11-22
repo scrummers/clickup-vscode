@@ -305,6 +305,18 @@ export class Client {
     }
   }
 
+  async getTaskById(taskId: string) {
+    try {
+      this.setIsLoading(true)
+      const resp = await this.service.getTask(taskId)
+      console.log(resp)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      this.setIsLoading(false)
+    }
+  }
+
 
   // remove all data once token is deleted
   deleteToken() {
