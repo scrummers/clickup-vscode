@@ -1,7 +1,7 @@
-## ClickUpRelax(temp)-Unofficial ClickUp VScode extension
+## ClickitUp-ClickUp VScode extension
 
 ## README
-ClickUpRelax(temp) is a simple and useful tool to manage ClickUp's workflow in VSCode environment.
+ClickitUp is a simple and useful tool to manage ClickUp's workflow in VSCode environment.
 
 Our commission is to provide a simple and powerful management tool for software developers. We develop better UI and 
 focus on your current project progress. Only the tasks in your selected space are shown.
@@ -15,19 +15,19 @@ focus on your current project progress. Only the tasks in your selected space ar
 * a ClickUp account
 ## Install
 
-## Extension Commands
-
+## Questionnaire
+In order to have a better future development, please fill the [Questionnaire](https://cityuhk.questionpro.com/t/AWoMTZvU30)
 ## Known Issues
 
 
 ## Release Notes
 
 ### 1.0.0
-Initial release of ClickUpRelax
+Initial release
 
 
 ## For more information
-Please see our software user guide
+Please see our [software user guide](https://github.com/scrummers/clickup-vscode/blob/main/ClickUp_extension_UserGuide_V0.1.pdf)
 
 
 **Enjoy!**
