@@ -1,35 +1,16 @@
 const { Clickup } = require('clickup.js')
 import {
-  User,
-  Status,
-  Teams,
-  Space,
-  Folder,
-  List,
-  Task,
-  SpaceLListFile,
-  ListExtend,
-  FolderExtend,
-  EnumTodoLabel,
-  TodoTasksMap,
   ApiNewTaskSchema,
-  ApiUpdateTaskSchema,
-  Tag,
+  ApiUpdateTaskSchema, EnumTodoLabel, Folder, FolderExtend, List, ListExtend, Space, SpaceLListFile, Status, Tag, Task, Teams, TodoTasksMap, User
 } from '../util/typings/clickup'
-import { LocalStorageService } from './local_storage_service'
 
-import * as vscode from 'vscode'
-import { performance } from 'perf_hooks'
-import { resolve } from 'path'
 import { rejects } from 'assert'
+import { resolve } from 'path'
+import { performance } from 'perf_hooks'
 
 class ClickUpService {
-  private storageService: LocalStorageService
   private clickUp: typeof Clickup | undefined
   public userToken: string | undefined
-  constructor(storageService: LocalStorageService) {
-    this.storageService = storageService
-  }
 
   public async setup(token: string): Promise<User> {
     return new Promise(async (resolve, reject) => {
@@ -45,29 +26,6 @@ class ClickUpService {
     })
   }
 
-  // User token
-  // public deleteUserToken() {
-  //   this.userToken = undefined
-  //   this.storageService.setValue('token', this.userToken)
-  //   this.deleteClickUp_serivce()
-  // }
-
-  // public async getUserToken(): Promise<string> {
-  //   if (this.userToken === undefined) {
-  //     return await this.storageService.getValue('token')
-  //   }
-  //   return this.userToken
-  // }
-
-  // public setUserToken(token: string | undefined) {
-  //   if (token === undefined || token === '') {
-  //     return vscode.window.showWarningMessage('Please enter a valid user token!')
-  //   }
-
-  //   this.userToken = token
-  //   this.storageService.setValue('token', this.userToken)
-  //   this.clickUp = new Clickup(this.userToken)
-  // }
 
   public deleteClickUp_serivce() {
     this.clickUp = undefined

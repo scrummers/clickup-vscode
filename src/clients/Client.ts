@@ -1,7 +1,9 @@
-import { commands, ExtensionContext, ThemeIcon, TreeView, window } from 'vscode'
+import { commands, ExtensionContext, languages, ThemeIcon, TreeView, window } from 'vscode'
 import { Commands, registerCommands } from '../commands'
-import { ClickUpService } from '../service/click_up_service'
-import { LocalStorageService } from '../service/local_storage_service'
+import { ClickUpService } from './ClickUpApiService'
+import { CodelensProvider } from '../service/CodelensProvider'
+import { LocalStorageService } from '../service/LocalStorage'
+import { StatusBarService } from '../service/StatusBar'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
 import { TaskItem } from '../service/TreeView/TaskTreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
@@ -34,8 +36,7 @@ export class Client {
     this.storage = new LocalStorageService(context.workspaceState)
     const token = this.storage.getValue(EnumLocalStorage.Token) as string
     if (!token) {
-      // window.showWarningMessage('Please enter a valid user token!')
-      commands.executeCommand(Commands.ClickupSetToken)
+      commands.executeCommand("workbench.action.openWalkthrough", "scrummers.clickitup#quickStart")
       return
     }
 
@@ -46,7 +47,7 @@ export class Client {
     return new Promise(async (resolve, reject) => {
       try {
         this.setIsLoading(true)
-        const service = new ClickUpService(this.storage)
+        const service = new ClickUpService()
         const me = await service.setup(token)
         this.service = service
         this.stateUpdateMe(me)
@@ -67,9 +68,9 @@ export class Client {
         // }
         this.stateGetWorkspace(crntWorkspace.id)
 
-        console.log(`[debug]: loading space ${crntSpace.name} #${crntSpace.id}`)
-
         await this.setupTreeView(crntSpace.id)
+        this.initProviderService()
+
         this.setIsLoading(false)
         // update state
         resolve(me)
@@ -80,17 +81,6 @@ export class Client {
     })
   }
 
-  // public async fetchWorkspaces(): Promise<Teams[]> {
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-  //       const teams = await this.service.getTeams()
-  //       // AppState.clickup.workspaces = teams
-  //       resolve(teams)
-  //     } catch (err) {
-  //       reject(err)
-  //     }
-  //   })
-  // }
   private async getMe(): Promise<User | null> {
     const me = this.storage.getValue(EnumLocalStorage.Me) as User
     if (!me) {
@@ -98,6 +88,13 @@ export class Client {
       return null
     }
     return me
+  }
+
+  async initProviderService() {
+    new StatusBarService()
+    const codelensProvider = new CodelensProvider();
+    languages.registerCodeLensProvider("*", codelensProvider);
+
   }
 
   // setup tree view
@@ -129,6 +126,7 @@ export class Client {
     });
 
     this.context.subscriptions.push(this.tree);
+
 
 
     // const templistId = spaceTree.folders[0].lists[0].id
@@ -191,7 +189,6 @@ export class Client {
           })
         })
       })
-      console.log('dfsadf', { spaceTree })
 
       this.stateUpdateSpaceList(spaceTree)
       this.stateUpdateSpacePriorities(spaceTree)

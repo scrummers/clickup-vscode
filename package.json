@@ -32,6 +32,11 @@
         "title": "Set ClickUp Token"
       },
       {
+        "command": "clickup.account",
+        "category": "ClickUp",
+        "title": "Account"
+      },
+      {
         "command": "clickup.deleteToken",
         "category": "ClickUp",
         "title": "Delete ClickUp Token"
@@ -138,6 +143,12 @@
     },
     "menus": {
       "commandPalette": [
+        {
+          "command": "clickup.account",
+          "category": "ClickUp",
+          "title": "Account",
+          "when": "false"
+        },
         {
           "command": "clickup.setToken",
           "category": "ClickUp",
@@ -275,7 +286,7 @@
           {
             "id": "setClickUpApiToken",
             "title": "Set up ClickUp API Token",
-            "description": "A ClickUp API Token is required to access your Spaces.\nYou can find your API Token under Settings > Apps > API Token.\n[Set up my API Token](command:clickup.setToken)",
+            "description": "A ClickUp API Token is required to access your Spaces.\nYou can find your API Token in Official ClickUp App under Settings > Apps > API Token.\n[Set up my API Token](command:clickup.setToken)",
             "completionEvents": [
               "onCommand:clickup.setToken"
             ],

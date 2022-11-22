@@ -11,12 +11,6 @@ abstract class CustomStatusBarItem {
   private _id: string
   protected _item: StatusBarItem
 
-  /**
-   * Create a new `CustomStatusBarItem` instance.
-   * @param id Unique identifer for the `CustomStatusBarItem`.
-   * @param align Alignment of item. Pass `StatusBarItem.Left` to align to the left, `StatusBarItem.Right` to align to the right. Default left-justified.
-   * @param priority Priority of item. Higher priority item is shown more to the left. Default to 0.
-   */
   constructor(id: string, align: StatusBarAlignment = StatusBarAlignment.Left, priority: number = 0) {
     this._id = id
     this._item = window.createStatusBarItem(align, priority)
@@ -65,7 +59,7 @@ class LoadingStatusBarItem extends CustomStatusBarItem {
 
   public update(): void {
     if (AppState.isLoading) {
-      this.setText('$(loading~spin) ClickUp: Retrieving Data')
+      this.setText('$(loading~spin) ClickUp: Loading...')
       this.show()
     } else {
       this.hide()
@@ -87,7 +81,7 @@ class UserStatusBarItem extends CustomStatusBarItem {
 
     if (AppState.me !== null) {
       this.setText(`$(account) ${AppState.me?.username}`)
-      this.setCommand(undefined)
+      this.setCommand(Commands.ClickupAccount)
       this.setBackgroundColor(undefined)
     } else {
       this.setText('$(key) Set Up ClickUp API Token')
@@ -105,7 +99,7 @@ class SpaceStatusBarItem extends CustomStatusBarItem {
 
   public update(): void {
     // init stage
-    if (AppState.crntSpace === null && AppState.isLoading) {
+    if ((AppState.crntSpace === null && AppState.isLoading) || !AppState.me) {
       this.hide()
       return
     }

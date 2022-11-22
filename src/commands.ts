@@ -8,21 +8,16 @@ import { EnumTodoLabel, EnumTreeLevel, Task } from './util/typings/clickup'
 import { CodelensCreateTask, EnumButtonAction, EnumInitWebRoute } from './util/typings/system'
 
 export enum Commands {
-  // temp
-  // ClickupGetStorageData = 'clickup.getStorageData',
-
   // Treeview
   ClickupRefresh = 'clickup.refresh',
   ClickupItemClick = 'clickup.itemClick',
-  // ClickupContextMenuCommand0 = 'clickup.contextMenuCommand0',
-  // ClickupContextMenuCommand1 = 'clickup.contextMenuCommand1',
-
 
   ClickupGetMyData = 'clickup.getMyData',
   // Config
   ClickupSetToken = 'clickup.setToken',
   ClickupUpdateToken = 'clickup.updateToken',
   ClickupDeleteToken = 'clickup.deleteToken',
+  ClickupAccount = 'clickup.account',
 
   // Task
   ClickupQuickAddTask = 'clickup.quickAddTask',
@@ -42,6 +37,34 @@ export enum Commands {
 
 export function registerCommands(vscodeContext: ExtensionContext, client: Client) {
   vscodeContext.subscriptions.push(
+    commands.registerCommand(Commands.ClickupAccount, async () => {
+      const options = [
+        {
+          label: 'Switch ClickUp Account',
+          description: 'Use another ClickUp API token',
+          id: 'switch'
+        },
+        {
+          label: 'Logout',
+          description: 'Remove current ClickUp API token',
+          id: 'logout'
+        },
+      ]
+
+      const selected = await window.showQuickPick(options, {
+        title: `Account`,
+      })
+
+      if (!selected) return
+
+      if (selected.id === 'switch') {
+        commands.executeCommand(Commands.ClickupUpdateToken)
+      } else {
+        commands.executeCommand(Commands.ClickupDeleteToken)
+      }
+
+    }),
+
     /** Web View */
     commands.registerCommand(Commands.ClickupViewTask, async (item: TaskItem | { taskId: string }) => {
       try {
@@ -105,7 +128,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
         const tags = await client.stateGetSpaceTags(AppState.crntSpaceId)
         if (tags.length === 0) {
-          await window.showInformationMessage('No tags in current space, do you want to create a tag now?', ...['OK'])
+          await window.showInformationMessage('No tags in current space. You may create the tags from ClickUp Official App')
           return
           // const actionString = await window.showInformationMessage('No tags in current space, do you want to create a tag now?', ...['Create', 'Cancel'])
           // if (actionString === 'Create') {
@@ -263,7 +286,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
         if (!taskInput) {
           const input = await window.showInputBox({
-            placeHolder: 'Task name @[date] #[tags] %[assignee]',
+            placeHolder: 'Task name',
             title: `Please enter a task name`,
             ignoreFocusOut: true,
           })
@@ -277,14 +300,9 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         }
 
         const data: any = {
-          // ...INIT.newTask,
           name: taskInput,
-          description: 'new task ddesc',
-          // priority: 2,
+          description: '',
           status: 'to do',
-          // start_date: null,
-          // due_date: Date.now() + 1000000,
-          // time_estimate: 8640000,
 
           ...(isToday && {
             start_date: getUtcTodayStart(),
@@ -311,7 +329,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         commands.executeCommand(Commands.ClickupRefresh)
 
         const message = `
-          ### Task Create Success!
+          Task Create Success!
         `
 
         const action = await window.showInformationMessage(message, ...[EnumButtonAction.OpenTask, EnumButtonAction.Ok])
@@ -324,20 +342,27 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
     }),
     commands.registerCommand(Commands.ClickupSetToken, async () => {
-      await window
-        .showInputBox({
-          placeHolder: 'Please enter your ClickUp API token',
-        })
-        .then(async (token) => {
-          if (token) {
-            try {
-              await client.setToken(token)
-              window.showInformationMessage('API token register succeed')
-            } catch (err) {
-              window.showErrorMessage('API token error')
-            }
-          }
-        })
+      try {
+        const input = await window
+          .showInputBox({
+            title: 'Please enter your ClickUp API token to access the ClickUp service',
+            placeHolder: 'Token',
+          })
+
+        if (!input) {
+          return
+        }
+
+        await client.setToken(input)
+        window.showInformationMessage('Login Success')
+
+      } catch (err) {
+        window.showErrorMessage('Invalid API token')
+        // const actions = await window.showInformationMessage('Read our user guide', ...['Now', 'No thanks'])
+        // if (actions === 'Now') {
+        //   commands.executeCommand("workbench.action.openWalkthrough", "scrummers.clickitup#quickStart")
+        // }
+      }
     }),
     commands.registerCommand(Commands.ClickupDeleteToken, async () => {
       if (!client.isTokenExist()) {
@@ -361,25 +386,23 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         return
       }
 
-      await window
+      const input = await window
         .showInputBox({
           placeHolder: 'Please enter your ClickUp API token',
         })
-        .then(async (token) => {
-          if (token) {
-            try {
-              // remove old data
-              client.deleteToken()
+      if (!input) return
 
-              //TODO: should verify whether the new token is valid, otherwise reverse it
+      if (input) {
+        try {
+          // remove all data
+          client.deleteToken()
 
-              await client.setToken(token)
-              window.showInformationMessage('API token update succeed')
-            } catch (err) {
-              window.showErrorMessage('API token error')
-            }
-          }
-        })
+          await client.setToken(input)
+          window.showInformationMessage('ClickUp API token update succeed')
+        } catch (err) {
+          window.showErrorMessage('Unable to set the API token')
+        }
+      }
     }),
 
     // commands.registerCommand(Commands.GetAppState, async () => {
