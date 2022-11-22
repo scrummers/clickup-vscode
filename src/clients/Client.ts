@@ -1,7 +1,7 @@
 import { commands, ExtensionContext, languages, ThemeIcon, TreeView, window } from 'vscode'
 import { Commands, registerCommands } from '../commands'
 import { ClickUpService } from './ClickUpApiService'
-import { CodelensProvider } from '../service/CodelensProvider'
+import { CodelensService } from '../service/CodelensService'
 import { LocalStorageService } from '../service/LocalStorage'
 import { StatusBarService } from '../service/StatusBar'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
@@ -14,6 +14,8 @@ import { EnumLocalStorage } from '../util/typings/system'
 let instance: Client | null = null
 
 export class Client {
+  private codelens?: CodelensService
+  private statusBar?: StatusBarService
   public service!: ClickUpService
   public tree!: TreeView<TaskItem>
   private storage!: LocalStorageService
@@ -91,10 +93,13 @@ export class Client {
   }
 
   async initProviderService() {
-    new StatusBarService()
-    const codelensProvider = new CodelensProvider();
-    languages.registerCodeLensProvider("*", codelensProvider);
-
+    if (!this.statusBar) {
+      this.statusBar = new StatusBarService()
+    }
+    if (!this.codelens) {
+      this.codelens = new CodelensService();
+      languages.registerCodeLensProvider("*", this.codelens);
+    }
   }
 
   // setup tree view

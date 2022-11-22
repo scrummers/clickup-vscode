@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { Commands } from '../commands';
 import { CodelensCreateTask } from '../util/typings/system';
 
-export class CodelensProvider implements vscode.CodeLensProvider {
+export class CodelensService implements vscode.CodeLensProvider {
 
     private codeLenses: vscode.CodeLens[] = [];
     private regex: RegExp;
