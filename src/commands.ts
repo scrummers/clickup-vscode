@@ -65,7 +65,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         }
         // console.log({ data })
 
-        ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.ViewTask, JSON.stringify(data));
+        ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.ViewTask, data);
       } catch (err) {
         window.showErrorMessage(err.message)
       }
@@ -86,7 +86,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         }
         // console.log({ data })
 
-        ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.AddTask, JSON.stringify(data));
+        ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.AddTask, data);
       } catch (err) {
         window.showErrorMessage(err.message)
       }

@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+import React, { ChangeEvent, useContext, useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import FlagIcon from '@mui/icons-material/Flag'
 import {
@@ -8,16 +10,14 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  Stack,
   TextField,
   Theme,
   useTheme,
 } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
-import React, { ChangeEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { List, Priority, Status, Tag, User } from '../../src/util/typings/clickup'
+import { EnumMessageType } from '../../src/util/typings/message'
 import { MessagesContext } from '../context/MessageContext'
 import { getDate, getNameById } from '../util/helper'
 
@@ -164,15 +164,15 @@ export const AddTask = () => {
   }
 
   const onLeave = () => {
-    vscode.postMessage<CloseMessage>({
-      type: 'CLOSE',
+    vscode.postMessage({
+      type: EnumMessageType.Close,
     })
   }
 
   const onSave = () => {
     // call api
-    vscode.postMessage<CreateTaskMessage>({
-      type: 'CREATE',
+    vscode.postMessage({
+      type: EnumMessageType.Create,
       payload: JSON.stringify(newTask),
     })
   }
@@ -193,10 +193,11 @@ export const AddTask = () => {
     if (receivedMessages.length > 0) {
       const msg = receivedMessages[0]
       const payload = msg.data.payload
-      if (msg.data.type === 'INIT') {
+      if (!payload) return
+      if (msg.data.type === EnumMessageType.Init) {
         init(payload)
       }
-      if (msg.data.type === 'COMMON') {
+      if (msg.data.type === EnumMessageType.Common) {
         const message = JSON.parse(payload)
         if (message.success) {
           onLeave()

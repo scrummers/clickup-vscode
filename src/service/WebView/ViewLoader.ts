@@ -1,22 +1,23 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { CommonMessage, Message } from '../../util/typings/message';
+import { Message, EnumMessageType } from '../../util/typings/message';
 import { Client } from '../../clients/Client';
 import { EnumInitWebRoute } from '../../util/typings/system';
 import { ApiNewTaskSchema, ApiUpdateTaskSchema, Task } from '../../util/typings/clickup';
 import { Commands } from '../../commands';
+import { Delete } from '@mui/icons-material';
 
 export class ViewLoader {
   public static currentPanel?: vscode.WebviewPanel;
 
   private client!: Client
-  private initData?: string
+  private initData: any
   private initRoute?: EnumInitWebRoute
   private panel: vscode.WebviewPanel;
   private context: vscode.ExtensionContext;
   private disposables: vscode.Disposable[];
 
-  constructor(context: vscode.ExtensionContext, initRoute?: EnumInitWebRoute, initData?: string) {
+  constructor(context: vscode.ExtensionContext, initRoute?: EnumInitWebRoute, initData?: any) {
     this.context = context;
     this.disposables = [];
     this.initRoute = initRoute
@@ -37,21 +38,34 @@ export class ViewLoader {
       async (message: Message) => {
         const text = message.payload
         switch (message.type) {
-          case 'RELOAD':
+          case EnumMessageType.Reload:
             vscode.commands.executeCommand('workbench.action.webview.reloadWebviewAction');
-            ViewLoader.postMessageToWebview({
-              type: 'INIT',
-              payload: this.initData
-            })
+            ViewLoader.postMessageToWebview(EnumMessageType.Init, this.initData)
             break
-          case 'COMMON':
-            vscode.window.showInformationMessage(`Received message from Webview: ${text}`);
-            break
-          case 'CLOSE':
+          case EnumMessageType.Close:
             ViewLoader.currentPanel?.dispose()
             break
-          case 'UPDATE':
+          case EnumMessageType.Delete:
             try {
+              if (!text) return
+
+              await await this.client.deleteTask(text)
+
+              vscode.window.showInformationMessage(`Delete Task Success`);
+              vscode.commands.executeCommand(Commands.ClickupRefresh)
+              ViewLoader.currentPanel?.dispose()
+            } catch (err) {
+              ViewLoader.postMessageToWebview(EnumMessageType.Delete, {
+                success: false
+              })
+              vscode.window.showInformationMessage(`Unable to delete task`);
+            }
+
+            ViewLoader.currentPanel?.dispose()
+            break
+          case EnumMessageType.Update:
+            try {
+              if (!text) return
               const oldTask: Task = JSON.parse(this.initData!).task
               const newTask: Task = JSON.parse(text)
 
@@ -99,26 +113,21 @@ export class ViewLoader {
 
               await this.client.updateTaskTags(newTask.list.id, newTask.id, newTags)
 
-              ViewLoader.postMessageToWebview({
-                type: 'COMMON',
-                payload: JSON.stringify({
-                  success: true
-                })
+              ViewLoader.postMessageToWebview(EnumMessageType.Update, {
+                success: true
               })
 
               vscode.commands.executeCommand(Commands.ClickupRefresh)
               vscode.window.showInformationMessage(`Update Task Success`);
             } catch (err) {
-              ViewLoader.postMessageToWebview({
-                type: 'COMMON',
-                payload: JSON.stringify({
-                  success: false
-                })
+              ViewLoader.postMessageToWebview(EnumMessageType.Update, {
+                success: false
               })
             }
             break
-          case 'CREATE':
+          case EnumMessageType.Create:
             try {
+              if (!text) return
               const newTask: Task & { listId: string } = JSON.parse(text)
               // console.log({ newTask })
 
@@ -142,21 +151,15 @@ export class ViewLoader {
               }
 
               await this.client.createNewTask(newTask.listId, data)
-              ViewLoader.postMessageToWebview({
-                type: 'COMMON',
-                payload: JSON.stringify({
-                  success: true
-                })
+              ViewLoader.postMessageToWebview(EnumMessageType.Common, {
+                success: true
               })
 
               vscode.commands.executeCommand(Commands.ClickupRefresh)
               vscode.window.showInformationMessage(`Create Task Success`);
             } catch (err) {
-              ViewLoader.postMessageToWebview({
-                type: 'COMMON',
-                payload: JSON.stringify({
-                  success: false
-                })
+              ViewLoader.postMessageToWebview(EnumMessageType.Common, {
+                success: false
               })
             }
             break
@@ -180,14 +183,11 @@ export class ViewLoader {
     this.panel.webview.html = html;
 
     setTimeout(() => {
-      ViewLoader.postMessageToWebview({
-        type: 'INIT',
-        payload: this.initData
-      })
+      ViewLoader.postMessageToWebview(EnumMessageType.Init, this.initData)
     }, 200)
   }
 
-  static showWebview(context: vscode.ExtensionContext, initRoute?: EnumInitWebRoute, initData?: string) {
+  static showWebview(context: vscode.ExtensionContext, initRoute?: EnumInitWebRoute, initData?: any) {
     const cls = this;
     const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
     if (cls.currentPanel) {
@@ -197,9 +197,13 @@ export class ViewLoader {
     }
   }
 
-  static postMessageToWebview<T extends Message = Message>(message: T) {
+  static postMessageToWebview(type: EnumMessageType, payload?: any) {
     // post message from extension to webview
     const cls = this;
+    const message = {
+      type,
+      ...(payload && { payload: JSON.stringify(payload) })
+    }
     cls.currentPanel?.webview.postMessage(message);
   }
 

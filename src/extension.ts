@@ -13,7 +13,6 @@ async function activate(context: vscode.ExtensionContext) {
   const codelensProvider = new CodelensProvider();
   new StatusBarService()
   vscode.languages.registerCodeLensProvider("*", codelensProvider);
-  // Command function
 
   if (!client.isTokenExist()) {
     // console.log("[ClickUp] First Launch")

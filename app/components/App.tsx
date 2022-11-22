@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { MemoryRouter as Router, Link, Switch } from 'react-router-dom'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import { CommonMessage, Message, ReloadMessage } from '../../src/util/typings/message'
+import { EnumMessageType, Message } from '../../src/util/typings/message'
 import { routes } from '../routes/config'
 import { RouteWithSubRoutes } from '../routes/RouteWithSubRoutes'
 import { MessagesContext } from '../context/MessageContext'
@@ -38,9 +38,8 @@ export const App = () => {
   }, [handleMessagesFromExtension])
 
   const handleReloadWebview = () => {
-    // @ts-ignore
-    vscode.postMessage<ReloadMessage>({
-      type: 'RELOAD',
+    vscode.postMessage<Message>({
+      type: EnumMessageType.Reload,
     })
   }
 

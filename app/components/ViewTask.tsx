@@ -21,6 +21,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { List, Priority, Status, Tag, User } from '../../src/util/typings/clickup'
 import { getDate, getNameById } from '../util/helper'
 import { MessagesContext } from '../context/MessageContext'
+import { EnumMessageType } from '../../src/util/typings/message'
 
 type InputOptions = {
   lists: List[]
@@ -82,6 +83,13 @@ export const ViewTask = () => {
   const onCancel = () => {
     setUpdatedTask(task)
     setIsEditMode(false)
+  }
+
+  const onDelete = () => {
+    vscode.postMessage({
+      type: EnumMessageType.Delete,
+      payload: updatedTask?.id
+    })
   }
 
   const onTextChange = (e: ChangeEvent<HTMLInputElement> | any) => {
@@ -150,8 +158,8 @@ export const ViewTask = () => {
   const onSave = () => {
     // call api
 
-    vscode.postMessage<UpdateTaskMessage>({
-      type: 'UPDATE',
+    vscode.postMessage<Message>({
+      type: EnumMessageType.Update,
       payload: JSON.stringify(updatedTask),
     })
   }
@@ -178,14 +186,16 @@ export const ViewTask = () => {
     if (receivedMessages.length > 0) {
       const msg = receivedMessages[0]
       const payload = msg.data.payload
-      if (msg.data.type === 'INIT') {
+      if (!payload) return
+
+      if (msg.data.type === EnumMessageType.Init) {
         init(payload)
       }
-      if (msg.data.type === 'COMMON') {
+      if (msg.data.type === EnumMessageType.Update) {
         const message = JSON.parse(payload)
         if (message.success) {
-          vscode.postMessage<CloseMessage>({
-            type: 'CLOSE',
+          vscode.postMessage({
+            type: EnumMessageType.Close,
           })
         }
       }
@@ -520,7 +530,7 @@ export const ViewTask = () => {
 
           <div className="flex justify-center item-center">
             {isEditMode && (
-              <Button variant="contained" color="error">
+              <Button variant="contained" color="error" onClick={onDelete}>
                 Delete Task
               </Button>
             )}
