@@ -14,7 +14,10 @@
   "activationEvents": [
     "*"
   ],
-  "keywords": ["clickup", "click up"],
+  "keywords": [
+    "clickup",
+    "click up"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/scrummers/clickup-vscode"
@@ -59,8 +62,7 @@
         "icon": {
           "light": "resources/light/view.svg",
           "dark": "resources/dark/view.svg"
-        },
-        "when": "false"
+        }
       },
       {
         "command": "clickup.quickAddTask",
@@ -78,8 +80,7 @@
         "icon": {
           "light": "resources/light/tag.svg",
           "dark": "resources/dark/tag.svg"
-        },
-        "when": "false"
+        }
       },
       {
         "command": "clickup.updateStatus",
@@ -88,8 +89,7 @@
         "icon": {
           "light": "resources/light/complete.svg",
           "dark": "resources/dark/complete.svg"
-        },
-        "when": "false"
+        }
       },
       {
         "command": "clickup.assignTask",
@@ -98,14 +98,12 @@
         "icon": {
           "light": "resources/light/assign.svg",
           "dark": "resources/dark/assign.svg"
-        },
-        "when": "false"
+        }
       },
       {
         "command": "clickup.deleteTask",
         "category": "ClickUp",
-        "title": "Delete Task",
-        "when": "false"
+        "title": "Delete Task"
       },
       {
         "command": "clickup.editTask",
@@ -114,8 +112,7 @@
         "icon": {
           "light": "resources/light/edit.svg",
           "dark": "resources/dark/edit.svg"
-        },
-        "when": "false"
+        }
       },
       {
         "command": "clickup.refresh",
@@ -144,6 +141,16 @@
     },
     "menus": {
       "commandPalette": [
+        {
+          "command": "clickup.refresh",
+          "title": "Refresh",
+          "category": "ClickUp",
+          "icon": {
+            "light": "resources/light/refresh.svg",
+            "dark": "resources/dark/refresh.svg"
+          },
+          "when": "false"
+        },
         {
           "command": "clickup.account",
           "category": "ClickUp",
@@ -283,7 +290,10 @@
         "id": "quickStart",
         "title": "Get started with ClickItUp",
         "description": "Set up your ClickUp VSCode extension.",
-        "media": { "image": "resources/logo.png", "altText": "ClickItUp" },
+        "media": {
+          "image": "resources/logo.png",
+          "altText": "ClickItUp"
+        },
         "steps": [
           {
             "id": "setClickUpApiToken",

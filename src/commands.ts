@@ -99,6 +99,9 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
     commands.registerCommand(Commands.ClickupAddTask, async () => {
       try {
+        if (!client.isTokenExist()) {
+          throw new Error('The API token not yet set')
+        }
 
         ViewLoader.currentPanel?.dispose()
 
@@ -235,6 +238,10 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     }),
     commands.registerCommand(Commands.ClickupQuickAddTask, async (item?: TaskItem | CodelensCreateTask) => {
       try {
+        if (!client.isTokenExist()) {
+          throw new Error('The API token not yet set')
+        }
+
         let listId = ''
         let isSecondLevel = false
         let isToday = false
@@ -345,7 +352,7 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         if (client.isTokenExist()) {
           throw new Error('API Token is added already')
         }
-        
+
         const input = await window
           .showInputBox({
             title: 'Please enter your ClickUp API token to access the ClickUp service',
@@ -425,6 +432,10 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     // }),
     commands.registerCommand(Commands.ClickupSelectWorkspace, async () => {
       try {
+        if (!client.isTokenExist()) {
+          throw new Error('The API token not yet set')
+        }
+
         const workspaces = await client.service.getTeams()
         const options = workspaces.map((ws) => ({
           label: ws.name,
