@@ -4,6 +4,7 @@
   "publisher": "scrummers",
   "description": "",
   "version": "1.0.0",
+  "icon": "resources/logo.png",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -282,6 +283,7 @@
         "id": "quickStart",
         "title": "Get started with ClickItUp",
         "description": "Set up your ClickUp VSCode extension.",
+        "media": { "image": "resources/logo.png", "altText": "ClickItUp" },
         "steps": [
           {
             "id": "setClickUpApiToken",
@@ -291,7 +293,7 @@
               "onCommand:clickup.setToken"
             ],
             "media": {
-              "image": "src/assets/gif/demo_get_token.gif",
+              "image": "resources/gif/demo_get_token.gif",
               "altText": "Finding your ClickUp API Token."
             }
           },
@@ -301,7 +303,7 @@
             "description": "Select a ClickUp Space you would like to work with.\nYou can only have one active Space at a time.\n[Select a Space](command:clickup.selectWorkspace)",
             "completionEvents": [],
             "media": {
-              "image": "src/assets/gif/demo_set_user.gif",
+              "image": "resources/gif/demo_set_user.gif",
               "altText": "Finding your ClickUp API Token."
             }
           },
@@ -313,7 +315,7 @@
               "onCommand:clickup.clickUp.addTask"
             ],
             "media": {
-              "image": "src/assets/gif/demo_set_user.gif",
+              "image": "resources/gif/demo_set_user.gif",
               "altText": "Finding your ClickUp API Token."
             }
           },
@@ -323,7 +325,7 @@
             "description": "You're all set! You can now start using the extension.",
             "completionEvents": [],
             "media": {
-              "image": "src/assets/gif/demo_set_user.gif",
+              "image": "resources/gif/demo_set_user.gif",
               "altText": "Finding your ClickUp API Token."
             }
           }
