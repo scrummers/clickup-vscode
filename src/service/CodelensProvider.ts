@@ -1,8 +1,8 @@
+import path from 'path';
 import * as vscode from 'vscode';
+import { Commands } from '../commands';
+import { CodelensCreateTask } from '../util/typings/system';
 
-/**
- * CodelensProvider
- */
 export class CodelensProvider implements vscode.CodeLensProvider {
 
     private codeLenses: vscode.CodeLens[] = [];
@@ -11,7 +11,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
     public readonly onDidChangeCodeLenses: vscode.Event<void> = this._onDidChangeCodeLenses.event;
     private enable: boolean;
     constructor() {
-        this.regex = /CTODO \{(.+)\}/g; //Search CTODO {taskname}
+        this.regex = /todo:\s(.+)/g; // Search todo {taskname}
 
         vscode.workspace.onDidChangeConfiguration((_) => {
             this._onDidChangeCodeLenses.fire();
@@ -25,25 +25,46 @@ export class CodelensProvider implements vscode.CodeLensProvider {
             this.codeLenses = [];
             const regex = new RegExp(this.regex);
             const text = document.getText();
+
             let matches;
             while ((matches = regex.exec(text)) !== null) {
                 const taskname = matches[1];
-                const match_line = document.positionAt(matches.index).line;     
-                const file_path  = document.uri.path;       
+
+                const taskIdMatch = taskname.match(/#(.+)$/g)
+                const taskId = taskIdMatch ? taskIdMatch[0].substring(1) : ''
+
+                const matchedLine = document.positionAt(matches.index).line;
+                // const filePath = document.uri.path;
                 const line = document.lineAt(document.positionAt(matches.index).line);
                 const indexOf = line.text.indexOf(matches[0]);
                 const position = new vscode.Position(line.lineNumber, indexOf);
                 const range = document.getWordRangeAtPosition(position, new RegExp(this.regex));
-                const pass_argv={match_line, taskname, file_path};
+
                 if (range) {
-                    var codeLen_Obj = new vscode.CodeLens(range);
-                    codeLen_Obj.command = {
-                        title: "Add Task: " + taskname,
-                        tooltip: "Click to add Task",
-                        command: "clickup.testing",
-                        arguments: [pass_argv, false]
-                    };
-                    this.codeLenses.push(codeLen_Obj);
+                    const codeLens = new vscode.CodeLens(range);
+                    if (taskId) {
+                        codeLens.command = {
+                            title: `View ClickUp Task #${taskId}`,
+                            // tooltip: "Click to View ClickUp Task",
+                            command: Commands.ClickupViewTask,
+                            arguments: [{
+                                taskId
+                            }, false]
+                        };
+                    } else {
+                        codeLens.command = {
+                            title: "Add ClickUp Task: " + taskname,
+                            tooltip: "Click to Create Task",
+                            command: Commands.ClickupQuickAddTask,
+                            arguments: [{
+                                matchedLine,
+                                taskname,
+                                position,
+                                line,
+                            } as CodelensCreateTask, false]
+                        };
+                    }
+                    this.codeLenses.push(codeLens);
                 }
             }
             return this.codeLenses;
@@ -51,24 +72,24 @@ export class CodelensProvider implements vscode.CodeLensProvider {
         return [];
     }
 
-    public codeLensEnable(){
+    public codeLensEnable() {
         this.enable = true;
     }
-    public codeLensDisable(){
+    public codeLensDisable() {
         this.enable = false;
-    }    
-/*
-    public resolveCodeLens(codeLens: vscode.CodeLens, token: vscode.CancellationToken) {
-        if (vscode.workspace.getConfiguration("codelens-sample").get("enableCodeLens", true)) {
-            codeLens.command = {
-                title: "Codelens CTODO MATCHED",
-                tooltip: "Tooltip provided by sample extension",
-                command: "clickup.testing",
-                arguments: ["Argument 1", false]
-            };
-            return codeLens;
-        }
-        return null;
     }
-*/
+    /*
+        public resolveCodeLens(codeLens: vscode.CodeLens, token: vscode.CancellationToken) {
+            if (vscode.workspace.getConfiguration("codelens-sample").get("enableCodeLens", true)) {
+                codeLens.command = {
+                    title: "Codelens CTODO MATCHED",
+                    tooltip: "Tooltip provided by sample extension",
+                    command: "clickup.testing",
+                    arguments: ["Argument 1", false]
+                };
+                return codeLens;
+            }
+            return null;
+        }
+    */
 }

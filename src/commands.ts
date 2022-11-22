@@ -1,13 +1,11 @@
-import { commands, ExtensionContext, TreeItemCollapsibleState, window } from 'vscode'
+import { commands, ExtensionContext, Position, Range, window } from 'vscode'
 import { Client } from './clients/Client'
-import { LocalStorageService } from './service/local_storage_service'
 import { TaskItem } from './service/TreeView/TaskTreeView'
-import { AppState } from './store'
-import { INIT } from './util/const'
-import { getUtcTodayEnd, getUtcTodayStart } from './util/helper'
-import { ApiNewTaskSchema, EnumTodoLabel, EnumTreeLevel, Task } from './util/typings/clickup'
 import { ViewLoader } from './service/WebView/ViewLoader'
-import { EnumInitWebRoute } from './util/typings/system'
+import { AppState } from './store'
+import { getUtcTodayEnd, getUtcTodayStart } from './util/helper'
+import { EnumTodoLabel, EnumTreeLevel, Task } from './util/typings/clickup'
+import { CodelensCreateTask, EnumButtonAction, EnumInitWebRoute } from './util/typings/system'
 
 export enum Commands {
   // temp
@@ -45,19 +43,25 @@ export enum Commands {
 export function registerCommands(vscodeContext: ExtensionContext, client: Client) {
   vscodeContext.subscriptions.push(
     /** Web View */
-    commands.registerCommand(Commands.ClickupViewTask, async (item: TaskItem) => {
+    commands.registerCommand(Commands.ClickupViewTask, async (item: TaskItem | { taskId: string }) => {
       try {
-        const { taskId, listId } = item
-        if (!listId || !taskId || !item) return
+        if (!item || !item.taskId) return
 
         ViewLoader.currentPanel?.dispose()
 
+        const task = await client.getTaskById(item.taskId)
+
+        if (!task) {
+          throw new Error('Task not found')
+        }
+
         const data = {
-          task: await client.stateGetTaskData(listId, taskId),
+          // task: await client.stateGetTaskData(listId, taskId),
+          task,
           teams: client.getAppState.spaceMembers,
           lists: client.getAppState.spaceList,
           // teams: await client.stateGetListMembers(listId),
-          statuses: await client.stateGetListStatus(listId),
+          statuses: await client.stateGetListStatus(task!.list.id),
           // lists: await client.stateGetSpaceList(),
           // priorities: await client.stateGetProrities()
           tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
@@ -207,13 +211,31 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
       }
 
     }),
-    commands.registerCommand(Commands.ClickupQuickAddTask, async (item?: TaskItem) => {
+    commands.registerCommand(Commands.ClickupQuickAddTask, async (item?: TaskItem | CodelensCreateTask) => {
       try {
-        let listId = item && item.listId
-        const isSecondLevel = item && item.itemLevel === EnumTreeLevel.Second
-        const isToday = isSecondLevel && item.label === EnumTodoLabel.today
-        // i.e. if label is 'today', 'overdue',, then is classify to my task by default
-        const isTodoCategory = isSecondLevel && (Object.values(EnumTodoLabel) as string[]).includes(item.label)
+        let listId = ''
+        let isSecondLevel = false
+        let isToday = false
+        let isTodoCategory = false
+        let taskInput = ''
+        let codeLensProp: CodelensCreateTask | null = null
+
+        if (item && 'listId' in item) {
+          listId = item && item.listId ? '' : ''
+        }
+        if (item && 'itemLevel' in item) {
+          isSecondLevel = item && item.itemLevel === EnumTreeLevel.Second
+        }
+        if (item && 'label' in item) {
+          // i.e. if label is 'today', 'overdue',, then is classify to my task by default
+          isToday = isSecondLevel && item.label === EnumTodoLabel.today
+          isTodoCategory = isSecondLevel && (Object.values(EnumTodoLabel) as string[]).includes(item.label)
+        }
+
+        if (item && 'taskname' in item && 'matchedLine' in item && 'line' in item && 'position' in item) {
+          codeLensProp = { ...item }
+          taskInput = item.taskname
+        }
 
         if (!listId) {
           const spaceList = AppState.spaceList
@@ -238,19 +260,24 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
 
         if (!listId) return
 
-        const taskInput = await window.showInputBox({
-          placeHolder: 'Task name @[date] #[tags] %[assignee]',
-          title: `Please enter a task name`,
-          ignoreFocusOut: true,
-        })
 
         if (!taskInput) {
-          window.showInformationMessage("Cancelled")
-          return
+          const input = await window.showInputBox({
+            placeHolder: 'Task name @[date] #[tags] %[assignee]',
+            title: `Please enter a task name`,
+            ignoreFocusOut: true,
+          })
+
+          if (!input) {
+            window.showInformationMessage("Cancelled")
+            return
+          }
+
+          taskInput = input
         }
 
         const data: any = {
-          ...INIT.newTask,
+          // ...INIT.newTask,
           name: taskInput,
           description: 'new task ddesc',
           // priority: 2,
@@ -272,14 +299,14 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         }
 
         const task = await client.createNewTask(listId, data)
-        // console.log('new task', task, data)
 
-        // if (item) {
-        //   item.addChild(new TaskItem(task.name, task, EnumTreeLevel.Third))
-        //   commands.executeCommand(Commands.ClickupRefresh, false, item)
-        // } else {
-        //   commands.executeCommand(Commands.ClickupRefresh)
-        // }
+        if (codeLensProp !== null && window.activeTextEditor) {
+          window.activeTextEditor.edit(editbuilder => {
+            const newCode = codeLensProp!.line.text + ` #${task.id}`
+
+            editbuilder.replace(new Range(new Position(codeLensProp!.matchedLine, 0), codeLensProp!.line.range.end), newCode)
+          })
+        }
 
         commands.executeCommand(Commands.ClickupRefresh)
 
@@ -287,9 +314,10 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           ### Task Create Success!
         `
 
-        // TODO: reload tree view
-        const action = await window.showInformationMessage(message, ...['Open Task', 'OK'])
-        // console.log({ action })
+        const action = await window.showInformationMessage(message, ...[EnumButtonAction.OpenTask, EnumButtonAction.Ok])
+        if (action == EnumButtonAction.OpenTask) {
+          commands.executeCommand(Commands.ClickupViewTask, { taskId: task.id })
+        }
       } catch (err) {
         window.showErrorMessage(err.message)
       }

@@ -308,8 +308,7 @@ export class Client {
   async getTaskById(taskId: string) {
     try {
       this.setIsLoading(true)
-      const resp = await this.service.getTask(taskId)
-      console.log(resp)
+      return await this.service.getTask(taskId)
     } catch (err) {
       console.error(err)
     } finally {
