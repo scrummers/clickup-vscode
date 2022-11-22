@@ -1,9 +1,9 @@
 {
-  "name": "scrummer",
-  "displayName": "scrummer",
-  "publisher": "scrummer",
+  "name": "clickitup",
+  "displayName": "ClickItUp",
+  "publisher": "scrummers",
   "description": "",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -11,9 +11,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:clickup.itemClick",
     "*"
   ],
+  "keywords": ["clickup", "click up"],
   "repository": {
     "type": "git",
     "url": "https://github.com/scrummers/clickup-vscode"
@@ -23,41 +23,42 @@
     "commands": [
       {
         "command": "clickup.selectWorkspace",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Select Workspace"
       },
       {
         "command": "clickup.setToken",
-        "category": "Click Up",
-        "title": "Set Click Up Token"
+        "category": "ClickUp",
+        "title": "Set ClickUp Token"
       },
       {
         "command": "clickup.deleteToken",
-        "category": "Click Up",
-        "title": "Delete Click Up Token"
+        "category": "ClickUp",
+        "title": "Delete ClickUp Token"
       },
       {
         "command": "clickup.updateToken",
-        "category": "Click Up",
-        "title": "Edit Click Up Token"
+        "category": "ClickUp",
+        "title": "Edit ClickUp Token"
       },
       {
         "command": "clickup.addTask",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Add Task"
       },
       {
         "command": "clickup.viewTask",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "View Task",
         "icon": {
           "light": "resources/light/view.svg",
           "dark": "resources/dark/view.svg"
-        }
+        },
+        "when": "false"
       },
       {
         "command": "clickup.quickAddTask",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Quick Add Task",
         "icon": {
           "light": "resources/light/new.svg",
@@ -66,78 +67,67 @@
       },
       {
         "command": "clickup.updateTags",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Set Tags",
         "icon": {
           "light": "resources/light/tag.svg",
           "dark": "resources/dark/tag.svg"
-        }
+        },
+        "when": "false"
       },
       {
         "command": "clickup.updateStatus",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Change Status",
         "icon": {
           "light": "resources/light/complete.svg",
           "dark": "resources/dark/complete.svg"
-        }
+        },
+        "when": "false"
       },
       {
         "command": "clickup.assignTask",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Assign To",
         "icon": {
           "light": "resources/light/assign.svg",
           "dark": "resources/dark/assign.svg"
-        }
+        },
+        "when": "false"
       },
       {
         "command": "clickup.deleteTask",
-        "category": "Click Up",
-        "title": "Delete Task"
+        "category": "ClickUp",
+        "title": "Delete Task",
+        "when": "false"
       },
       {
         "command": "clickup.editTask",
-        "category": "Click Up",
+        "category": "ClickUp",
         "title": "Edit Task",
         "icon": {
           "light": "resources/light/edit.svg",
           "dark": "resources/dark/edit.svg"
-        }
-      },
-      {
-        "command": "clickup.getStorageData",
-        "category": "Click Up",
-        "title": "Get storage data"
+        },
+        "when": "false"
       },
       {
         "command": "clickup.refresh",
-        "title": "Click Up",
+        "title": "Refresh",
+        "category": "ClickUp",
         "icon": {
           "light": "resources/light/refresh.svg",
           "dark": "resources/dark/refresh.svg"
         }
-      },
-      {
-        "command": "clickup.codelentest",
-        "category": "Click Up",
-        "title": "TEST: Codelen disable"
-      },
-      {
-        "command": "clickup.getMyData",
-        "category": "Click Up",
-        "title": "Get My Data"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "clickup-explorer",
-          "title": "Clickup",
-          "icon": "media/to_do_list.svg"
-        }
-      ]
-    },
+    "keybindings": [
+      {
+        "command": "clickup.quickAddTask",
+        "key": "shift+alt+n",
+        "mac": "shift+alt+n"
+      }
+    ],
     "views": {
       "explorer": [
         {
@@ -147,6 +137,96 @@
       ]
     },
     "menus": {
+      "commandPalette": [
+        {
+          "command": "clickup.setToken",
+          "category": "ClickUp",
+          "title": "Set ClickUp Token",
+          "when": "false"
+        },
+        {
+          "command": "clickup.deleteToken",
+          "category": "ClickUp",
+          "title": "Delete ClickUp Token",
+          "when": "false"
+        },
+        {
+          "command": "clickup.updateToken",
+          "category": "ClickUp",
+          "title": "Edit ClickUp Token",
+          "when": "false"
+        },
+        {
+          "command": "clickup.addTask",
+          "category": "ClickUp",
+          "title": "Add Task"
+        },
+        {
+          "command": "clickup.viewTask",
+          "category": "ClickUp",
+          "title": "View Task",
+          "icon": {
+            "light": "resources/light/view.svg",
+            "dark": "resources/dark/view.svg"
+          },
+          "when": "false"
+        },
+        {
+          "command": "clickup.quickAddTask",
+          "category": "ClickUp",
+          "title": "Quick Add Task",
+          "icon": {
+            "light": "resources/light/new.svg",
+            "dark": "resources/dark/new.svg"
+          }
+        },
+        {
+          "command": "clickup.updateTags",
+          "category": "ClickUp",
+          "title": "Set Tags",
+          "icon": {
+            "light": "resources/light/tag.svg",
+            "dark": "resources/dark/tag.svg"
+          },
+          "when": "false"
+        },
+        {
+          "command": "clickup.updateStatus",
+          "category": "ClickUp",
+          "title": "Change Status",
+          "icon": {
+            "light": "resources/light/complete.svg",
+            "dark": "resources/dark/complete.svg"
+          },
+          "when": "false"
+        },
+        {
+          "command": "clickup.assignTask",
+          "category": "ClickUp",
+          "title": "Assign To",
+          "icon": {
+            "light": "resources/light/assign.svg",
+            "dark": "resources/dark/assign.svg"
+          },
+          "when": "false"
+        },
+        {
+          "command": "clickup.deleteTask",
+          "category": "ClickUp",
+          "title": "Delete Task",
+          "when": "false"
+        },
+        {
+          "command": "clickup.editTask",
+          "category": "ClickUp",
+          "title": "Edit Task",
+          "icon": {
+            "light": "resources/light/edit.svg",
+            "dark": "resources/dark/edit.svg"
+          },
+          "when": "false"
+        }
+      ],
       "view/title": [
         {
           "command": "clickup.refresh",
@@ -190,7 +270,7 @@
       {
         "id": "quickStart",
         "title": "Get started with ClickItUp",
-        "description": "Set up your Scrummer ClickUp VSCode extension.",
+        "description": "Set up your ClickUp VSCode extension.",
         "steps": [
           {
             "id": "setClickUpApiToken",
