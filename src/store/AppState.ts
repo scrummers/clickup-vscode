@@ -9,8 +9,7 @@ class AppStateChangeEventEmitter extends EventEmitter<void> {
 
 export let appStateChangeEventEmitter: AppStateChangeEventEmitter = new AppStateChangeEventEmitter()
 
-const initAppState = {
-  clickup: null,
+export const initAppState = {
   crntWorkspace: null,
   crntSpace: null,
   crntWorkspaceId: '',
@@ -25,7 +24,6 @@ const initAppState = {
 }
 
 export type TAppState = {
-  clickup: ClickupState | null
   crntWorkspace: Teams | null
   crntSpace: SpaceLListFile | null
   crntSpaceId: string
@@ -36,6 +34,12 @@ export type TAppState = {
   listMembers: User[]
   me: User | null
   isLoading: Boolean
+}
+
+export const resetState = () => {
+  AppState = {
+    ...initAppState
+  }
 }
 
 export let AppState: TAppState = {

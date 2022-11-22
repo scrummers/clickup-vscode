@@ -90,7 +90,6 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
           tags: await client.stateGetSpaceTags(AppState.crntSpaceId),
           priorities: client.getAppState.spacePriorities,
         }
-        // console.log({ data })
 
         ViewLoader.showWebview(vscodeContext, EnumInitWebRoute.ViewTask, data);
       } catch (err) {
@@ -343,6 +342,10 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
     }),
     commands.registerCommand(Commands.ClickupSetToken, async () => {
       try {
+        if (client.isTokenExist()) {
+          throw new Error('API Token is added already')
+        }
+        
         const input = await window
           .showInputBox({
             title: 'Please enter your ClickUp API token to access the ClickUp service',
@@ -357,6 +360,10 @@ export function registerCommands(vscodeContext: ExtensionContext, client: Client
         window.showInformationMessage('Login Success')
 
       } catch (err) {
+        if (err.message) {
+          window.showErrorMessage(err.message)
+          return
+        }
         window.showErrorMessage('Invalid API token')
         // const actions = await window.showInformationMessage('Read our user guide', ...['Now', 'No thanks'])
         // if (actions === 'Now') {

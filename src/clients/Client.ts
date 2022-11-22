@@ -5,15 +5,16 @@ import { CodelensService } from '../service/CodelensService'
 import { LocalStorageService } from '../service/LocalStorage'
 import { StatusBarService } from '../service/StatusBar'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
-import { TaskItem } from '../service/TreeView/TaskTreeView'
+import { TaskItem, TaskTreeView } from '../service/TreeView/TaskTreeView'
 import { AppState, appStateChangeEventEmitter } from '../store'
-import { TAppState } from '../store/AppState'
+import { resetState, TAppState } from '../store/AppState'
 import { ApiNewTaskSchema, ApiUpdateTaskSchema, EnumTodoLabel, Priority, SpaceLListFile, StateSpaceList, Status, Tag, Task, TaskTreeViewData, Teams, User } from '../util/typings/clickup'
 import { EnumLocalStorage } from '../util/typings/system'
 
 let instance: Client | null = null
 
 export class Client {
+  public treeData!: TaskTreeView
   private codelens?: CodelensService
   private statusBar?: StatusBarService
   public service!: ClickUpService
@@ -60,14 +61,16 @@ export class Client {
           id: string
         }
 
-        if (!crntSpace) {
-          commands.executeCommand(Commands.ClickupSelectWorkspace)
-        }
-
         const crntWorkspace = this.storage.getValue(EnumLocalStorage.CrntWorkspace) as Teams
+
+        if (!crntSpace || !crntWorkspace) {
+          commands.executeCommand(Commands.ClickupSelectWorkspace)
+          return
+        }
         // if (!crntWorkspace) {
         //   crntWorkspace = await this.service.getTeams()
         // }
+        console.log(crntWorkspace, crntSpace)
         this.stateGetWorkspace(crntWorkspace.id)
 
         await this.setupTreeView(crntSpace.id)
@@ -113,24 +116,31 @@ export class Client {
 
     if (!treeData) return
 
-    this.tree = window.createTreeView('clickup-tasks', {
-      treeDataProvider: new TreeViewDataProvider.TaskTreeView(treeData),
-      showCollapseAll: false,
-    })
-    this.tree.onDidChangeSelection(e => {
-      // console.log(e)
-    })
-    this.tree.onDidCollapseElement(e => {
-      // console.log(e); // breakpoint here for debug
-    });
-    this.tree.onDidChangeVisibility(e => {
-      // console.log(e); // breakpoint here for debug
-    });
-    this.tree.onDidExpandElement(e => {
-      // console.log(e); // breakpoint here for debug
-    });
 
-    this.context.subscriptions.push(this.tree);
+    if (!this.tree && !this.treeData) {
+      this.treeData = new TreeViewDataProvider.TaskTreeView(treeData)
+      this.tree = window.createTreeView('clickup-tasks', {
+        treeDataProvider: this.treeData,
+        showCollapseAll: false,
+      })
+
+      // this.tree.onDidChangeSelection(e => {
+      //   // console.log(e)
+      // })
+      // this.tree.onDidCollapseElement(e => {
+      //   // console.log(e); // breakpoint here for debug
+      // });
+      // this.tree.onDidChangeVisibility(e => {
+      //   // console.log(e); // breakpoint here for debug
+      // });
+      // this.tree.onDidExpandElement(e => {
+      //   // console.log(e); // breakpoint here for debug
+      // });
+      this.context.subscriptions.push(this.tree);
+    } else {
+      this.treeData.reload(treeData)
+    }
+
 
 
 
@@ -322,8 +332,8 @@ export class Client {
   // remove all data once token is deleted
   deleteToken() {
     this.storage.clearAll()
-    AppState.crntSpace = null
-    AppState.me = null
+    resetState()
+    this.treeData.reset()
     appStateChangeEventEmitter.fire()
   }
 
@@ -466,6 +476,7 @@ export class Client {
 
   stateUpdateTeams(team: Teams) {
     AppState.crntWorkspace = team
+    AppState.spaceMembers = team.members.map((i) => i.user)
     this.storage.setValue(EnumLocalStorage.CrntWorkspace, {
       id: team.id,
       team: team.name

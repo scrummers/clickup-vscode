@@ -58,6 +58,11 @@ class LoadingStatusBarItem extends CustomStatusBarItem {
   }
 
   public update(): void {
+    if (!AppState.me) {
+      this.hide()
+      return
+    }
+
     if (AppState.isLoading) {
       this.setText('$(loading~spin) ClickUp: Loading...')
       this.show()

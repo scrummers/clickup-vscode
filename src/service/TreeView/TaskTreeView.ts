@@ -50,6 +50,16 @@ export class TaskTreeView implements vscode.TreeDataProvider<TaskItem> {
     return element
   }
 
+  reset() {
+    this.data = []
+    this._onDidChangeTreeData.fire(undefined);
+  }
+
+  reload(taskData: TaskData[]) {
+    this.data = this.buildTaskItem(taskData)
+    this._onDidChangeTreeData.fire(undefined);
+  }
+
   getChildren(element?: TaskItem): vscode.ProviderResult<TaskItem[]> {
     if (element === undefined) {
       return this.data
@@ -141,8 +151,8 @@ export class TaskItem extends vscode.TreeItem {
     const dueDate = task.due_date === null ? 'No Due Date' : getDate(+task.due_date)
     this.description = `${task.status.status} ${tags}`
 
-    const taskAssigneeNames = task.assignees.map((a) => a.username).join(',')
-    this.tooltip = `Assigned to: ${taskAssigneeNames || 'No One' } | Due: ${dueDate}`
+    const taskAssigneeNames = task.assignees.map((a) => a.username).join(', ')
+    this.tooltip = `#${task.id}, Assigned to: ${taskAssigneeNames || 'No One'} (Due: ${dueDate})`
     this.tags = task.tags.map((t) => t.name)
     this.taskId = task.id
     this.listId = task.list.id
