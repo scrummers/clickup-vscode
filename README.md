@@ -27,7 +27,7 @@ Initial release
 
 
 ## For more information
-Please see our software user guide
+Please see our [software user guide](https://github.com/scrummers/clickup-vscode/blob/main/ClickUp_extension_UserGuide_V0.1.pdf)
 
 
 **Enjoy!**
