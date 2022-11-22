@@ -1,5 +1,5 @@
 import { commands, ExtensionContext, ThemeIcon, TreeView, window } from 'vscode'
-import { Commands } from '../commands'
+import { Commands, registerCommands } from '../commands'
 import { ClickUpService } from '../service/click_up_service'
 import { LocalStorageService } from '../service/local_storage_service'
 import { EnumTreeView, TreeViewDataProvider } from '../service/TreeView'
@@ -29,6 +29,7 @@ export class Client {
     }
 
     this.context = context
+    registerCommands(context, this)
 
     this.storage = new LocalStorageService(context.workspaceState)
     const token = this.storage.getValue(EnumLocalStorage.Token) as string
@@ -276,6 +277,18 @@ export class Client {
 
       return this.updateTask(taskId, data)
     } catch (err) {
+      this.setIsLoading(false)
+    }
+  }
+
+  async deleteTask(taskId: string) {
+    try {
+      this.setIsLoading(true)
+      const resp = await this.service.deleteTask(taskId)
+      return resp
+    } catch (err) {
+      console.error(err)
+    } finally {
       this.setIsLoading(false)
     }
   }

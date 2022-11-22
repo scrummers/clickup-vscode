@@ -158,7 +158,6 @@ export const ViewTask = () => {
 
   const init = (initData: string) => {
     const data = JSON.parse(initData)
-    console.log(data)
     setTask(data.task)
     setUpdatedTask(data.task)
 
