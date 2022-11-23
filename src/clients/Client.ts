@@ -14,6 +14,7 @@ import { EnumLocalStorage } from '../util/typings/system'
 let instance: Client | null = null
 
 export class Client {
+  private token: string = ''
   public treeData!: TaskTreeView
   private codelens?: CodelensService
   private statusBar?: StatusBarService
@@ -36,6 +37,10 @@ export class Client {
     this.context = context
     registerCommands(context, this)
 
+    if (!this.statusBar) {
+      this.statusBar = new StatusBarService()
+    }
+
     this.storage = new LocalStorageService(context.workspaceState)
     const token = this.storage.getValue(EnumLocalStorage.Token) as string
     if (!token) {
@@ -49,10 +54,12 @@ export class Client {
   async init(token: string): Promise<User> {
     return new Promise(async (resolve, reject) => {
       try {
-        this.setIsLoading(true)
+        // this.setIsLoading(true)
         const service = new ClickUpService()
         const me = await service.setup(token)
         this.service = service
+        this.storage.setValue(EnumLocalStorage.Token, token)
+        this.token = token
         this.stateUpdateMe(me)
 
         // init space environment
@@ -70,17 +77,16 @@ export class Client {
         // if (!crntWorkspace) {
         //   crntWorkspace = await this.service.getTeams()
         // }
-        console.log(crntWorkspace, crntSpace)
         this.stateGetWorkspace(crntWorkspace.id)
 
         await this.setupTreeView(crntSpace.id)
         this.initProviderService()
 
-        this.setIsLoading(false)
+        // this.setIsLoading(false)
         // update state
         resolve(me)
       } catch (err) {
-        this.setIsLoading(false)
+        // this.setIsLoading(false)
         reject(err)
       }
     })
@@ -96,9 +102,6 @@ export class Client {
   }
 
   async initProviderService() {
-    if (!this.statusBar) {
-      this.statusBar = new StatusBarService()
-    }
     if (!this.codelens) {
       this.codelens = new CodelensService();
       languages.registerCodeLensProvider("*", this.codelens);
@@ -154,15 +157,16 @@ export class Client {
 
   // token
   isTokenExist(): boolean {
-    return !!this.storage.getValue(EnumLocalStorage.Token)
+    return !!this.token
+    // return !!this.storage.getValue(EnumLocalStorage.Token)
   }
 
   async setToken(token: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
         const me = await this.init(token)
+        this.token = token
         this.stateUpdateMe(me)
-        this.storage.setValue(EnumLocalStorage.Token, token)
         resolve()
       } catch (err) {
         reject(err)
@@ -224,7 +228,6 @@ export class Client {
       ]
 
     } catch (err) {
-      console.error(err)
     }
   }
 
@@ -236,7 +239,6 @@ export class Client {
       // console.log({ resp })
       return resp
     } catch (err) {
-      console.error(err)
     } finally {
       this.setIsLoading(false)
     }
@@ -299,7 +301,6 @@ export class Client {
       const resp = await this.service.deleteTask(taskId)
       return resp
     } catch (err) {
-      console.error(err)
     } finally {
       this.setIsLoading(false)
     }
@@ -311,7 +312,6 @@ export class Client {
       const resp = await this.service.updateTask(taskId, data)
       return resp
     } catch (err) {
-      console.error(err)
     } finally {
       this.setIsLoading(false)
     }
@@ -322,7 +322,6 @@ export class Client {
       this.setIsLoading(true)
       return await this.service.getTask(taskId)
     } catch (err) {
-      console.error(err)
     } finally {
       this.setIsLoading(false)
     }
@@ -332,6 +331,7 @@ export class Client {
   // remove all data once token is deleted
   deleteToken() {
     this.storage.clearAll()
+    this.token = ''
     resetState()
     this.treeData.reset()
     appStateChangeEventEmitter.fire()
@@ -402,7 +402,7 @@ export class Client {
 
   async stateGetWorkspace(teamId: string) {
     try {
-      this.setIsLoading(true)
+      // this.setIsLoading(true)
       const allTeams = await this.service.getTeams()
       const team = allTeams.find((t) => t.id === teamId)
       const members = team?.members!.map((m) => m.user)
@@ -411,7 +411,7 @@ export class Client {
     } catch (err) {
 
     } finally {
-      this.setIsLoading(false)
+      // this.setIsLoading(false)
     }
   }
 

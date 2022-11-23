@@ -78,12 +78,6 @@ class UserStatusBarItem extends CustomStatusBarItem {
   }
 
   public update(): void {
-    // init stage
-    if (AppState.me === null && AppState.isLoading) {
-      this.hide()
-      return
-    }
-
     if (AppState.me !== null) {
       this.setText(`$(account) ${AppState.me?.username}`)
       this.setCommand(Commands.ClickupAccount)
@@ -104,7 +98,7 @@ class SpaceStatusBarItem extends CustomStatusBarItem {
 
   public update(): void {
     // init stage
-    if ((AppState.crntSpace === null && AppState.isLoading) || !AppState.me) {
+    if (AppState.isLoading) {
       this.hide()
       return
     }
