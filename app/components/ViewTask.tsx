@@ -88,7 +88,7 @@ export const ViewTask = () => {
   const onDelete = () => {
     vscode.postMessage({
       type: EnumMessageType.Delete,
-      payload: updatedTask?.id
+      payload: updatedTask?.id,
     })
   }
 

@@ -66,7 +66,7 @@ export class ViewLoader {
           case EnumMessageType.Update:
             try {
               if (!text) return
-              const oldTask: Task = JSON.parse(this.initData!).task
+              const oldTask: Task = this.initData!.task
               const newTask: Task = JSON.parse(text)
 
               const newTags = newTask.tags.map((t) => t.name)
@@ -120,6 +120,7 @@ export class ViewLoader {
               vscode.commands.executeCommand(Commands.ClickupRefresh)
               vscode.window.showInformationMessage(`Update Task Success`);
             } catch (err) {
+              vscode.window.showInformationMessage(`Unable to update Task`);
               ViewLoader.postMessageToWebview(EnumMessageType.Update, {
                 success: false
               })
