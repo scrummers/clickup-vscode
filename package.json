@@ -3,7 +3,7 @@
   "displayName": "ClickItUp",
   "publisher": "scrummers",
   "description": "",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "icon": "resources/logo.png",
   "engines": {
     "vscode": "^1.71.0"
@@ -344,9 +344,9 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "rm -rf ./out && npm run compile",
     "compile": "npm-run-all compile:*",
-    "compile:extension": "tsc -p ./",
+    "compile:extension": "webpack --config webpack.main.js",
     "compile:view": "webpack --mode development",
     "watch": "npm-run-all -p watch:*",
     "watch:extension": "tsc -watch -p ./",
